@@ -671,7 +671,7 @@ nav.bottom a{min-height:46px;border-radius:10px}
 .app,body.sess .app{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
 .qbackfab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion: reduce){:root:not([data-anim="on"]) *{transition:none!important;animation:none!important}}
 </style>
 
 <style>
@@ -942,7 +942,7 @@ body .cal-day.sel.today .num{background:var(--accent);color:#fff}
 body .cal-day.today .num{color:var(--accent)}
 body .dot.on{background:var(--accent)} body .dot.part{background:var(--warn)}
 body textarea#paste,body textarea#promptbox,body #rekap{border:1.5px solid var(--line);border-radius:14px;background:var(--fill2)}
-@media (prefers-reduced-motion:reduce){.ptile,.lcard,.dring .fg{transition:none}}
+@media (prefers-reduced-motion:reduce){:root:not([data-anim="on"]) :is(.ptile,.lcard,.dring .fg){transition:none}}
 @media (max-width:380px){.ptiles{gap:10px}.ptile.big{min-height:230px}.pkg b,.pkg span.s{padding-right:64px}}
 
 .pkg.t-lav2,.pkg.t-pink{color:var(--soft-ink)}
@@ -953,6 +953,11 @@ body textarea#paste,body textarea#promptbox,body #rekap{border:1.5px solid var(-
 .hd-back{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:6px 12px;text-decoration:none;margin-bottom:6px;white-space:nowrap}
 .hd-back svg{width:11px;height:11px}
 .hd-date2{font-size:12px;font-weight:600;color:var(--muted);margin-top:-8px}
+
+.hubrow{display:flex;margin-bottom:-6px}
+.resume{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--ink);border-radius:18px;padding:14px 16px}
+.resume b{font-size:14px;font-weight:800}
+.resume span{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1123,7 +1128,7 @@ const STMT=[
  {u:'MD-24',f:b=>{ const k=RN.int(2,5), m=RN.pick([2,3,5]); return {teks:'√'+(k*k*m)+' = '+(b?k:k+1)+'√'+m,alasan:'√'+(k*k*m)+' = √('+k*k+' × '+m+') = '+k+'√'+m}; }}
 ];
 function stmtSet(ctx,n,pat){
-  const pool=STMT.filter(s=>!ctx||!ctx.open||ctx.open.has(s.u)); if(pool.length<n) return null;
+  const has=u=>!ctx||!ctx.open||(Array.isArray(ctx.open)?ctx.open.includes(u):ctx.open.has(u)); const pool=STMT.filter(s=>has(s.u)); if(pool.length<n) return null;
   const picks=RN.shuf(pool).slice(0,n);
   return picks.map((s,i)=>{ const b=pat?!!pat[i]:RN.chance(.5); const o=s.f(b); return {teks:o.teks,benar:b,alasan:o.alasan}; });
 }
@@ -1522,7 +1527,7 @@ function srsOf(k){ return S.srs[k]||{due:0,int:0,n:0,ok:0}; }
 function rankGens(pool){ const now=Date.now(); const r=g=>{ const s=srsOf(g.key); if(s.n&&s.due<=now&&s.int===0) return 0; if(!s.n) return 1; if(s.due<=now) return 2; return 3; }; return shuffle(pool).sort((a,b)=>r(a)-r(b)); }
 function accUnit(u,src){ const h=S.hist.filter(x=>x.u===u&&(!src||src.includes(x.src))).slice(-30); return {n:h.length,p:pct(h.filter(x=>x.ok).length,h.length)}; }
 function mixFor(u,n){ const a=accUnit(u,['drill','paket','sim']); const w=a.n<5||a.p<80?[.4,.4,.2]:a.p<90?[.3,.4,.3]:[.2,.4,.4]; const L=Math.round(n*w[0]), H=Math.round(n*w[2]); return [L,n-L-H,H]; }
-function makeItem(g,ctx){ for(let t=0;t<40;t++){ const it=g.fn(ctx); if(it){ return Object.assign(it,{key:g.key,unit:g.unit,lvl:g.lvl,pola:g.pola,kind:g.kind,id:g.key+'-'+Math.random().toString(36).slice(2,8)}); } } return null; }
+function makeItem(g,ctx){ for(let t=0;t<40;t++){ let it=null; try{ it=g.fn(ctx); }catch(e){ return null; } if(it){ return Object.assign(it,{key:g.key,unit:g.unit,lvl:g.lvl,pola:g.pola,kind:g.kind,id:g.key+'-'+Math.random().toString(36).slice(2,8)}); } } return null; }
 function build(gens,n,ctx){ const out=[], seen=new Set(); let i=0, guard=0;
   while(out.length<n&&guard<n*6&&gens.length){ const g=gens[i%gens.length]; i++; guard++; const it=makeItem(g,ctx); if(it&&!seen.has(it.perintah)){ seen.add(it.perintah); out.push(it); } }
   return out; }
@@ -1585,6 +1590,8 @@ function bar(label,n,p,meta){ return '<div class="pbar"><div class="row"><span c
 
 /* ---------- Status tampilan ---------- */
 const V={run:null,kl:null,mat:{nav:{},q:''},bank:{text:'',check:null},cal:null,confirmEnd:false};
+const HUB='https://faiqdk07-tech.github.io/progres-harian/#hari-ini';
+const HUBBTN='<a class="hd-back" href="'+HUB+'"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 2.5L4 6l3.5 3.5"/></svg>Progres Harian</a>';
 const NAV=[
  ['beranda','Latihan','<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
  ['kalender','Kalender','<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
@@ -1612,8 +1619,9 @@ function polaCard(pid,meta){ const p=PMAP[pid], hh=S.hist.filter(x=>x.p===pid).s
 function viewBeranda(){
   const now=new Date(), c=conceptsOn(now), t=tasksOn(now), d=t.filter(x=>x.done).length, p=pct(d,t.length), h=histOn(now), open=openUnits(), u=UMAP[c.unit];
   const two=t.filter(x=>x.id==='unit'||x.id==='pola');
-  let o='<div class="hd"><h1>Latihan</h1><a class="hd-back" href="https://faiqdk07-tech.github.io/progres-harian/#hari-ini"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 2.5L4 6l3.5 3.5"/></svg>Progres Harian</a></div><div class="hd-date2">'+esc(now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'}))+'</div>';
+  let o='<div class="hd"><h1>Latihan</h1></div><div class="hd-date2">'+esc(now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'}))+'</div>';
   o+='<button type="button" class="who" data-action="mat" data-v="u:'+c.unit+'"><span class="flag">'+esc(unum(ulabel(c.unit)).split('–')[0])+'</span><span><b>'+esc(ulabel(c.unit))+' · '+esc(u.nama)+'</b><small>Unit hari ini · '+daysToUtbk()+' hari menuju UTBK</small></span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 4.5L6 7.5 9 4.5"/></svg></button>';
+  o+=resumeCard();
   o+='<section class="card dtask"><div class="dtop"><div class="dring" style="--p:'+(p/100).toFixed(3)+'"><svg viewBox="0 0 76 76" aria-hidden="true"><circle class="tr" cx="38" cy="38" r="32"/><circle class="fg" cx="38" cy="38" r="32"/></svg><b>'+p+'%</b></div><div><div class="dlbl">Tugas harian:</div><div class="dval">'+(d===t.length?'Semua tugas selesai!':'Selesaikan '+t.length+' tugas')+'</div><div class="dsub">'+d+' dari '+t.length+' selesai · '+h.length+' soal dikerjakan hari ini</div></div></div><div class="tlist">'+taskRows(t,true)+'</div>'+(two.every(x=>x.done)?'':'<button class="btn primary block" type="button" data-action="paket">Mulai paket harian · tugas 3–4</button>')+'</section>';
   const d0=new Date(); d0.setHours(0,0,0,0); const days=[]; for(let i=6;i>=0;i--){ const dd=new Date(d0); dd.setDate(d0.getDate()-i); days.push({d:dd,h:histOn(dd)}); }
   const mx7=Math.max(1,...days.map(x=>x.h.length)), tot=days.reduce((a,x)=>a+x.h.length,0), okn=days.reduce((a,x)=>a+x.h.filter(y=>y.ok).length,0);
@@ -1840,16 +1848,33 @@ function viewBank(){
   h+='<button class="btn primary block" type="button" data-action="savebank"'+(c&&!c.errs.length?'':' disabled')+'>Simpan ke bank</button></section>';
   h+='<div class="sh">Paket tersimpan</div>'+(S.bank.length?'<div class="group">'+S.bank.map(p=>{ const dn=new Set(S.pmh.filter(x=>x.pid===p.id).map(x=>x.n)).size; return '<div class="cell"><span class="txt"><span class="t1">'+esc(p.judul||p.id)+'</span><span class="t2">'+p.soal.length+' soal · '+esc(p.keluarga||'')+(dn?' · dikerjakan':'')+'</span></span><button class="obtn blue" type="button" data-action="pmid" data-v="'+esc(p.id)+'">Kerjakan</button><button class="obtn" type="button" data-action="delpm" data-v="'+esc(p.id)+'" aria-label="Hapus">Hapus</button></div>'; }).join('')+'</div>':'<div class="card empty">Belum ada paket.</div>');
   h+='<div class="sh">Pengaturan</div><section class="card"><div class="row"><span class="grow">Unit yang dipakai soal</span><div class="seg"><button type="button" aria-pressed="'+!S.semua+'" data-action="semua" data-v="0">Ikuti jadwal</button><button type="button" aria-pressed="'+S.semua+'" data-action="semua" data-v="1">Semua unit</button></div></div><div class="sub">Ikuti jadwal: hanya unit yang sudah dibuka di jadwal Interleaving ('+openUnits().length+' dari '+UNITS.length+' unit).</div>'+
+    '<div class="row"><span class="grow">Animasi</span><div class="seg"><button type="button" aria-pressed="'+(S.anim!=='on')+'" data-action="anim" data-v="auto">Ikuti perangkat</button><button type="button" aria-pressed="'+(S.anim==='on')+'" data-action="anim" data-v="on">Selalu nyala</button></div></div><div class="sub">Selalu nyala: gerakan tetap muncul walau Kurangi Gerakan di perangkat menyala.</div>'+
     '<div class="row"><span class="grow">Pemeriksaan jawaban</span><div class="seg"><button type="button" aria-pressed="'+(S.cek==='langsung')+'" data-action="cekset" data-v="langsung">Langsung</button><button type="button" aria-pressed="'+(S.cek==='akhir')+'" data-action="cekset" data-v="akhir">Di akhir</button></div></div>'+
     (V.bank.confirmReset?'<div class="actions"><button class="btn ghost" type="button" data-action="resetno">Batal</button><button class="btn danger" type="button" data-action="resetyes">Ya, hapus semua</button></div>':'<button class="btn danger" type="button" data-action="reset">Atur ulang data</button>')+'</section>';
   return h;
 }
 
+
+/* ---------- Sesi yang belum selesai disimpan otomatis ---------- */
+const SKEY='latihan-kuantitatif.sesi';
+function persistSesi(){ try{ const R=V.run&&!V.run.fin?V.run:null, K=V.kl&&!V.kl.done&&V.kl.res.length<V.kl.items.length?V.kl:null;
+  if(!R&&!K){ localStorage.removeItem(SKEY); return; }
+  const strip=r=>r?Object.assign({},r,{items:r.items.map(it=>{ const o=Object.assign({},it); if(o._p) o._p=o._p.id; return o; })}):null;
+  localStorage.setItem(SKEY,JSON.stringify({day:dayKey(Date.now()),run:strip(R),kl:K?Object.assign({},K,{_t:null,fb:null}):null})); }catch(e){} }
+function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null'); if(!o||o.day!==dayKey(Date.now())) return null;
+  if(o.run) o.run.items.forEach(it=>{ if(it._p) it._p=S.bank.find(p=>p.id===it._p)||{id:it._p,judul:'',stimulus:['(Teks paket sudah dihapus dari bank)'],tabel:null}; });
+  return o; }catch(e){ return null; } }
+const SAVED=loadSesi();
+function resumeCard(){ const o=SAVED; if(!o||(!o.run&&!o.kl)) return ''; if((o.run&&V.run)||(o.kl&&V.kl)) return '';
+  let h=''; if(o.run){ const a=o.run.A.filter((x,i)=>isAns(o.run.items[i],x)).length; h+='<button type="button" class="resume" data-action="resume" data-v="run"><b>Lanjutkan '+esc(o.run.label)+'</b><span>'+a+' dari '+o.run.items.length+' soal sudah terjawab · tersimpan otomatis</span></button>'; }
+  if(o.kl) h+='<button type="button" class="resume" data-action="resume" data-v="kl"><b>Lanjutkan hitung cepat</b><span>'+o.kl.res.length+' dari '+o.kl.items.length+' soal · tersimpan otomatis</span></button>';
+  return h; }
 /* ---------- Render dan aksi ---------- */
 function render(){
   const r=route(); if(r!=='materi') V.mat.from=null;
   const views={beranda:viewBeranda,kalender:viewKalender,materi:viewMateri,progres:viewProgres,bank:viewBank,soal:viewSoal,hasil:viewHasil,kilat:viewKilat};
-  $('#view').innerHTML=(views[r]||viewBeranda)(); renderNav();
+  const main=['beranda','kalender','materi','progres','bank'].includes(r)&&!(r==='materi'&&V.mat.from);
+  $('#view').innerHTML=(main?'<div class="hubrow">'+HUBBTN+'</div>':'')+(views[r]||viewBeranda)(); renderNav(); persistSesi();
   document.body.classList.toggle('sess',(r==='soal'&&!!V.run)||(r==='kilat'&&!!V.kl&&!V.kl.done));
   const h1=$('#view h1'); $('#topbar').textContent=h1?h1.textContent:''; onScrollTop(); taskWatch();
   if(r==='kilat'&&V.kl&&!V.kl.fb&&!V.kl.done){ const el=$('#klans'); if(el){ el.focus(); const v=el.value; el.value=''; el.value=v; } }
@@ -1858,13 +1883,16 @@ function render(){
 function taskWatch(){ const t=tasksOn(new Date()), ids=t.filter(x=>x.done).map(x=>x.id); if(V._td&&V._tk===dayKey(Date.now())){ const nw=t.filter(x=>x.done&&!V._td.includes(x.id)); if(nw.length) toast('✓ Tugas selesai: '+nw.map(x=>x.t).join(', ')+' ('+ids.length+'/'+t.length+')'); } V._td=ids; V._tk=dayKey(Date.now()); }
 function onScrollTop(){ const h1=$('#view h1'), tb=$('#topbar'); if(tb) tb.classList.toggle('on',!!h1&&h1.getBoundingClientRect().bottom<44); }
 window.addEventListener('scroll',onScrollTop,{passive:true});
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ persistSesi(); save(); } });
+window.addEventListener('pagehide',()=>{ persistSesi(); save(); });
 function go(h){ if(location.hash==='#'+h) render(); else location.hash='#'+h; window.scrollTo(0,0); }
 function runDrill(src,label,items,again){ startRun({id:src+Date.now(),src,label,items,started:Date.now(),again}); }
 setInterval(()=>{ const el=document.getElementById('kltime'); if(el&&V.kl&&!V.kl.fb) el.textContent=Math.floor((Date.now()-V.kl.t0)/1000)+' detik'; },500);
 
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-action]'); if(!b||/^(TEXTAREA|INPUT)$/.test(b.tagName)) return; const a=b.dataset.action, v=b.dataset.v;
-  if(a==='kilat'){ startKilat(); }
+  if(a==='resume'){ const o=SAVED; if(v==='run'&&o.run){ V.run=o.run; o.run=null; V.run.qStart=Date.now(); go('soal'); } else if(v==='kl'&&o.kl){ V.kl=o.kl; o.kl=null; V.kl.t0=Date.now(); go('kilat'); } }
+  else if(a==='kilat'){ startKilat(); }
   else if(a==='klcheck'){ kilatCheck(); }
   else if(a==='klnext'){ kilatNext(); }
   else if(a==='klneg'){ const K=V.kl; if(!K||K.fb) return; K.ans=K.ans.startsWith('-')?K.ans.slice(1):'-'+K.ans; render(); }
@@ -1907,6 +1935,7 @@ document.addEventListener('click',e=>{
   else if(a==='delpm'){ S.bank=S.bank.filter(p=>p.id!==v); save(); render(); toast('Paket dihapus'); }
   else if(a==='semua'){ S.semua=v==='1'; save(); render(); }
   else if(a==='cekset'){ S.cek=v; save(); render(); }
+  else if(a==='anim'){ S.anim=v==='on'?'on':'auto'; save(); applyAnim(); render(); toast(S.anim==='on'?'Animasi selalu nyala':'Animasi mengikuti pengaturan perangkat'); }
   else if(a==='reset'){ V.bank.confirmReset=true; render(); }
   else if(a==='resetno'){ V.bank.confirmReset=false; render(); }
   else if(a==='resetyes'){ S=fresh(); save(); V.bank={text:'',check:null}; V.run=null; V.kl=null; render(); toast('Data diatur ulang'); }
@@ -1929,6 +1958,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight') click('[data-action="qnext"]'); else if(e.key==='ArrowLeft') click('[data-action="qprev"]'); else if(k==='r') click('[data-action="qflag"]');
 });
 window.addEventListener('hashchange',()=>{ const r=route(); if(((r==='soal'||r==='hasil')&&!V.run)||(r==='kilat'&&!V.kl)){ location.hash='#beranda'; return; } render(); window.scrollTo(0,0); });
+function applyAnim(){ try{ if(S.anim==='on') document.documentElement.setAttribute('data-anim','on'); else document.documentElement.removeAttribute('data-anim'); }catch(_){} }
+applyAnim();
 if(['soal','hasil','kilat'].includes(route())) location.hash='#beranda';
 render(); save();
 
