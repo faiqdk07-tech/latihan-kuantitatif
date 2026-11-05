@@ -1509,7 +1509,12 @@ function parseNum(s){
 function copyText(t,ta){ const fb=()=>{ if(ta){ ta.focus(); ta.select(); } toast('Teks terpilih. Salin lewat menu.'); }; try{ navigator.clipboard.writeText(t).then(()=>toast('Disalin'),fb); }catch(_){ fb(); } }
 
 /* ---------- Unit terbuka dan rotasi harian ---------- */
-function openUnits(date){ const k=ymd(date||new Date()); return UNITS.filter(u=>S.semua||u.buka<=k).map(u=>u.id); }
+/* jadwal materi dari Progres Harian (ikut penundaan Basic Skills); kalau belum ada, pakai jadwal bawaan */
+function phJadwal(){ try{ const j=JSON.parse(localStorage.getItem('ph.jadwal')||'null'); return j&&j.unit?j:null; }catch(e){ return null; } }
+function bukaOf(id){ const J=phJadwal(); if(J&&(id in J.unit)) return J.unit[id]; return UMAP[id]?UMAP[id].buka:null; }
+function unitOpenOn(id,k,J){ if(J&&(id in J.unit)){ if((J.selesai||[]).includes(id)) return true; const d=J.unit[id]; return !!d&&d<k; } return UMAP[id].buka<=k; }
+function openUnits(date){ const k=ymd(date||new Date()); if(S.semua) return UNITS.map(u=>u.id); const J=phJadwal(); return UNITS.filter(u=>unitOpenOn(u.id,k,J)).map(u=>u.id); }
+function bukaLabel(id){ const J=phJadwal(), b=bukaOf(id); if(J&&(id in J.unit)) return b?'jadwal belajar '+tglPendek(b):'belum dijadwalkan'; return 'dibuka '+tglPendek(b); }
 function genOpen(g,open){ return open.includes(g.unit); }
 function polaOpen(p,open){ return GENS.some(g=>g.pola===p&&genOpen(g,open)); }
 function conceptsOn(date){
@@ -1614,7 +1619,7 @@ const PLAY='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6
 const BOOKS='<span class="books" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
 function unum(id){ return id.slice(3); }
 function lcard(act,v,tone,inner,cat,title,meta,prog,dis){ return '<button type="button" class="lcard" data-action="'+act+'" data-v="'+esc(v)+'"'+(dis?' disabled':'')+'><span class="thumb '+tone+'"><span class="pl">'+inner+'</span></span><span class="lbody"><span class="lcat">'+cat+'</span><span class="ltitle">'+title+'</span>'+(prog!=null?'<span class="lprog"><i class="'+(prog<80?'low':prog>=90?'ok':'')+'" style="width:'+Math.max(4,prog)+'%"></i></span>':'')+'</span><span class="lmeta">'+(meta||'')+'</span></button>'; }
-function unitCard(id,meta){ const u=UMAP[id], a=accUnit(id), o=openUnits().includes(id); return lcard('mat','u:'+id,BAB_TONE[u.bab]||'tn-blue',unum(ulabel(id)).split('–')[0],esc(u.bab)+(u.pilar?' · Pilar':''),esc(ulabel(id))+' · '+esc(u.nama),meta!=null?meta:(o?(a.n?a.n+' soal':''):'dibuka '+tglPendek(u.buka)),a.n?a.p:null); }
+function unitCard(id,meta){ const u=UMAP[id], a=accUnit(id), o=openUnits().includes(id); return lcard('mat','u:'+id,BAB_TONE[u.bab]||'tn-blue',unum(ulabel(id)).split('–')[0],esc(u.bab)+(u.pilar?' · Pilar':''),esc(ulabel(id))+' · '+esc(u.nama),meta!=null?meta:(o?(a.n?a.n+' soal':''):bukaLabel(id)),a.n?a.p:null); }
 function polaCard(pid,meta){ const p=PMAP[pid], hh=S.hist.filter(x=>x.p===pid).slice(-30), ok=polaOpen(pid,openUnits()); return lcard('mat','p:'+pid,p.sub==='PU'?'tn-teal':'tn-lav',PLAY,(p.sub==='PU'?'PU kuantitatif':'Pengetahuan Kuantitatif')+(p.star?' · ★ sering keluar':''),esc(p.nama),meta!=null?meta:(ok?(hh.length?hh.length+' soal':''):'belum dibuka'),hh.length?pct(hh.filter(x=>x.ok).length,hh.length):null); }
 function viewBeranda(){
   const now=new Date(), c=conceptsOn(now), t=tasksOn(now), d=t.filter(x=>x.done).length, p=pct(d,t.length), h=histOn(now), open=openUnits(), u=UMAP[c.unit];
@@ -1745,7 +1750,7 @@ function viewMateri(){
   const fab=M.from&&V.run&&!V.run.fin?'<div class="qbackfab"><button type="button" class="fbtn" data-action="qback">← Kembali ke soal</button></div>':'';
   const back='<button type="button" class="mback" data-action="mup">'+BACK+'Materi</button>';
   if(nav.u){ const u=UMAP[nav.u]; if(!u){ M.nav={}; return viewMateri(); } const a=accUnit(u.id), isOpen=open.includes(u.id), ps=unitPolas(u.id);
-    return fab+back+'<h1 class="mh">'+esc(ulabel(u.id))+' · '+esc(u.nama)+'</h1><div class="lt-sub">'+esc(u.bab)+(isOpen?'':' · dibuka '+tglPendek(u.buka))+(a.n?' · akurasi '+a.p+'% ('+a.n+' soal terakhir)':'')+'</div>'+
+    return fab+back+'<h1 class="mh">'+esc(ulabel(u.id))+' · '+esc(u.nama)+'</h1><div class="lt-sub">'+esc(u.bab)+(isOpen?'':' · '+bukaLabel(u.id))+(a.n?' · akurasi '+a.p+'% ('+a.n+' soal terakhir)':'')+'</div>'+
       '<section class="card mrules"><ol class="rules">'+u.aturan.map(r=>'<li><div>'+mx(r[0])+'</div><div class="ex">'+mx(r[1])+'</div></li>').join('')+'</ol></section>'+
       '<section class="card"><h2>Jebakan umum</h2><ul class="jb">'+u.jebakan.map(j=>'<li>'+mx(j)+'</li>').join('')+'</ul></section>'+
       (ps.length?'<div class="sh">Pola UTBK dari unit ini</div><div class="lcards">'+ps.map(p=>polaCard(p)).join('')+'</div>':'')+
@@ -1775,8 +1780,8 @@ function viewKalender(){
   for(let d=1;d<=days;d++){ const dt=new Date(C.y,C.m,d), key=ymd(dt), r=dt<=now?dayRatio(dt):0; h+='<button type="button" class="cal-day'+(key===ymd(now)?' today':'')+(key===C.sel?' sel':'')+'" data-action="calday" data-v="'+key+'" aria-pressed="'+(key===C.sel)+'"><span class="num">'+d+'</span><span class="dot'+(r===1?' on':r>0?' part':'')+'"></span></button>'; }
   h+='</div></div>';
   const sd=fromYmd(C.sel), c=conceptsOn(sd), isToday=C.sel===ymd(now), label=sd.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'});
-  const baru=UNITS.filter(u=>u.buka===C.sel);
-  h+='<div class="sh">'+esc(isToday?'Hari ini':label)+(isToday?'<small>'+esc(label)+'</small>':'')+'</div><div class="lcards">'+unitCard(c.unit,'drill unit')+c.polas.map(p=>polaCard(p,'drill pola')).join('')+baru.map(u=>unitCard(u.id,'unit baru')).join('')+'</div>';
+  const baru=UNITS.filter(u=>bukaOf(u.id)===C.sel);
+  h+='<div class="sh">'+esc(isToday?'Hari ini':label)+(isToday?'<small>'+esc(label)+'</small>':'')+'</div><div class="lcards">'+unitCard(c.unit,'drill unit')+c.polas.map(p=>polaCard(p,'drill pola')).join('')+baru.map(u=>unitCard(u.id,'jadwal belajar')).join('')+'</div>';
   if(sd<=now){ const tk=tasksOn(sd), dn=tk.filter(x=>x.done).length, hh=histOn(sd); h+='<section class="card tasks"><div class="row"><h2 class="grow">Tugas</h2><span class="tsum'+(dn===tk.length?' ok':'')+'">'+dn+'/'+tk.length+' selesai</span></div><div class="bar"><i style="width:'+pct(dn,tk.length)+'%"></i></div><div class="tlist">'+taskRows(tk,isToday)+'</div></section><div class="foot">'+(hh.length?hh.length+' soal dikerjakan, '+hh.filter(x=>x.ok).length+' benar.':'Belum ada soal yang dikerjakan.')+'</div>'; }
   return h;
 }
@@ -1847,7 +1852,7 @@ function viewBank(){
   if(c) h+='<div class="checks">'+(c.errs.length?c.errs.slice(0,10).map(e=>'<div class="e">'+esc(e)+'</div>').join(''):'<div class="g">✓ Format lolos: '+c.data.length+' paket, '+c.data.reduce((s,p)=>s+p.soal.length,0)+' soal.</div>')+'</div>';
   h+='<button class="btn primary block" type="button" data-action="savebank"'+(c&&!c.errs.length?'':' disabled')+'>Simpan ke bank</button></section>';
   h+='<div class="sh">Paket tersimpan</div>'+(S.bank.length?'<div class="group">'+S.bank.map(p=>{ const dn=new Set(S.pmh.filter(x=>x.pid===p.id).map(x=>x.n)).size; return '<div class="cell"><span class="txt"><span class="t1">'+esc(p.judul||p.id)+'</span><span class="t2">'+p.soal.length+' soal · '+esc(p.keluarga||'')+(dn?' · dikerjakan':'')+'</span></span><button class="obtn blue" type="button" data-action="pmid" data-v="'+esc(p.id)+'">Kerjakan</button><button class="obtn" type="button" data-action="delpm" data-v="'+esc(p.id)+'" aria-label="Hapus">Hapus</button></div>'; }).join('')+'</div>':'<div class="card empty">Belum ada paket.</div>');
-  h+='<div class="sh">Pengaturan</div><section class="card"><div class="row"><span class="grow">Unit yang dipakai soal</span><div class="seg"><button type="button" aria-pressed="'+!S.semua+'" data-action="semua" data-v="0">Ikuti jadwal</button><button type="button" aria-pressed="'+S.semua+'" data-action="semua" data-v="1">Semua unit</button></div></div><div class="sub">Ikuti jadwal: hanya unit yang sudah dibuka di jadwal Interleaving ('+openUnits().length+' dari '+UNITS.length+' unit).</div>'+
+  h+='<div class="sh">Pengaturan</div><section class="card"><div class="row"><span class="grow">Unit yang dipakai soal</span><div class="seg"><button type="button" aria-pressed="'+!S.semua+'" data-action="semua" data-v="0">Ikuti jadwal</button><button type="button" aria-pressed="'+S.semua+'" data-action="semua" data-v="1">Semua unit</button></div></div><div class="sub">Ikuti jadwal: unit terbuka setelah materinya dicentang di Progres Harian, atau sehari setelah jadwal belajarnya (ikut penundaan Basic Skills). Saat ini '+openUnits().length+' dari '+UNITS.length+' unit terbuka.'+(phJadwal()?'':' Buka Progres Harian sekali agar jadwalnya tersinkron.')+'</div>'+
     '<div class="row"><span class="grow">Animasi</span><div class="seg"><button type="button" aria-pressed="'+(S.anim!=='on')+'" data-action="anim" data-v="auto">Ikuti perangkat</button><button type="button" aria-pressed="'+(S.anim==='on')+'" data-action="anim" data-v="on">Selalu nyala</button></div></div><div class="sub">Selalu nyala: gerakan tetap muncul walau Kurangi Gerakan di perangkat menyala.</div>'+
     '<div class="row"><span class="grow">Pemeriksaan jawaban</span><div class="seg"><button type="button" aria-pressed="'+(S.cek==='langsung')+'" data-action="cekset" data-v="langsung">Langsung</button><button type="button" aria-pressed="'+(S.cek==='akhir')+'" data-action="cekset" data-v="akhir">Di akhir</button></div></div>'+
     (V.bank.confirmReset?'<div class="actions"><button class="btn ghost" type="button" data-action="resetno">Batal</button><button class="btn danger" type="button" data-action="resetyes">Ya, hapus semua</button></div>':'<button class="btn danger" type="button" data-action="reset">Atur ulang data</button>')+'</section>';
