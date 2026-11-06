@@ -958,6 +958,9 @@ body textarea#paste,body textarea#promptbox,body #rekap{border:1.5px solid var(-
 .resume{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--ink);border-radius:18px;padding:14px 16px}
 .resume b{font-size:14px;font-weight:800}
 .resume span{font-size:12px;color:var(--muted)}
+
+/* tablet: kolom lebih lebar agar tidak ada ruang kosong panjang di kiri-kanan */
+@media (min-width:700px){ body .app{max-width:960px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))} .cbt-panel.split .cbt-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start} .cbt-panel.split .cbt-left{position:sticky;top:12px;max-height:calc(100vh - 60px);overflow:auto;padding-right:16px;border-right:1px solid var(--line)} }
 </style>
 </head>
 <body>
