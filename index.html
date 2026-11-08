@@ -1304,6 +1304,46 @@ G('pk-pq-pangkat','MD-22','H','PK-pq','drill',()=>{ const P=RN.pick([[2,10],[3,6
 G('pk-pq-var','MD-34','H','PK-pq','drill',()=>{ const a=RN.int(2,5), lo=RN.int(1,3), hi=lo+RN.int(2,4), Q=a*RN.int(lo,hi); const zs=new Set(); for(let x=lo;x<=hi;x++) zs.add(pqZone(a*x,Q)); const z=zs.size>1?4:[...zs][0];
   return fixedPG({perintah:'x adalah bilangan bulat dengan '+lo+' ≤ x ≤ '+hi+'.\n'+PQ_ASK,tabel:[['P','Q'],[a+'x',String(Q)]],langkah:['Uji ujung dan tengah: x = '+lo+' → P = '+a*lo+'; x = '+hi+' → P = '+a*hi,zs.size>1?'Hubungan berubah sesuai x → tidak dapat ditentukan':'Hubungan selalu sama'],jebakan:'Hanya menguji satu nilai x.'},PQ5,z,pqWhy(z)); });
 
+/* ================= MATERI BARU (jadwal v13 Progres Harian) ================= */
+/* BIL-19 Aritmetika Sosial */
+G('as-untung','BIL-19','L',null,'drill',()=>{ const B=RN.int(4,40)*5000, p=RN.pick([5,10,12.5,15,20,25,30,40]), up=RN.chance(.6); const J=B*(100+(up?p:-p))/100; if(!Number.isInteger(J)) return null;
+  return numPG({perintah:'Sebuah barang dibeli seharga '+rp(B)+' dan dijual seharga '+rp(J)+'. Persentase '+(up?'keuntungan':'kerugian')+' penjual adalah ....',langkah:[(up?'Untung':'Rugi')+' = '+rp(J)+' − '+rp(B)+(up?'':' (negatif)')+' → '+rp(Math.abs(J-B)),'Persentase = '+fmt(Math.abs(J-B))+'/'+fmt(B)+' × 100% = '+fmt(p)+'%'],jebakan:'Membagi dengan harga jual, bukan harga beli.'},p,[{v:Math.abs(J-B)/J*100,why:'Membagi dengan harga jual (K).'},{v:J/B*100,why:'Menjawab perbandingan harga jual terhadap harga beli (K).'},{v:Math.abs(J-B)/1000,why:'Menganggap nominal sebagai persen (K).'}],x=>fmt(x)+'%'); });
+G('as-neto','BIL-19','L',null,'drill',()=>{ const N=RN.int(4,30)*5, t=RN.pick([1,2,2.5,4,5]); const v=N*(100-t);
+  return numPG({perintah:'Sebanyak '+N+' karung gula masing-masing memiliki bruto 100 kg dengan tara '+fmt(t)+'%. Neto seluruh gula adalah ....',langkah:['Bruto seluruhnya = '+N+' × 100 kg = '+fmt(N*100)+' kg','Tara = '+fmt(t)+'% × '+fmt(N*100)+' = '+fmt(N*t)+' kg','Neto = bruto − tara = '+fmt(v)+' kg'],jebakan:'Menjawab bruto atau taranya, bukan neto.'},v,[{v:N*100,why:'Menjawab bruto (H).'},{v:N*t,why:'Menjawab tara (H).'},{v:N*(100+t),why:'Tara ditambahkan, bukan dikurangkan (K).'},{v:N*100-t,why:'Tara dianggap '+fmt(t)+' kg total (K).'}],x=>fmt(x)+' kg'); });
+G('as-jual','BIL-19','M',null,'drill',()=>{ const N=RN.pick([20,25,40,50]), h=RN.int(6,40)*1000, p=RN.pick([10,20,25,30]); const T=N*h, v=h*(100+p)/100; if(!Number.isInteger(v)) return null;
+  return numPG({perintah:'Seorang pedagang membeli '+N+' kg beras dengan harga '+rp(T)+'. Ia ingin mendapat untung '+p+'%. Harga jual setiap kilogram beras adalah ....',langkah:['Harga beli per kg = '+rp(T)+' ÷ '+N+' = '+rp(h),'Harga jual = '+(100+p)+'% × '+rp(h)+' = '+rp(v)],jebakan:'Lupa membagi per kilogram, atau hanya menjawab besar untungnya.'},v,[{v:h*p/100,why:'Menjawab besar untung per kg saja (H).'},{v:T*(100+p)/100,why:'Lupa membagi per kilogram (H).'},{v:h,why:'Menjawab harga beli (H).'},{v:h+p*100,why:'Menganggap persen sebagai nominal (K).'}],rp); });
+G('as-bunga','BIL-19','M',null,'drill',()=>{ const M=RN.int(2,40)*500000, p=RN.pick([6,8,9,10,12]), n=RN.pick([3,4,6,8,9,10,15,18]); const b=M*p/100*n/12; if(!Number.isInteger(b)) return null; const v=M+b;
+  return numPG({perintah:'Andi menabung '+rp(M)+' di bank dengan bunga tunggal '+p+'% per tahun. Besar tabungan Andi setelah '+n+' bulan adalah ....',langkah:['Bunga = '+n+'/12 × '+p+'% × '+rp(M)+' = '+rp(b),'Tabungan = '+rp(M)+' + '+rp(b)+' = '+rp(v)],jebakan:'Memakai bunga setahun penuh, bukan '+n+' bulan.'},v,[{v:M+M*p/100,why:'Memakai bunga setahun penuh (K).'},{v:b,why:'Menjawab bunganya saja (H).'},{v:M+M*p/100*n,why:'Mengalikan bunga tahunan dengan banyak bulan (K).'},{v:M+2*b,why:'Bunga terhitung dua kali (T).'}],rp); });
+G('as-campur','BIL-19','H',null,'drill',()=>{ for(let t=0;t<40;t++){ const a=RN.pick([10,20,30,40]), b=RN.pick([10,20,30,40]), p=RN.int(8,16)*1000, q=RN.int(8,16)*1000; if(p===q) continue; const C=a*p+b*q, pr=RN.pick([10,20,25]); const r=C*(100+pr)/100/(a+b); if(!Number.isInteger(r)||r%100) continue;
+  return numPG({perintah:'Pedagang membeli '+a+' kg beras A seharga '+rp(p)+'/kg dan '+b+' kg beras B seharga '+rp(q)+'/kg. Kedua beras dicampur lalu dijual '+rp(r)+'/kg. Persentase keuntungan pedagang adalah ....',langkah:['Modal = '+a+' × '+fmt(p)+' + '+b+' × '+fmt(q)+' = '+rp(C),'Penjualan = '+(a+b)+' × '+fmt(r)+' = '+rp(r*(a+b)),'Untung = '+rp(r*(a+b)-C)+' → '+fmt(r*(a+b)-C)+'/'+fmt(C)+' × 100% = '+pr+'%'],jebakan:'Merata-ratakan harga beli tanpa memperhatikan banyak kilogram.'},pr,[{v:(r-(p+q)/2)/((p+q)/2)*100,why:'Merata-ratakan harga tanpa bobot kilogram (K).'},{v:(r*(a+b)-C)/(r*(a+b))*100,why:'Membagi dengan hasil penjualan (K).'},{v:(r*(a+b)-C)/1000,why:'Menganggap nominal sebagai persen (K).'}],x=>fmt(x)+'%'); } return null; });
+
+/* DAT-09 Ukuran Pemusatan Data (juga PU U3-PU4) */
+G('st-rata','DAT-09','L',null,'drill',()=>{ const n=RN.int(5,8), m=RN.int(60,85); const xs=[]; for(let i=0;i<n-1;i++) xs.push(m+RN.int(-12,12)); const last=m*n-xs.reduce((a,b)=>a+b,0); if(last<40||last>100) return null; xs.push(last); const L=RN.shuf(xs);
+  return isian({perintah:'Nilai ulangan '+n+' siswa adalah '+L.join(', ')+'. Rata-rata nilai mereka adalah ....',langkah:['Jumlah = '+L.join(' + ')+' = '+fmt(m*n),'Rata-rata = '+fmt(m*n)+' ÷ '+n+' = '+m],jebakan:'Salah menjumlah, atau membagi dengan banyak data yang keliru.'},m); });
+G('st-median','DAT-09','L',null,'drill',()=>{ const n=RN.pick([6,7,8,9]); const xs=[]; for(let i=0;i<n;i++) xs.push(RN.int(3,20)); const s=xs.slice().sort((a,b)=>a-b); const v=n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2; const mid=n%2?xs[(n-1)/2]:(xs[n/2-1]+xs[n/2])/2; const mean=xs.reduce((a,b)=>a+b,0)/n;
+  return numPG({perintah:'Median dari data '+xs.join(', ')+' adalah ....',langkah:['Urutkan dulu: '+s.join(', '),n%2?'Banyak data ganjil → data ke-'+((n+1)/2)+' = '+fmt(v):'Banyak data genap → rata-rata data ke-'+(n/2)+' dan ke-'+(n/2+1)+' = ('+s[n/2-1]+' + '+s[n/2]+')/2 = '+fmt(v)],jebakan:'Mengambil data tengah tanpa mengurutkan dulu.'},v,[{v:mid,why:'Data tengah diambil sebelum diurutkan (K).'},{v:Math.round(mean*100)/100,why:'Menghitung rata-rata, bukan median (K).'},{v:n%2?s[(n+1)/2]:s[n/2],why:'Salah posisi data tengah (T).'}]); });
+G('st-tambah','DAT-09','M',null,'drill',()=>{ const n=RN.int(9,39), a=RN.int(60,80), d=RN.pick([-1,1,2]); const b=a+d; const v=(n+1)*b-n*a; if(v<0||v>100) return null;
+  return numPG({perintah:'Rata-rata nilai '+n+' siswa adalah '+a+'. Setelah nilai seorang siswa baru ditambahkan, rata-ratanya menjadi '+b+'. Nilai siswa baru tersebut adalah ....',langkah:['Jumlah awal = '+n+' × '+a+' = '+fmt(n*a),'Jumlah baru = '+(n+1)+' × '+b+' = '+fmt((n+1)*b),'Nilai siswa baru = '+fmt((n+1)*b)+' − '+fmt(n*a)+' = '+fmt(v)],jebakan:'Menghitung jumlah baru dengan '+n+' siswa, bukan '+(n+1)+'.'},v,[{v:a+n*d,why:'Jumlah baru dihitung dengan '+n+' siswa (T).'},{v:b,why:'Menganggap nilai siswa baru sama dengan rata-rata baru (K).'},{v:n*d,why:'Hanya menghitung perubahan jumlah (K).'}]); });
+G('st-gabung','DAT-09','M',null,'drill',()=>{ const n1=RN.int(10,35), n2=RN.int(10,35), a=RN.int(60,85), b=RN.int(60,85); if(a===b||n1===n2) return null; const v=(n1*a+n2*b)/(n1+n2); if(!dec2(v)) return null;
+  return isian({perintah:'Rata-rata nilai '+n1+' siswa kelas A adalah '+a+', sedangkan rata-rata '+n2+' siswa kelas B adalah '+b+'. Rata-rata nilai gabungan kedua kelas adalah ....',langkah:['Jumlah A = '+n1+' × '+a+' = '+fmt(n1*a)+', jumlah B = '+n2+' × '+b+' = '+fmt(n2*b),'Rata-rata = '+fmt(n1*a+n2*b)+' ÷ '+(n1+n2)+' = '+fmt(v)],jebakan:'Merata-ratakan '+a+' dan '+b+' langsung tanpa bobot banyak siswa.'},v); });
+G('st-salah','DAT-09','H',null,'drill',()=>{ const n=RN.pick([10,20,25,40,50]), a=RN.int(60,80), y=RN.int(40,95); let z; do{ z=RN.int(40,95); }while(z===y); const v=a+(z-y)/n; if(!dec2(v)) return null;
+  return numPG({perintah:'Rata-rata '+n+' data adalah '+a+'. Ternyata satu data tercatat '+y+', padahal seharusnya '+z+'. Rata-rata yang benar adalah ....',langkah:['Jumlah tercatat = '+n+' × '+a+' = '+fmt(n*a),'Jumlah benar = '+fmt(n*a)+' − '+y+' + '+z+' = '+fmt(n*a-y+z),'Rata-rata = '+fmt(n*a-y+z)+' ÷ '+n+' = '+fmt(v)],jebakan:'Menambahkan selisih '+sg(z-y)+' langsung ke rata-rata.'},v,[{v:a+(z-y),why:'Selisih langsung ditambahkan ke rata-rata (K).'},{v:a-(z-y)/n,why:'Arah koreksi terbalik (T).'},{v:a+(z-y)/(n-1),why:'Membagi dengan n − 1 (K).'}]); });
+G('st-pq','DAT-09','H','PK-pq','drill',()=>{ const n=RN.pick([5,6,7]); const xs=[]; for(let i=0;i<n;i++) xs.push(RN.int(1,12)); const s=xs.slice().sort((a,b)=>a-b); const med=n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2, sum=xs.reduce((a,b)=>a+b,0), mean=sum/n; if(!dec2(mean)) return null; const z=pqZone(mean,med);
+  return fixedPG({perintah:'Diketahui data: '+xs.join(', ')+'.\n'+PQ_ASK,tabel:[['P','Q'],['Rata-rata data','Median data']],langkah:['Urutkan: '+s.join(', ')+' → median = '+fmt(med),'Rata-rata = '+sum+' ÷ '+n+' = '+fmt(mean),'P/Q = '+fmt(mean/med)],jebakan:'Mengambil median sebelum data diurutkan.'},PQ5,z,pqWhy(z)); });
+
+/* ALJ-10 Baris dan Deret */
+G('bd-suku','ALJ-10','L',null,'drill',()=>{ const a=RN.int(-10,20), b=RN.pick([-4,-3,-2,2,3,4,5,6,7]), n=RN.int(10,40); const v=a+(n-1)*b; const L=[0,1,2,3].map(i=>sg(a+i*b));
+  return isian({perintah:'Suku ke-'+n+' dari barisan aritmetika '+L.join(', ')+', ... adalah ....',langkah:['a = '+sg(a)+', b = '+sg(b),'Uₙ = a + (n − 1)b = '+sg(a)+' + '+(n-1)+' × '+par(b)+' = '+sg(v)],jebakan:'Memakai n × b, bukan (n − 1) × b.'},v); });
+G('bd-dua','ALJ-10','M',null,'drill',()=>{ const a=RN.int(-5,20), b=RN.pick([2,3,4,5,6,-2,-3]), p=RN.int(2,6), q=p+RN.int(3,8), r=q+RN.int(3,15); const U=n=>a+(n-1)*b;
+  return isian({perintah:'Pada sebuah barisan aritmetika, suku ke-'+p+' adalah '+sg(U(p))+' dan suku ke-'+q+' adalah '+sg(U(q))+'. Suku ke-'+r+' barisan tersebut adalah ....',langkah:['Beda: ('+sg(U(q))+' − '+par(U(p))+') ÷ ('+q+' − '+p+') = '+sg(b),'Suku ke-'+r+' = suku ke-'+q+' + ('+r+' − '+q+') × '+par(b)+' = '+sg(U(r))],jebakan:'Membagi selisih suku dengan '+q+', bukan dengan selisih posisi '+(q-p)+'.'},U(r)); });
+G('bd-jumlah','ALJ-10','M',null,'drill',()=>{ const a=RN.int(1,15), b=RN.int(2,6), n=RN.pick([10,12,15,20,25]); const Un=a+(n-1)*b, v=n*(a+Un)/2;
+  return numPG({perintah:'Jumlah '+n+' suku pertama barisan aritmetika '+[0,1,2].map(i=>a+i*b).join(', ')+', ... adalah ....',langkah:['Suku ke-'+n+' = '+a+' + '+(n-1)+' × '+b+' = '+Un,'Sₙ = n/2 × (a + Uₙ) = '+n+'/2 × ('+a+' + '+Un+') = '+fmt(v)],jebakan:'Lupa membagi 2, atau memakai n × b untuk suku terakhir.'},v,[{v:n*(a+Un),why:'Lupa membagi 2 (K).'},{v:n*(2*a+n*b)/2,why:'Suku terakhir dihitung a + n × b (K).'},{v:Un,why:'Menjawab suku ke-'+n+', bukan jumlahnya (H).'},{v:(n-1)*(2*a+(n-2)*b)/2,why:'Hanya menjumlah '+(n-1)+' suku (T).'}]); });
+G('bd-geo','ALJ-10','H',null,'drill',()=>{ const a=RN.pick([1,2,3,4,5]), r=RN.pick([2,3,-2]), p=RN.int(2,3), q=p+RN.pick([2,3]), t=q+RN.int(1,2); const U=n=>a*Math.pow(r,n-1); if(Math.abs(U(t))>5000) return null;
+  return isian({perintah:'Pada sebuah barisan geometri, suku ke-'+p+' adalah '+sg(U(p))+' dan suku ke-'+q+' adalah '+sg(U(q))+'. Jika rasionya '+(r<0?'negatif':'positif')+', suku ke-'+t+' adalah ....',langkah:['r'+sup(q-p)+' = '+sg(U(q))+' ÷ '+par(U(p))+' = '+sg(Math.pow(r,q-p))+' → r = '+sg(r),'Suku ke-'+t+' = suku ke-'+q+' × r'+sup(t-q)+' = '+sg(U(t))],jebakan:'Hasil bagi dua suku langsung dianggap rasio, padahal itu r pangkat '+(q-p)+'.'},U(t)); });
+G('k-untung','BIL-19','L',null,'kilat',()=>{ const B=RN.pick([20,40,50,80,200])*1000, p=RN.pick([10,20,25,50]); const v=B*(100+p)/100; return {perintah:'Beli '+fmt(B)+', untung '+p+'% → harga jual',kunci:v,langkah:[fmt(B)+' × '+(100+p)+'% = '+fmt(v)]}; });
+G('k-rata','DAT-09','L',null,'kilat',()=>{ const n=RN.pick([4,5]), m=RN.int(5,20); const xs=[]; for(let i=0;i<n-1;i++) xs.push(m+RN.int(-4,4)); const last=m*n-xs.reduce((a,b)=>a+b,0); if(last<1) return null; xs.push(last); return {perintah:'Rata-rata '+RN.shuf(xs).join(', '),kunci:m,langkah:['Jumlah '+(m*n)+' ÷ '+n+' = '+m]}; });
+G('k-suku','ALJ-10','L',null,'kilat',()=>{ const a=RN.int(1,9), b=RN.int(2,9), n=RN.int(10,30); const v=a+(n-1)*b; return {perintah:'U'+n+' dari '+a+', '+(a+b)+', '+(a+2*b)+', …',kunci:v,langkah:[a+' + '+(n-1)+' × '+b+' = '+v]}; });
+
 if(false) module.exports={GENS,RN,fmt,F,fs,fmix,sup,lg,rp,STMT,PQ5,CK5,MJ5};
 
 /* ================== Materi unit MD dan pola UTBK ================== */
@@ -1434,9 +1474,36 @@ const UNITS=[
  {id:'MD-37',nama:'Model Pertidaksamaan',bab:'Persamaan dan pertidaksamaan',buka:'2026-11-22',pilar:false,
   aturan:[['Tulis cerita jadi pertidaksamaan, lalu ambil bilangan bulat yang memenuhi.','3.000n + 5.000 ≤ 122.000 → n ≤ 39'],
    ['"Paling banyak" → bulatkan ke bawah.','n ≤ 39,7 → 39']],
-  jebakan:['Batas inklusif salah hitung','Lupa biaya tambahan']}
+  jebakan:['Batas inklusif salah hitung','Lupa biaya tambahan']},
+ {id:'BIL-19',nama:'Aritmetika Sosial',bab:'Aritmetika sosial dan statistik',buka:'2026-12-19',pilar:true,
+  aturan:[['Untung = jual − beli. Persen untung atau rugi selalu dibagi HARGA BELI.','Beli 80.000, jual 92.000 → 12.000/80.000 = 15%'],
+   ['Harga jual dengan untung p% = (100 + p)% × harga beli.','Beli 12.000/kg, untung 25% → jual 15.000/kg'],
+   ['Bunga tunggal = n/12 × p% × modal (n dalam bulan).','2.000.000, bunga 6% per tahun, 8 bulan → bunga 80.000'],
+   ['Bruto = neto + tara. Tara p% dihitung dari bruto.','Bruto 100 kg, tara 2% → neto 98 kg'],
+   ['Harga campuran: hitung total modal, bukan rata-rata harga per kg.','10 kg × 8.000 + 30 kg × 12.000 = 440.000 untuk 40 kg']],
+  jebakan:['Persen untung dibagi harga jual','Bunga setahun dipakai untuk beberapa bulan','Harga campuran dirata-rata tanpa bobot']},
+ {id:'DAT-09',nama:'Ukuran Pemusatan Data',bab:'Aritmetika sosial dan statistik',buka:'2026-12-29',pilar:true,
+  aturan:[['Rata-rata = jumlah data ÷ banyak data. Kerjakan lewat JUMLAH, bukan rata-ratanya.','Rata-rata 10 siswa 70 → jumlah 700'],
+   ['Median = data tengah SETELAH diurutkan. Banyak data genap → rata-rata dua data tengah.','3, 8, 5, 9 → 3, 5, 8, 9 → (5 + 8)/2 = 6,5'],
+   ['Rata-rata gabungan = (n₁ × rata₁ + n₂ × rata₂) ÷ (n₁ + n₂).','20 siswa rata 70, 30 siswa rata 80 → 3.800/50 = 76'],
+   ['Data baru masuk: nilai data baru = jumlah baru − jumlah lama.','9 siswa rata 70, jadi 10 siswa rata 71 → 710 − 630 = 80'],
+   ['Modus = data yang paling sering muncul.','2, 4, 4, 7 → modus 4']],
+  jebakan:['Median diambil sebelum data diurutkan','Rata-rata gabungan tanpa bobot','Koreksi data langsung ditambahkan ke rata-rata']},
+ {id:'ALJ-10',nama:'Baris dan Deret',bab:'Aljabar',buka:'2027-01-18',pilar:true,
+  aturan:[['Aritmetika: Uₙ = a + (n − 1)b.','3, 7, 11, … → U₁₀ = 3 + 9 × 4 = 39'],
+   ['Beda dari dua suku: b = (selisih nilai) ÷ (selisih posisi).','U₃ = 10, U₇ = 22 → b = 12 ÷ 4 = 3'],
+   ['Deret aritmetika: Sₙ = n/2 × (a + Uₙ).','1 + 3 + … + 19 (10 suku) → 5 × 20 = 100'],
+   ['Geometri: Uₙ = a × rⁿ⁻¹. Hasil bagi dua suku = r pangkat selisih posisi.','U₂ = 6, U₅ = 162 → r³ = 27 → r = 3']],
+  jebakan:['Memakai n × b, bukan (n − 1) × b','Lupa membagi 2 pada Sₙ','Hasil bagi dua suku langsung dianggap rasio']}
 ];
-const BAB_ORDER=['Bilangan','Pecahan, desimal, persen','Aljabar','Eksponen, akar, logaritma','Rasio dan pengukuran','Persamaan dan pertidaksamaan'];
+const BAB_ORDER=['Bilangan','Pecahan, desimal, persen','Aljabar','Eksponen, akar, logaritma','Rasio dan pengukuran','Persamaan dan pertidaksamaan','Aritmetika sosial dan statistik'];
+/* Jadwal v13 Progres Harian (mulai 9 Nov 2026): Matematika Dasar diulang dengan kode baru BIL/ALJ/GEO/DAT + PU kuantitatif U3-PU.
+   Tiap unit latihan dipetakan ke kode materi baru yang membahasnya; unit dibuka sehari setelah materi pertamanya dijadwalkan.
+   V13[id] = [awalan kode materi baru, label tampilan]. DEF13 = tanggal bawaan materi pertama tiap awalan (dipakai jika Progres Harian belum dibuka). */
+const CUT13='2026-11-09';
+const V13={'MD-01':[['ALJ-02','ALJ-03','ALJ-04','ALJ-05'],'ALJ-02–05'],'MD-02':[['BIL-03','BIL-04','BIL-06','BIL-07','BIL-08','BIL-09','BIL-10','BIL-11','U3-PU1'],'BIL-03–11'],'MD-13':[['BIL-12','BIL-13'],'BIL-12–13'],'MD-14':[['BIL-13'],'BIL-13'],'MD-15':[['BIL-13'],'BIL-13'],'MD-16':[['BIL-13'],'BIL-13'],'MD-17':[['BIL-13'],'BIL-13'],'MD-18':[['BIL-13'],'BIL-13'],'MD-19':[['U3-PU2','ALJ-01'],'ALJ-01'],'MD-20':[['U3-PU2','ALJ-01'],'ALJ-01'],'MD-21':[['ALJ-01'],'ALJ-01'],'MD-22':[['BIL-15'],'BIL-15'],'MD-23':[['BIL-15'],'BIL-15'],'MD-24':[['BIL-15'],'BIL-15'],'MD-25':[['BIL-16'],'BIL-16'],'MD-26':[['BIL-16'],'BIL-16'],'MD-27':[['BIL-14','U3-PU3'],'BIL-14'],'MD-28':[['GEO-04','GEO-05'],'GEO-04–05'],'MD-29':[['GEO-02'],'GEO-02'],'MD-30':[['GEO-02'],'GEO-02'],'MD-31':[['GEO-02'],'GEO-02'],'MD-32':[['ALJ-11'],'ALJ-11'],'MD-33':[['ALJ-16','ALJ-17'],'ALJ-16–17'],'MD-34':[['ALJ-11'],'ALJ-11'],'MD-35':[['ALJ-11'],'ALJ-11'],'MD-36':[['ALJ-11'],'ALJ-11'],'MD-37':[['ALJ-11'],'ALJ-11'],'BIL-19':[['BIL-19'],'BIL-19'],'DAT-09':[['U3-PU4','DAT-09'],'DAT-09'],'ALJ-10':[['ALJ-10'],'ALJ-10']};
+const DEF13={'ALJ-01':'2026-12-24','ALJ-02':'2026-12-28','ALJ-03':'2026-12-29','ALJ-04':'2027-01-02','ALJ-05':'2027-01-05','ALJ-10':'2027-01-18','ALJ-11':'2027-01-21','ALJ-16':'2027-02-03','ALJ-17':'2027-02-03','BIL-03':'2026-11-21','BIL-04':'2026-11-21','BIL-06':'2026-11-25','BIL-07':'2026-11-26','BIL-08':'2026-11-27','BIL-09':'2026-11-28','BIL-10':'2026-11-30','BIL-11':'2026-12-01','BIL-12':'2026-12-02','BIL-13':'2026-12-03','BIL-14':'2026-12-08','BIL-15':'2026-12-09','BIL-16':'2026-12-12','BIL-19':'2026-12-19','DAT-09':'2027-03-04','GEO-02':'2027-02-12','GEO-04':'2027-02-15','GEO-05':'2027-02-18','U3-PU1':'2026-12-15','U3-PU2':'2026-12-18','U3-PU3':'2026-12-23','U3-PU4':'2026-12-29'};
+UNITS.forEach(u=>{ const m=V13[u.id]; if(!m) return; u.v7=u.id.startsWith('MD-')?u.buka:null; u.v13=m[0]; u.label=m[1]; });
 
 /* Pola PU kuantitatif dan template PK (Dokumen Sumber bagian 3.3–3.4) */
 const POLA=[
@@ -1512,12 +1579,28 @@ function parseNum(s){
 function copyText(t,ta){ const fb=()=>{ if(ta){ ta.focus(); ta.select(); } toast('Teks terpilih. Salin lewat menu.'); }; try{ navigator.clipboard.writeText(t).then(()=>toast('Disalin'),fb); }catch(_){ fb(); } }
 
 /* ---------- Unit terbuka dan rotasi harian ---------- */
-/* jadwal materi dari Progres Harian (ikut penundaan Basic Skills); kalau belum ada, pakai jadwal bawaan */
-function phJadwal(){ try{ const j=JSON.parse(localStorage.getItem('ph.jadwal')||'null'); return j&&j.unit?j:null; }catch(e){ return null; } }
-function bukaOf(id){ const J=phJadwal(); if(J&&(id in J.unit)) return J.unit[id]; return UMAP[id]?UMAP[id].buka:null; }
-function unitOpenOn(id,k,J){ if(J&&(id in J.unit)){ if((J.selesai||[]).includes(id)) return true; const d=J.unit[id]; return !!d&&d<k; } return UMAP[id].buka<=k; }
+/* jadwal materi dari Progres Harian (ikut penundaan); kalau belum ada, pakai jadwal bawaan v13 */
+function phJadwal(){ try{ const j=JSON.parse(localStorage.getItem('ph.jadwal')||'null'); return j&&(j.unit||j.unit2)?j:null; }catch(e){ return null; } }
+const hasPre=(c,p)=>c===p||c.startsWith(p+'.');
+/* tanggal materi baru pertama yang membahas unit ini */
+function buka13(id,J){ const u=UMAP[id]; if(!u) return null; if(!u.v13) return u.buka; let best=null;
+  u.v13.forEach(p=>{ let d=null;
+    if(J&&J.unit2){ for(const c in J.unit2){ const x=J.unit2[c]; if(x&&hasPre(c,p)&&(!d||x<d)) d=x; } }
+    else d=DEF13[p]||null;
+    if(d&&(!best||d<best)) best=d; });
+  return best; }
+/* unit yang sudah dipelajari di jadwal lama (v7, sebelum 9 Nov) tetap terbuka sebagai latihan ulang */
+function sudahV7(id,J){ const u=UMAP[id]; if(!u||!u.v7) return false; if(J&&J.unit&&(id in J.unit)){ if((J.selesai||[]).includes(id)) return true; const d=J.unit[id]; return !!d&&d<CUT13; } return u.v7<CUT13; }
+function selesai13(id,J){ const u=UMAP[id]; return !!(u&&u.v13&&J&&J.selesai2&&J.selesai2.some(c=>u.v13.some(p=>hasPre(c,p)))); }
+function bukaOf(id){ return buka13(id,phJadwal()); }
+function unitOpenOn(id,k,J){ if(sudahV7(id,J)||selesai13(id,J)) return true; const d=buka13(id,J); return !!d&&d<k; }
 function openUnits(date){ const k=ymd(date||new Date()); if(S.semua) return UNITS.map(u=>u.id); const J=phJadwal(); return UNITS.filter(u=>unitOpenOn(u.id,k,J)).map(u=>u.id); }
-function bukaLabel(id){ const J=phJadwal(), b=bukaOf(id); if(J&&(id in J.unit)) return b?'jadwal belajar '+tglPendek(b):'belum dijadwalkan'; return 'dibuka '+tglPendek(b); }
+function bukaLabel(id){ const b=bukaOf(id); return b?'jadwal belajar '+tglPendek(b):'belum dijadwalkan'; }
+/* keterangan jadwal untuk halaman unit: unit lama tetap dibuka, tapi tampilkan kapan materi barunya dipelajari */
+function infoJadwal(id,isOpen){ const J=phJadwal(), b=bukaOf(id), k=ymd(new Date());
+  if(!isOpen) return ' · '+bukaLabel(id);
+  if(sudahV7(id,J)&&b&&b>=k) return ' · sudah dipelajari di jadwal lama, materi barunya '+tglPendek(b);
+  return ''; }
 function genOpen(g,open){ return open.includes(g.unit); }
 function polaOpen(p,open){ return GENS.some(g=>g.pola===p&&genOpen(g,open)); }
 function conceptsOn(date){
@@ -1617,7 +1700,7 @@ function taskRows(t,live){ return t.map((x,i)=>{ const go=!live||x.done?'':'<but
 function tasksCard(){ const t=tasksOn(new Date()), d=t.filter(x=>x.done).length, all=d===t.length; const two=t.filter(x=>x.id==='unit'||x.id==='pola');
   return '<section class="card tasks"><div class="row"><h2 class="grow">Tugas hari ini</h2><span class="tsum'+(all?' ok':'')+'">'+d+'/'+t.length+' selesai</span></div><div class="bar"><i style="width:'+pct(d,t.length)+'%"></i></div>'+(all?'<div class="tdone">Semua tugas hari ini selesai. Mantap!</div>':'')+'<div class="tlist">'+taskRows(t,true)+'</div>'+(two.every(x=>x.done)?'':'<button class="btn primary block" type="button" data-action="paket">Mulai paket harian · tugas 3–4 (20 soal)</button>')+'</section>'; }
 function weakUnits(){ return openUnits().map(u=>({u,...accUnit(u)})).filter(x=>x.n>=5&&x.p<80).sort((a,b)=>a.p-b.p); }
-const BAB_TONE={'Bilangan':'tn-coral','Pecahan, desimal, persen':'tn-pink','Aljabar':'tn-mint','Eksponen, akar, logaritma':'tn-blue','Rasio dan pengukuran':'tn-yellow','Persamaan dan pertidaksamaan':'tn-lav'};
+const BAB_TONE={'Bilangan':'tn-coral','Pecahan, desimal, persen':'tn-pink','Aljabar':'tn-mint','Eksponen, akar, logaritma':'tn-blue','Rasio dan pengukuran':'tn-yellow','Persamaan dan pertidaksamaan':'tn-lav','Aritmetika sosial dan statistik':'tn-teal'};
 const PLAY='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z"/></svg>';
 const BOOKS='<span class="books" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
 function unum(id){ return id.slice(3); }
@@ -1753,7 +1836,7 @@ function viewMateri(){
   const fab=M.from&&V.run&&!V.run.fin?'<div class="qbackfab"><button type="button" class="fbtn" data-action="qback">← Kembali ke soal</button></div>':'';
   const back='<button type="button" class="mback" data-action="mup">'+BACK+'Materi</button>';
   if(nav.u){ const u=UMAP[nav.u]; if(!u){ M.nav={}; return viewMateri(); } const a=accUnit(u.id), isOpen=open.includes(u.id), ps=unitPolas(u.id);
-    return fab+back+'<h1 class="mh">'+esc(ulabel(u.id))+' · '+esc(u.nama)+'</h1><div class="lt-sub">'+esc(u.bab)+(isOpen?'':' · '+bukaLabel(u.id))+(a.n?' · akurasi '+a.p+'% ('+a.n+' soal terakhir)':'')+'</div>'+
+    return fab+back+'<h1 class="mh">'+esc(ulabel(u.id))+' · '+esc(u.nama)+'</h1><div class="lt-sub">'+esc(u.bab)+infoJadwal(u.id,isOpen)+(a.n?' · akurasi '+a.p+'% ('+a.n+' soal terakhir)':'')+'</div>'+
       '<section class="card mrules"><ol class="rules">'+u.aturan.map(r=>'<li><div>'+mx(r[0])+'</div><div class="ex">'+mx(r[1])+'</div></li>').join('')+'</ol></section>'+
       '<section class="card"><h2>Jebakan umum</h2><ul class="jb">'+u.jebakan.map(j=>'<li>'+mx(j)+'</li>').join('')+'</ul></section>'+
       (ps.length?'<div class="sh">Pola UTBK dari unit ini</div><div class="lcards">'+ps.map(p=>polaCard(p)).join('')+'</div>':'')+
@@ -1814,29 +1897,30 @@ function viewProgres(){
 }
 
 /* ---------- Paket PM ---------- */
-const KELUARGA=[['Harga paket SPLTV kurang persamaan','3 harga, 2 persamaan; yang ditanya kombinasi yang bisa diturunkan; soal berikutnya menambah info','MD-32,MD-33'],['Belanja, diskon, dan anggaran','diskon bertingkat, biaya admin, jumlah maksimum yang bisa dibeli, paket termurah','MD-16,MD-17,MD-34,MD-35,MD-36,MD-37'],['Campuran dan resep','rasio bahan, porsi, skala','MD-13,MD-27'],['Takaran dan logistik','konversi satuan berlapis','MD-29,MD-30,MD-31'],['Pertumbuhan berlipat','dua kali lipat per periode, pangkat','MD-22,MD-23,MD-24,MD-25,MD-26'],['Jadwal dan stok','KPK/FPB, pembagian kelompok, sisa','MD-02'],['Renovasi dan skala','perubahan ukuran → keliling, luas, volume','MD-28']];
+const KELUARGA=[['Harga paket SPLTV kurang persamaan','3 harga, 2 persamaan; yang ditanya kombinasi yang bisa diturunkan; soal berikutnya menambah info','MD-32,MD-33'],['Belanja, diskon, dan anggaran','diskon bertingkat, biaya admin, jumlah maksimum yang bisa dibeli, paket termurah','MD-16,MD-17,MD-34,MD-35,MD-36,MD-37'],['Campuran dan resep','rasio bahan, porsi, skala','MD-13,MD-27'],['Takaran dan logistik','konversi satuan berlapis','MD-29,MD-30,MD-31'],['Pertumbuhan berlipat','dua kali lipat per periode, pangkat','MD-22,MD-23,MD-24,MD-25,MD-26'],['Jadwal dan stok','KPK/FPB, pembagian kelompok, sisa','MD-02'],['Renovasi dan skala','perubahan ukuran → keliling, luas, volume','MD-28'],['Usaha dan tabungan','untung-rugi, harga jual per satuan, bunga tunggal, bruto-neto-tara, harga campuran','BIL-19,MD-17'],['Data dan rata-rata','nilai kelas, rata-rata gabungan, data masuk atau keluar, salah catat, median','DAT-09'],['Cicilan dan tabungan bertahap','setoran naik tetap atau berlipat per bulan, total setelah n bulan','ALJ-10']];
 function pmPrompt(){
   const open=openUnits(), c=conceptsOn(new Date()), weak=weakUnits().map(x=>x.u);
   const fam=KELUARGA.filter(k=>k[2].split(',').some(u=>open.includes(u)));
   const pri=[...new Set([c.unit].concat(weak))].filter(u=>fam.some(k=>k[2].includes(u)));
   const d=new Date(), id='pm'+ymd(d).replace(/-/g,'');
   return 'Buatkan 2 paket soal Penalaran Matematika (PM) gaya UTBK-SNBT 2026 untuk latihan harianku. Keluarkan HANYA satu blok JSON.\n\n'+
-  'UNIT YANG SUDAH KUPELAJARI (hitungan soal hanya boleh memakai konsep ini): '+open.map(ulabel).join(', ')+'\n'+
-  (pri.length?'PRIORITAS HARI INI: '+pri.map(u=>ulabel(u)+' ('+UMAP[u].nama+')').join(', ')+'\n':'')+
-  '\nKELUARGA STIMULUS (pilih 2 yang berbeda, unitnya harus sudah kupelajari):\n'+fam.map(k=>'- '+k[0]+': '+k[1]+' ['+k[2].split(',').map(ulabel).join(', ')+']').join('\n')+'\n\n'+
+  'UNIT YANG SUDAH KUPELAJARI (hitungan soal hanya boleh memakai konsep ini; tulis kode unit persis seperti di sini): '+open.map(u=>u+' '+UMAP[u].nama).join(', ')+'\n'+
+  (pri.length?'PRIORITAS HARI INI: '+pri.map(u=>u+' ('+UMAP[u].nama+')').join(', ')+'\n':'')+
+  '\nKELUARGA STIMULUS (pilih 2 yang berbeda, unitnya harus sudah kupelajari):\n'+fam.map(k=>'- '+k[0]+': '+k[1]+' ['+k[2].split(',').join(', ')+']').join('\n')+'\n\n'+
   'ATURAN PAKET\n1. Stimulus 3 lapis: (a) data dasar: harga, jumlah, ukuran, atau tabel; (b) aturan pola: bagaimana nilai berubah; (c) aturan pengubah: kondisi yang membelokkan pola di titik tertentu ("mulai bulan ke-n tarif berubah", "setelah melampaui …, tetap").\n'+
   '2. Tiap paket 4 soal yang naik bertahap: (1) hitung langsung [L], (2) kombinasi/total [M], (3) skenario "Jika …" yang memicu lapis (c) [M/H], (4) evaluasi: Benar/Salah tiga pernyataan, pilihan "manakah yang BENAR", atau "paket termurah" [H].\n'+
   '3. Minimal 1 soal isian angka per paket (jawaban bulat atau desimal koma, maks. 2 angka di belakang koma, tanpa satuan).\n4. Opsi PG berupa angka diurutkan naik. Setiap opsi salah mewakili kesalahan nyata: langkah antara, salah konsep, salah baca. Sebaran kunci A–E merata.\n'+
   '5. Semua bisa dihitung tanpa kalkulator. Hitung ulang setiap kunci dengan cara kedua; tepat satu jawaban benar. Soal berantai harus konsisten.\n6. Teks polos Unicode (× ÷ − √ ≤ ≥), tanpa LaTeX. Tulis pangkat dengan tanda ^, misalnya x^2, 2^(x + 1), 8^(2/3); aplikasiku menampilkannya sebagai pangkat. Desimal koma, ribuan titik, uang Rp50.000,00. Nama dan tempat fiktif.\n7. Tanpa label unit/level di dalam teks soal.\n\n'+
   'FORMAT JSON (persis):\n{\n  "paket": [\n    {\n      "id": "'+id+'-1",\n      "judul": "judul pendek stimulus",\n      "keluarga": "nama keluarga stimulus",\n      "stimulus": ["paragraf 1", "paragraf 2"],\n      "tabel": [["Kolom 1","Kolom 2"],["isi","isi"]],\n      "soal": [\n        {"tipe": "pg", "unit": "MD-17", "level": "L", "perintah": "…", "opsi": ["…","…","…","…","…"], "kunci": "C", "langkah": ["langkah 1","langkah 2"], "jebakan": "kesalahan yang paling sering"},\n        {"tipe": "isian", "unit": "MD-17", "level": "M", "perintah": "…", "kunci": "12,5", "langkah": ["…"], "jebakan": "…"},\n        {"tipe": "bs", "unit": "MD-17", "level": "H", "perintah": "Berdasarkan informasi di atas, tentukan apakah setiap pernyataan berikut bernilai BENAR atau SALAH.", "pernyataan": [{"teks": "…", "benar": true}, {"teks": "…", "benar": false}, {"teks": "…", "benar": true}], "langkah": ["…"], "jebakan": "…"}\n      ]\n    }\n  ]\n}\n"tabel" boleh dihapus jika tidak perlu. "unit" memakai kode: '+open.map(u=>u).join(', ')+'. Paket kedua memakai id "'+id+'-2".';
 }
+const LBL={}; UNITS.forEach(u=>{ if(u.label&&!LBL[u.label]) LBL[u.label]=u.id; });
 function validatePM(raw){
   const errs=[]; let data; const t=String(raw||'').trim().replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,''); if(!t) return {errs:['Kolom masih kosong.'],data:null};
   try{ data=JSON.parse(t); }catch(e){ return {errs:['JSON tidak valid: '+e.message],data:null}; }
   const ps=Array.isArray(data)?data:data.paket; if(!Array.isArray(ps)||!ps.length) return {errs:['Tidak ada "paket".'],data:null};
   const out=[];
   ps.forEach((p,pi)=>{ const L='Paket '+(pi+1)+': '; if(!Array.isArray(p.stimulus)||!p.stimulus.length) errs.push(L+'stimulus kosong.'); if(!Array.isArray(p.soal)||!p.soal.length){ errs.push(L+'soal kosong.'); return; }
-    const soal=[]; p.soal.forEach((q,qi)=>{ const M=L+'soal '+(qi+1)+': '; const unit=UMAP[q.unit]?q.unit:(q.unit==='MD-02–11'||/^MD-(0[3-9]|1[01])$/.test(q.unit)?'MD-02':q.unit==='MD-12'?'MD-13':null); if(!unit) errs.push(M+'kode unit "'+q.unit+'" tidak dikenal.'); if(!q.perintah) errs.push(M+'perintah kosong.');
+    const soal=[]; p.soal.forEach((q,qi)=>{ const M=L+'soal '+(qi+1)+': '; const unit=UMAP[q.unit]?q.unit:LBL[q.unit]?LBL[q.unit]:(q.unit==='MD-02–11'||/^MD-(0[3-9]|1[01])$/.test(q.unit)?'MD-02':q.unit==='MD-12'?'MD-13':null); if(!unit) errs.push(M+'kode unit "'+q.unit+'" tidak dikenal.'); if(!q.perintah) errs.push(M+'perintah kosong.');
       const base={no:qi,unit:unit||'MD-02',lvl:['L','M','H'].includes(q.level)?q.level:null,perintah:String(q.perintah||''),langkah:Array.isArray(q.langkah)?q.langkah.map(String):(q.langkah?[String(q.langkah)]:[]),jebakan:q.jebakan?String(q.jebakan):''};
       if(q.tipe==='pg'){ if(!Array.isArray(q.opsi)||q.opsi.length!==5) errs.push(M+'PG harus 5 opsi.'); const ki='ABCDE'.indexOf(String(q.kunci||'').trim().toUpperCase()); if(ki<0) errs.push(M+'kunci PG harus A–E.'); else if(Array.isArray(q.opsi)&&new Set(q.opsi.map(String)).size!==q.opsi.length) errs.push(M+'ada opsi yang sama.'); soal.push(Object.assign(base,{tipe:'pg',opsi:(q.opsi||[]).map((o,i)=>({teks:String(o),benar:i===ki}))})); }
       else if(q.tipe==='isian'){ const v=parseNum(q.kunci); if(isNaN(v)) errs.push(M+'kunci isian harus angka.'); else if(Math.abs(Math.round(v*100)-v*100)>1e-6) errs.push(M+'kunci isian maks. 2 angka di belakang koma.'); soal.push(Object.assign(base,{tipe:'isian',kunci:v})); }
