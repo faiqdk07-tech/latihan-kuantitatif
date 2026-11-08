@@ -1475,7 +1475,7 @@ const UNITS=[
   aturan:[['Tulis cerita jadi pertidaksamaan, lalu ambil bilangan bulat yang memenuhi.','3.000n + 5.000 ≤ 122.000 → n ≤ 39'],
    ['"Paling banyak" → bulatkan ke bawah.','n ≤ 39,7 → 39']],
   jebakan:['Batas inklusif salah hitung','Lupa biaya tambahan']},
- {id:'BIL-19',nama:'Aritmetika Sosial',bab:'Aritmetika sosial dan statistik',buka:'2026-12-19',pilar:true,
+ {id:'BIL-19',nama:'Aritmetika Sosial',bab:'Aritmetika sosial dan statistik',buka:'2026-12-03',pilar:true,
   aturan:[['Untung = jual − beli. Persen untung atau rugi selalu dibagi HARGA BELI.','Beli 80.000, jual 92.000 → 12.000/80.000 = 15%'],
    ['Harga jual dengan untung p% = (100 + p)% × harga beli.','Beli 12.000/kg, untung 25% → jual 15.000/kg'],
    ['Bunga tunggal = n/12 × p% × modal (n dalam bulan).','2.000.000, bunga 6% per tahun, 8 bulan → bunga 80.000'],
@@ -1489,7 +1489,7 @@ const UNITS=[
    ['Data baru masuk: nilai data baru = jumlah baru − jumlah lama.','9 siswa rata 70, jadi 10 siswa rata 71 → 710 − 630 = 80'],
    ['Modus = data yang paling sering muncul.','2, 4, 4, 7 → modus 4']],
   jebakan:['Median diambil sebelum data diurutkan','Rata-rata gabungan tanpa bobot','Koreksi data langsung ditambahkan ke rata-rata']},
- {id:'ALJ-10',nama:'Baris dan Deret',bab:'Aljabar',buka:'2027-01-18',pilar:true,
+ {id:'ALJ-10',nama:'Baris dan Deret',bab:'Aljabar',buka:'2026-12-26',pilar:true,
   aturan:[['Aritmetika: Uₙ = a + (n − 1)b.','3, 7, 11, … → U₁₀ = 3 + 9 × 4 = 39'],
    ['Beda dari dua suku: b = (selisih nilai) ÷ (selisih posisi).','U₃ = 10, U₇ = 22 → b = 12 ÷ 4 = 3'],
    ['Deret aritmetika: Sₙ = n/2 × (a + Uₙ).','1 + 3 + … + 19 (10 suku) → 5 × 20 = 100'],
@@ -1497,12 +1497,12 @@ const UNITS=[
   jebakan:['Memakai n × b, bukan (n − 1) × b','Lupa membagi 2 pada Sₙ','Hasil bagi dua suku langsung dianggap rasio']}
 ];
 const BAB_ORDER=['Bilangan','Pecahan, desimal, persen','Aljabar','Eksponen, akar, logaritma','Rasio dan pengukuran','Persamaan dan pertidaksamaan','Aritmetika sosial dan statistik'];
-/* Jadwal v13 Progres Harian (mulai 9 Nov 2026): Matematika Dasar diulang dengan kode baru BIL/ALJ/GEO/DAT + PU kuantitatif U3-PU.
+/* Jadwal v14 Progres Harian (mulai 9 Nov 2026, dipadatkan): Matematika Dasar diulang dengan kode baru BIL/ALJ/GEO/DAT + PU kuantitatif U3-PU.
    Tiap unit latihan dipetakan ke kode materi baru yang membahasnya; unit dibuka sehari setelah materi pertamanya dijadwalkan.
    V13[id] = [awalan kode materi baru, label tampilan]. DEF13 = tanggal bawaan materi pertama tiap awalan (dipakai jika Progres Harian belum dibuka). */
 const CUT13='2026-11-09';
 const V13={'MD-01':[['ALJ-02','ALJ-03','ALJ-04','ALJ-05'],'ALJ-02–05'],'MD-02':[['BIL-01','BIL-02','BIL-03','BIL-04','BIL-06','BIL-07','BIL-08','BIL-09','BIL-10','BIL-11','U3-PU1'],'BIL-01–11'],'MD-13':[['BIL-12','BIL-13'],'BIL-12–13'],'MD-14':[['BIL-13'],'BIL-13'],'MD-15':[['BIL-13'],'BIL-13'],'MD-16':[['BIL-13'],'BIL-13'],'MD-17':[['BIL-13'],'BIL-13'],'MD-18':[['BIL-13'],'BIL-13'],'MD-19':[['U3-PU2','ALJ-01'],'ALJ-01'],'MD-20':[['U3-PU2','ALJ-01'],'ALJ-01'],'MD-21':[['ALJ-01'],'ALJ-01'],'MD-22':[['BIL-15'],'BIL-15'],'MD-23':[['BIL-15'],'BIL-15'],'MD-24':[['BIL-15'],'BIL-15'],'MD-25':[['BIL-16'],'BIL-16'],'MD-26':[['BIL-16'],'BIL-16'],'MD-27':[['BIL-14','U3-PU3'],'BIL-14'],'MD-28':[['GEO-04','GEO-05'],'GEO-04–05'],'MD-29':[['GEO-02'],'GEO-02'],'MD-30':[['GEO-02'],'GEO-02'],'MD-31':[['GEO-02'],'GEO-02'],'MD-32':[['ALJ-11'],'ALJ-11'],'MD-33':[['ALJ-16','ALJ-17'],'ALJ-16–17'],'MD-34':[['ALJ-11'],'ALJ-11'],'MD-35':[['ALJ-11'],'ALJ-11'],'MD-36':[['ALJ-11'],'ALJ-11'],'MD-37':[['ALJ-11'],'ALJ-11'],'BIL-19':[['BIL-19'],'BIL-19'],'DAT-09':[['U3-PU4','DAT-09'],'DAT-09'],'ALJ-10':[['ALJ-10'],'ALJ-10']};
-const DEF13={'BIL-01':'2026-11-09','BIL-02':'2026-11-11','ALJ-01':'2026-12-24','ALJ-02':'2026-12-28','ALJ-03':'2026-12-29','ALJ-04':'2027-01-02','ALJ-05':'2027-01-05','ALJ-10':'2027-01-18','ALJ-11':'2027-01-21','ALJ-16':'2027-02-03','ALJ-17':'2027-02-03','BIL-03':'2026-11-21','BIL-04':'2026-11-21','BIL-06':'2026-11-25','BIL-07':'2026-11-26','BIL-08':'2026-11-27','BIL-09':'2026-11-28','BIL-10':'2026-11-30','BIL-11':'2026-12-01','BIL-12':'2026-12-02','BIL-13':'2026-12-03','BIL-14':'2026-12-08','BIL-15':'2026-12-09','BIL-16':'2026-12-12','BIL-19':'2026-12-19','DAT-09':'2027-03-04','GEO-02':'2027-02-12','GEO-04':'2027-02-15','GEO-05':'2027-02-18','U3-PU1':'2026-12-15','U3-PU2':'2026-12-18','U3-PU3':'2026-12-23','U3-PU4':'2026-12-29'};
+const DEF13={'ALJ-01':'2026-12-08','ALJ-02':'2026-12-10','ALJ-03':'2026-12-11','ALJ-04':'2026-12-14','ALJ-05':'2026-12-15','ALJ-10':'2026-12-26','ALJ-11':'2026-12-29','ALJ-16':'2027-01-13','ALJ-17':'2027-01-13','BIL-01':'2026-11-09','BIL-02':'2026-11-10','BIL-03':'2026-11-13','BIL-04':'2026-11-13','BIL-06':'2026-11-17','BIL-07':'2026-11-17','BIL-08':'2026-11-18','BIL-09':'2026-11-19','BIL-10':'2026-11-19','BIL-11':'2026-11-20','BIL-12':'2026-11-20','BIL-13':'2026-11-21','BIL-14':'2026-11-26','BIL-15':'2026-11-26','BIL-16':'2026-11-28','BIL-19':'2026-12-03','DAT-09':'2027-02-09','GEO-02':'2027-01-25','GEO-04':'2027-01-26','GEO-05':'2027-01-29','U3-PU1':'2026-12-15','U3-PU2':'2026-12-18','U3-PU3':'2026-12-23','U3-PU4':'2026-12-29'};
 UNITS.forEach(u=>{ const m=V13[u.id]; if(!m) return; u.v13=m[0]; u.label=m[1]; });
 
 /* Pola PU kuantitatif dan template PK (Dokumen Sumber bagian 3.3–3.4) */
