@@ -2175,7 +2175,7 @@ function viewGame(){ const G=V.gm||(V.gm={scr:'hub'});
     gr+=cell('=','cm-eq')+cell('')+cell('=','cm-eq')+cell('')+cell('=','cm-eq')+cell('')+cell('');
     gr+=res(P.cr[0],'c0')+cell('')+res(P.cr[1],'c1')+cell('')+res(P.cr[2],'c2')+cell('')+cell('');
     h+=gmHead(G,'<b>'+(g.k+1)+'</b>/'+g.L.n)+'<div class="gm-meta"><span>'+esc(g.L.t)+' · kali-bagi dulu</span><span id="gmtime">'+mmss(Date.now()-g.t0)+'</span></div>'+
-      '<div class="cm-grid'+(g.done==='ok'?' solved':'')+'">'+gr+'</div>'+
+      '<div class="gm-panel cm-board"><div class="cm-grid'+(g.done==='ok'?' solved':'')+'">'+gr+'</div></div>'+
       '<div class="cm-msg">'+(g.done==='ok'?'Benar semua!':g.done==='skip'?'Ini salah satu jawabannya.':g.bad?'Ada persamaan yang belum benar (angka merah).':'Ketuk kotak kosong, lalu pilih operator.')+'</div>'+
       '<div class="cm-pal">'+g.L.ops.map(o=>'<button type="button" class="cm-k" data-action="gm-cmop" data-v="'+o+'">'+o+'</button>').join('')+'<button type="button" class="cm-k del" data-action="gm-cmop" data-v="del" aria-label="Hapus">⌫</button></div>'+
       '<button type="button" class="gm-ghost" data-action="gm-cmskip">Lihat jawaban, lanjut</button>'; }
@@ -2450,6 +2450,32 @@ body nav.bottom .in{grid-template-columns:repeat(6,minmax(0,1fr))}
 .fm-res{margin-top:14px;padding:14px;border-radius:14px;display:flex;flex-direction:column;gap:4px;font-size:14px}
 .fm-res.ok{background:var(--ok-soft);color:var(--ok-ink)}.fm-res.bad{background:var(--bad-soft);color:var(--bad-ink)}
 .fm-res span{color:var(--ink)}
+
+/* ===== Mini games: kontras dan ukuran tetap (Safari lama tidak mendukung aspect-ratio) ===== */
+.gm.g-peri{--gcl:rgba(104,117,245,.55)}.gm.g-plum{--gcl:rgba(78,28,124,.45)}.gm.g-sage{--gcl:rgba(62,143,110,.55)}
+.gm{--gline:#C9D0DC}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .gm{--gline:#3E475C}}
+:root[data-theme="dark"] .gm{--gline:#3E475C}
+.gm-panel{background:var(--surface);border:1.5px solid var(--gline);border-radius:20px;box-shadow:0 4px 0 var(--gline);padding:16px 12px}
+.gm-feat{background:var(--surface);border:1.5px solid var(--gline);border-radius:18px;padding:16px;box-shadow:0 3px 0 var(--gline)}
+.gm-row,.gm-opt,.fm-io,.fm-k,.cm-k,.gm-stats div,.gm-miss div,.fm-guess input{border:1.5px solid var(--gline);box-shadow:0 3px 0 var(--gline)}
+.gm-row:active,.gm-opt:active,.fm-k:active,.cm-k:active{box-shadow:0 1px 0 var(--gline)}
+.mm-card{border:2px solid var(--gline);box-shadow:0 5px 0 var(--gline)}
+.fm-log span{background:var(--surface);border:1.5px solid var(--gline)}
+.gm-back{background:var(--surface);border:1.5px solid var(--gline)}
+.gm-timer{background:var(--gline)}
+/* papan Cross Math */
+.cm-board{margin-top:18px}
+.cm-grid{grid-template-columns:repeat(7,minmax(0,44px));grid-auto-rows:44px;justify-content:center;gap:6px;margin:0 auto;max-width:none}
+.cm-c{aspect-ratio:auto;width:100%;height:44px;box-sizing:border-box;margin:0;padding:0;line-height:1;align-self:stretch;justify-self:stretch;border-radius:10px;-webkit-appearance:none;appearance:none}
+.cm-n{background:var(--surface);border:1.5px solid var(--gline);box-shadow:0 3px 0 var(--gline)}
+.cm-op.blank{border:2px dashed var(--gcl);background:var(--fill2)}
+.cm-op.blank.fill,.cm-op.blank.sel{border-style:solid;border-color:var(--gc)}
+.cm-res{border:1.5px solid var(--gcl)}
+@media (max-width:360px){.cm-grid{grid-template-columns:repeat(7,minmax(0,40px));grid-auto-rows:40px;gap:4px}.cm-c{height:40px;font-size:17px}}
+
+.cm-board,.cm-pal{width:100%;max-width:440px;margin-left:auto;margin-right:auto}
+.gm-opts,.mm-wrap,.mm-btns,.fm-mach,.fm-keys,.fm-target,.fm-guess,.fm-res{max-width:520px;width:100%;margin-left:auto;margin-right:auto;box-sizing:border-box}
 </style>
 <div class="hf" id="hf" data-side="right">
   <div class="hf-veil" id="hfVeil" hidden></div>
