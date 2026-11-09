@@ -1639,7 +1639,7 @@ function tasksOn(date){
   const c=conceptsOn(date), h=histOn(date);
   const kil=h.filter(x=>x.src==='kilat').length;
   const dr=h.filter(x=>x.src==='drill'||x.src==='paket'||x.src==='sim');
-  const un=dr.filter(x=>x.u===c.unit).length, po=dr.filter(x=>x.p&&c.polas.includes(x.p)).length;
+  const un=dr.filter(x=>x.u===c.unit).length, po=dr.filter(x=>x.tg==='dpola'||(x.p&&c.polas.includes(x.p))).length;
   const pmd=pmDoneOn(date), stok=S.bank.length, imp=(S.imp||[]).includes(dayKey(date.getTime()));
   return [
     {id:'imp',ic:'today',t:'Siapkan soal hari ini',d:'Salin prompt, jalankan di Claude, tempel hasilnya',cur:imp?1:0,n:1,unit:'',act:'goprompt'},
@@ -1742,7 +1742,7 @@ function recordAt(k){
   const R=V.run, a=R.A[k], it=R.items[k]; if(a.done) return; const ok=isAns(it,a)&&grade(it,a); a.done=true; a.ok=ok; const ms=Date.now()-R.qStart;
   if(R.src==='pm'){ S.pmh.push({pid:it.pid,n:it.no,ok,ts:Date.now()}); S.hist.push({k:'pm',u:it.unit,p:null,l:it.lvl,ok,ms,ts:Date.now(),src:'pm'}); }
   else { const sr=srsOf(it.key), int=ok?(sr.int?Math.min(60,Math.round(sr.int*2.5)):3):0; S.srs[it.key]={due:ok?Date.now()+int*DAY:0,int,n:sr.n+1,ok:sr.ok+(ok?1:0)};
-    S.hist.push({k:it.key,u:it.unit,p:it.pola,l:it.lvl,ok,ms,ts:Date.now(),src:R.src}); }
+    S.hist.push({k:it.key,u:it.unit,p:it.pola,l:it.lvl,ok,ms,ts:Date.now(),src:R.src,tg:R.again&&R.again[0]||null}); }
   R.res.push(ok);
 }
 function finishRun(){ const R=V.run; if(!R) return; R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); save(); R.fin=true; R.review=false; V.confirmEnd=false; go('hasil'); }
@@ -1977,7 +1977,10 @@ function render(){
 function taskWatch(){ const t=tasksOn(new Date()), ids=t.filter(x=>x.done).map(x=>x.id); if(V._td&&V._tk===dayKey(Date.now())){ const nw=t.filter(x=>x.done&&!V._td.includes(x.id)); if(nw.length) toast('✓ Tugas selesai: '+nw.map(x=>x.t).join(', ')+' ('+ids.length+'/'+t.length+')'); } V._td=ids; V._tk=dayKey(Date.now()); }
 function onScrollTop(){ const h1=$('#view h1'), tb=$('#topbar'); if(tb) tb.classList.toggle('on',!!h1&&h1.getBoundingClientRect().bottom<44); }
 window.addEventListener('scroll',onScrollTop,{passive:true});
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ persistSesi(); save(); } });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ persistSesi(); save(); return; }
+  const r=route(), busy=(r==='soal'&&V.run&&!V.run.fin)||(r==='kilat'&&V.kl&&!V.kl.done)||r==='game';
+  if(!busy){ render(); save(); } });
+window.addEventListener('pageshow',e=>{ if(e.persisted){ render(); save(); } });
 window.addEventListener('pagehide',()=>{ persistSesi(); save(); });
 function go(h){ if(location.hash==='#'+h) render(); else location.hash='#'+h; window.scrollTo(0,0); }
 function runDrill(src,label,items,again){ startRun({id:src+Date.now(),src,label,items,started:Date.now(),again}); }
@@ -2214,7 +2217,7 @@ document.addEventListener('click',e=>{
   else if(a==='klstop'){ if(V.kl){ clearTimeout(V.kl._t); V.kl.done=true; render(); window.scrollTo(0,0); } }
   else if(a==='klretry'){ const c={open:openUnits()}; const its=build(V.kl.res.filter(r=>!r.ok).map(r=>GENS.find(g=>g.key===r.it.key)),V.kl.res.filter(r=>!r.ok).length,c); startKilat(shuffle(its)); }
   else if(a==='dunit'){ runDrill('drill','Drill '+ulabel(v),drillUnit(v,10),['dunit',v]); }
-  else if(a==='dpola'){ const ps=v.split('|'); runDrill('drill',ps.length>1?'Drill pola':PMAP[ps[0]].nama,drillPola(ps,10),['dpola',v]); }
+  else if(a==='dpola'){ let ps=(v||'').split('|').filter(Boolean); if(ps.length!==1){ ps=conceptsOn(new Date()).polas; if(!ps.length){ toast('Belum ada pola yang dibuka hari ini.'); return; } } runDrill('drill',ps.length>1?'Drill pola':PMAP[ps[0]].nama,drillPola(ps,10),['dpola',ps.join('|')]); }
   else if(a==='paket'){ const c=conceptsOn(new Date()); const items=[], u=drillUnit(c.unit,10), p=drillPola(c.polas,10); for(let i=0;i<10;i++){ if(u[i]) items.push(u[i]); if(p[i]) items.push(p[i]); } runDrill('paket','Paket harian',items,null); }
   else if(a==='campur'){ runDrill('drill','Campur',drillCampur(20),['campur']); }
   else if(a==='sim'){ startRun({id:'sim'+Date.now(),src:'sim',label:'Simulasi PK',items:drillSim(20),started:Date.now(),cek:'akhir',again:['sim']}); }
