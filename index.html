@@ -4,140 +4,241 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Latihan Kuantitatif</title>
-<meta name="theme-color" content="#F4F5F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111317" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#dcecff">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F4F5F7;--sf:#fff;--fill:#EEF0F4;--line:#E2E5EB;--ink:#1E2026;--mut:#6B7280;--acc:#3F6FDB;--acc-s:#E7EEFC;--ok:#1D8A4F;--ok-s:#E4F5EB;--bad:#C42F38;--bad-s:#FDECEC;--warn:#8A5A00;--mint:#DDF3E8;--mint-i:#17694A;--blue:#E1EBFB;--blue-i:#2A56B0;--coral:#FCE5DF;--coral-i:#A8432B;--lilac:#ECE6FA;--lilac-i:#5B3FA8;--sand:#F6EBD3;--sand-i:#7A5A12}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#111317;--sf:#1B1E24;--fill:#262A32;--line:#2E333C;--ink:#ECEEF2;--mut:#9AA1AD;--acc:#7FA3F2;--acc-s:rgba(110,151,240,.16);--ok:#5AD394;--ok-s:rgba(61,196,126,.14);--bad:#F58A8F;--bad-s:rgba(240,100,106,.14);--warn:#F2B53D;--mint:#173428;--mint-i:#8FDDB9;--blue:#1A2A45;--blue-i:#A9C3F5;--coral:#3A211B;--coral-i:#F2B3A3;--lilac:#2A2240;--lilac-i:#C9B8F5;--sand:#33290F;--sand-i:#E8CF8E}}
-:root[data-theme=dark]{--bg:#111317;--sf:#1B1E24;--fill:#262A32;--line:#2E333C;--ink:#ECEEF2;--mut:#9AA1AD;--acc:#7FA3F2;--acc-s:rgba(110,151,240,.16);--ok:#5AD394;--ok-s:rgba(61,196,126,.14);--bad:#F58A8F;--bad-s:rgba(240,100,106,.14);--warn:#F2B53D;--mint:#173428;--mint-i:#8FDDB9;--blue:#1A2A45;--blue-i:#A9C3F5;--coral:#3A211B;--coral-i:#F2B3A3;--lilac:#2A2240;--lilac-i:#C9B8F5;--sand:#33290F;--sand-i:#E8CF8E}
+/* Tampilan balok (mengikuti gaya Nalar Harian): latar langit, kartu berkancing, tombol berbayang, tab bar balok warna-warni */
+:root{
+  --red:#ef5f5a;--yellow:#ffd24f;--blue:#4b8ae8;--green:#3fb46e;--orange:#ff9d4d;--sky:#4fc0ec;--pink:#f47eab;--lime:#a2d058;--purple:#8f7ae8;--gray:#d3dcea;
+  --ink:#28324d;--line:#5b6d99;--sh:rgba(52,78,150,.22);--plate:#fff;--text:#26304b;--muted:#64708e;--faint:#a3aec6;--edge:#e1e8f4;
+  --acc:var(--blue);--acc-s:#e2ecfc;--ok:var(--green);--ok-s:#e2f2e8;--bad:var(--red);--bad-s:#fbe7e6;--base:#eef3fb;--soft:#cdd7ea;--soft2:#dbe3f1;
+  color-scheme:light;
+}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+body{margin:0;font:14.5px/1.5 "Rubik",-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  background:linear-gradient(180deg,#dcecff 0%,#eaf4ff 45%,#f4f9ff 100%) fixed;padding:calc(env(safe-area-inset-top) + 8px) 0 calc(env(safe-area-inset-bottom) + 112px)}
 [hidden]{display:none!important}
-#view{max-width:640px;margin:0 auto;padding:12px 16px 24px}
-h1{font-size:22px;line-height:1.25;margin:8px 0 2px;font-weight:700}
-h2{font-size:13px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin:22px 0 8px;display:flex;gap:8px;align-items:center}
-h2 .cnt{font-weight:600;letter-spacing:0;text-transform:none}
+button,input,textarea{font:inherit;color:inherit}
+a{color:var(--blue)}
+#view{max-width:560px;margin:0 auto;padding:0 14px}
+h1,h2,.big,.ttl,.klq{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;letter-spacing:.2px}
+h1{font-size:25px;line-height:1.15;margin:14px 2px 4px}
+h2{font-size:17px;line-height:1.2;margin:22px 2px 14px;display:flex;gap:8px;align-items:center}
+h2 .cnt{font-family:"Rubik",sans-serif;font-size:11.5px;font-weight:700;background:var(--yellow);border:2px solid color-mix(in srgb,var(--yellow) 55%,#6b4a00);border-radius:6px;padding:0 7px}
 p{margin:0 0 8px}
-.lead{color:var(--mut);font-size:13px;margin-bottom:4px}
-.sm{font-size:12.5px;color:var(--mut);display:block}
+.lead{color:var(--muted);font-size:13px;margin:0 2px 8px}
+.sm{font-size:12.5px;color:var(--muted);display:block}
 .grow{flex:1;min-width:0}
-.top{display:flex;align-items:center;gap:10px;min-height:36px}
-.top.run{position:sticky;top:0;background:var(--bg);z-index:5;padding:6px 0}
-.hub{color:var(--acc);text-decoration:none;font-size:13px;font-weight:600;background:none;border:0;padding:6px 0;font-family:inherit;cursor:pointer}
-.ttl{font-weight:700;font-size:14px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cd{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--mut);background:var(--fill);border-radius:6px;padding:3px 8px;font-variant-numeric:tabular-nums}
-.cd.late{color:var(--bad);background:var(--bad-s)}
-.card{background:var(--sf);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 10px}
-.card.list{padding:2px 14px}
-.card.note{display:flex;align-items:center;gap:10px;background:var(--sand);border-color:transparent;margin-top:12px}
-.card.note .sm{color:var(--sand-i)}
-.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
-.row:last-child{border-bottom:0}
-.row b{font-size:14px;font-weight:600;display:block}
-.row.done b{color:var(--mut)}
-.num{width:22px;height:22px;border-radius:6px;background:var(--fill);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--mut)}
-.row.done .num{background:var(--ok-s);color:var(--ok)}
-.bar{display:block;height:4px;border-radius:2px;background:var(--fill);margin-top:6px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--acc);border-radius:2px}
-.bar.ok i{background:var(--ok)}.bar.bad i{background:var(--bad)}
-.btn{font:600 13px/1 inherit;font-family:inherit;border:1px solid var(--line);background:var(--sf);color:var(--ink);border-radius:8px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:36px}
-.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .btn.pri{color:#0E1320}}
-:root[data-theme=dark] .btn.pri{color:#0E1320}
-.btn.danger{color:var(--bad)}
-.btn.ico{padding:9px 10px;color:var(--mut)}
-.btn.block{display:flex;width:100%;margin-top:10px}
+.code{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);background:var(--base);border:1.5px solid var(--soft);border-radius:5px;padding:0 5px}
+
+/* latar */
+.scene{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.scene .cloud{position:absolute;opacity:.9}
+.scene .fbrick{position:absolute;width:38px;opacity:.4;transform:rotate(var(--r));animation:float 7s ease-in-out infinite}
+@keyframes float{50%{transform:rotate(var(--r)) translateY(-10px)}}
+.scene .hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:150px}
+
+/* header balok merah */
+.appbar{position:relative;display:flex;align-items:center;gap:10px;padding:11px 12px 11px 13px;margin:14px 0 6px;border-radius:14px;background:var(--red);
+  border:2px solid color-mix(in srgb,var(--red) 62%,#1f2a4d);box-shadow:0 5px 0 color-mix(in srgb,var(--red) 68%,#1f2a4d)}
+.appbar .logo{width:36px;height:36px;flex:none}
+.appbar .ttl{font-size:22px;line-height:1;color:#fff;text-shadow:0 2px 0 color-mix(in srgb,var(--red) 65%,#1f2a4d)}
+.appbar .sub{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.45);border-radius:6px;padding:1px 7px}
+.appbar .chip{font-size:12px;font-weight:700;padding:3px 8px;border-radius:7px;background:var(--yellow);color:var(--ink);border:2px solid color-mix(in srgb,var(--yellow) 55%,#6b4a00);white-space:nowrap;box-shadow:none;cursor:default}
+.ibtn{width:36px;height:36px;display:grid;place-items:center;border-radius:9px;background:var(--blue);color:#fff;border:2px solid #2b4f99;box-shadow:0 3px 0 #2b4f99;flex:none;text-decoration:none}
+.ibtn:active{transform:translateY(3px);box-shadow:none}
+.ibtn svg{width:19px;height:19px}
+.appbar .st i{background:var(--red);border-color:color-mix(in srgb,var(--red) 62%,#1f2a4d)}
+
+/* maskot */
+.hero{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:22px;min-height:150px;margin:-4px 0 8px}
+.hero .mw{flex:none;display:block;transform-origin:50% 100%}
+.hero .masc{width:160px;height:160px;display:block;animation:hop 3.2s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes hop{0%,100%{transform:none}45%{transform:translateY(-6px) rotate(-1.5deg)}55%{transform:translateY(-6px) rotate(1.5deg)}}
+.hero .bubble{position:relative;align-self:center;margin-bottom:40px;background:#fff;border:2px solid #b9c9e6;border-radius:13px;padding:8px 11px;font-size:12.5px;font-weight:600;line-height:1.4;box-shadow:0 3px 0 #d3e0f3;max-width:54%}
+.hero .bubble::after{content:'';position:absolute;right:-8px;bottom:16px;width:12px;height:12px;background:#fff;border-right:2px solid #b9c9e6;border-bottom:2px solid #b9c9e6;transform:rotate(-45deg);border-radius:0 0 4px 0}
+.hero.L{flex-direction:row-reverse}
+.hero.L .bubble::after{right:auto;left:-8px;transform:rotate(135deg)}
+.hero.R.peek .mw{transform:translateX(38px) rotate(-16deg);margin-left:-30px}
+.hero.L.tilt .mw{transform:rotate(9deg) translateY(4px)}
+.hero.R.tilt .mw{transform:rotate(-8deg) translateY(4px)}
+.hero.flip .mw .masc{transform:scaleX(-1);animation:none}
+
+/* kartu berkancing */
+.card{position:relative;background:var(--plate);border:2px solid var(--line);border-radius:12px;box-shadow:0 5px 0 var(--sh);padding:14px 15px;margin:0 0 22px}
+.card.list{padding:4px 15px}
+.st{position:absolute;top:-11px;left:14px;display:flex;gap:9px;pointer-events:none}
+.st.r{left:auto;right:14px}
+.st i{display:block;width:20px;height:9px;background:var(--plate);border:2px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0}
+.card.note{display:flex;align-items:center;gap:10px;background:#fff6d6;margin-top:16px}
+.card.note .st i{background:#fff6d6}
+.note2{font-size:12px;color:var(--muted);margin:-12px 4px 6px}
+
+.row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:2px dashed var(--edge)}
+.card.list>.row:first-of-type{border-top:0}
+.row b{font-size:14.5px;font-weight:600;display:block}
+.row.done b{color:var(--muted)}
+.num{flex:none;width:36px;height:30px;border-radius:6px;display:grid;place-items:center;color:#fff;font-family:"Lilita One","Rubik",sans-serif;font-size:16px;
+  --c:var(--blue);background:var(--c);border:2px solid color-mix(in srgb,var(--c) 62%,#1f2a4d);box-shadow:0 2px 0 color-mix(in srgb,var(--c) 70%,#1f2a4d)}
+.card.list>.row:nth-of-type(1) .num{--c:var(--yellow);color:var(--ink)}
+.card.list>.row:nth-of-type(2) .num{--c:var(--red)}
+.card.list>.row:nth-of-type(3) .num{--c:var(--blue)}
+.card.list>.row.done .num{--c:var(--green);color:#fff;opacity:.8}
+.stephd .num{--c:var(--yellow);color:var(--ink);width:30px;height:26px;font-size:14px}
+.rev summary .num{width:28px;height:24px;font-size:13px}
+
+.bar{display:block;height:12px;border-radius:6px;background:var(--plate);border:2px solid var(--line);overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;background:var(--yellow);transition:width .4s}
+.bar.ok i{background:var(--green)}.bar.bad i{background:var(--red)}
+
+/* tombol */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 14px;border-radius:9px;font:600 14px "Rubik",sans-serif;color:var(--text);cursor:pointer;text-decoration:none;flex:none;
+  background:var(--plate);border:2px solid var(--line);box-shadow:0 3px 0 var(--sh);transition:transform .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 var(--sh)}
+.btn.pri{background:var(--yellow);color:#2f333d;font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:15.5px;letter-spacing:.3px;
+  border-color:color-mix(in srgb,var(--yellow) 55%,#6b4a00);box-shadow:0 3px 0 color-mix(in srgb,var(--yellow) 60%,#7a5200)}
+.btn.danger{color:var(--red)}
+.btn.ico{padding:0 11px;color:var(--muted)}
+.btn.block{display:flex;width:100%;margin-top:12px}
 .btn.grow{flex:1}
 .btn:disabled{opacity:.45;cursor:default}
-.btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
-.btns.foot{margin:14px 0 0}
-.bd{font-size:11px;font-weight:700;border-radius:5px;padding:2px 6px;white-space:nowrap;flex:none}
-.bd-mint{background:var(--mint);color:var(--mint-i)}.bd-blue{background:var(--blue);color:var(--blue-i)}.bd-coral{background:var(--coral);color:var(--coral-i)}
-.bd-lama{background:var(--fill);color:var(--mut)}.bd-geser{background:var(--sand);color:var(--sand-i)}.bd-baru,.bd-varian{background:var(--lilac);color:var(--lilac-i)}
-.code{font:600 11.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--mut)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
-.chips b{font-size:13px;margin-right:8px}
-.chip{font:600 12.5px inherit;font-family:inherit;border:1px solid var(--line);background:var(--sf);color:var(--ink);border-radius:7px;padding:6px 10px;cursor:pointer}
-.chip.on{background:var(--acc-s);border-color:var(--acc);color:var(--acc)}
-details summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--acc);padding:4px 0;list-style:none}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 0}
+.btns.foot{margin:16px 0 0}
+
+/* label */
+.bd{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;white-space:nowrap;flex:none;color:#fff;--c:var(--gray);background:var(--c);border:2px solid color-mix(in srgb,var(--c) 60%,#1f2a4d)}
+.bd-mint{--c:var(--green)}.bd-blue{--c:var(--blue)}.bd-coral{--c:var(--red)}
+.bd-lama{--c:var(--gray);color:var(--ink)}.bd-geser{--c:var(--yellow);color:var(--ink)}.bd-baru,.bd-varian{--c:var(--purple)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:8px 0}
+.chips b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:16px;margin-right:8px}
+.chip{font:600 12.5px "Rubik",sans-serif;padding:5px 10px;border-radius:7px;border:2px solid var(--line);background:var(--plate);box-shadow:0 2px 0 var(--sh);cursor:pointer;color:var(--text)}
+.chip.on{background:var(--blue);color:#fff;border-color:color-mix(in srgb,var(--blue) 60%,#1f2a4d)}
+details summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--blue);padding:4px 0;list-style:none}
 details summary::-webkit-details-marker{display:none}
 .resep{margin:8px 0 0;padding-left:22px;font-size:12.5px}
-.resep li{margin-bottom:5px}.resep span:last-child{color:var(--mut)}
-.seg{display:flex;background:var(--fill);border-radius:8px;padding:3px;margin:12px 0}
-.seg button{flex:1;font:600 12.5px inherit;font-family:inherit;border:0;background:none;color:var(--mut);padding:7px 4px;border-radius:6px;cursor:pointer}
-.seg button.on{background:var(--sf);color:var(--ink)}
-.stephd{display:flex;gap:8px;align-items:center;margin-bottom:6px}
-.ta{width:100%;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);background:var(--fill);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
-.msg{border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px}
+.resep li{margin-bottom:6px}.resep span:last-child{color:var(--muted)}
+
+.seg{display:flex;gap:7px;margin:4px 0 22px;flex-wrap:wrap}
+.seg button{flex:1;font:600 12.5px "Rubik",sans-serif;padding:7px 4px;border-radius:8px;border:2px solid var(--line);background:var(--plate);box-shadow:0 2px 0 var(--sh);color:var(--text);cursor:pointer}
+.seg button.on{background:var(--blue);color:#fff;border-color:color-mix(in srgb,var(--blue) 60%,#1f2a4d)}
+.stephd{display:flex;gap:9px;align-items:center;margin-bottom:8px}
+.stephd b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:16px}
+.ta{width:100%;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);background:var(--base);border:2px solid var(--line);border-radius:9px;padding:9px 10px;resize:vertical;outline:none}
+.ta:focus,.isi input:focus{box-shadow:0 0 0 3px var(--yellow)}
+.msg{border-radius:10px;padding:9px 11px;margin-top:10px;font-size:13px;border:1.5px dashed}
 .msg ul{margin:4px 0;padding-left:18px}
-.msg.bad{background:var(--bad-s);color:var(--bad)}.msg.ok{background:var(--ok-s);color:var(--ok)}
-.snip{font-size:13.5px;margin:6px 0 0}
-.srow{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-.srow:last-child{border-bottom:0}
+.msg.bad{background:var(--bad-s);color:#a3302c;border-color:var(--red)}.msg.ok{background:var(--ok-s);color:#1f7a47;border-color:var(--green)}
+.snip{font-size:13.5px;margin:8px 0 0}
+.srow{display:flex;gap:12px;align-items:center;padding:9px 0;border-top:2px dashed var(--edge)}
+.card>.srow:first-of-type{border-top:0}
 .srow .lb{font-size:13.5px;font-weight:600}
-.sv{text-align:right;flex:none;min-width:86px}.sv b{font-size:14px}
-.dots{display:flex;gap:4px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
-.dots button{flex:none;width:28px;height:26px;border-radius:6px;border:1px solid var(--line);background:var(--sf);font:600 11.5px inherit;font-family:inherit;color:var(--mut);cursor:pointer}
-.dots .ans{background:var(--acc-s);color:var(--acc);border-color:transparent}
-.dots .ok{background:var(--ok-s);color:var(--ok);border-color:transparent}
-.dots .no{background:var(--bad-s);color:var(--bad);border-color:transparent}
-.dots .cur{border-color:var(--ink);color:var(--ink)}
-.qhd{display:flex;gap:8px;align-items:center;margin:2px 0 8px}
-.stim{background:var(--fill);border-color:transparent;font-size:14.5px}
+.sv{text-align:right;flex:none;min-width:86px}.sv b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:17px}
+
+/* sesi soal */
+.top{display:flex;align-items:center;gap:10px;min-height:38px;margin-top:10px}
+.top.run{position:sticky;top:6px;z-index:5;background:var(--plate);border:2px solid var(--line);border-radius:12px;box-shadow:0 4px 0 var(--sh);padding:6px 10px;margin:12px 0 10px}
+.hub{color:var(--blue);text-decoration:none;font-size:13px;font-weight:700;background:none;border:0;padding:6px 0;font-family:inherit;cursor:pointer}
+.ttl{font-size:16px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--ink);background:var(--yellow);border:2px solid color-mix(in srgb,var(--yellow) 55%,#6b4a00);border-radius:7px;padding:2px 8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cd.late{color:#fff;background:var(--red);border-color:color-mix(in srgb,var(--red) 60%,#1f2a4d)}
+.dots{display:flex;gap:5px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none}
+.dots button{flex:none;width:30px;height:28px;border-radius:6px;border:2px solid var(--line);background:var(--plate);font:700 11.5px "Rubik",sans-serif;color:var(--muted);cursor:pointer;box-shadow:0 2px 0 var(--sh)}
+.dots .ans{background:var(--acc-s);color:var(--blue)}
+.dots .ok{background:var(--green);color:#fff;border-color:color-mix(in srgb,var(--green) 60%,#1f2a4d)}
+.dots .no{background:var(--red);color:#fff;border-color:color-mix(in srgb,var(--red) 60%,#1f2a4d)}
+.dots .cur{background:var(--yellow);color:var(--ink);border-color:color-mix(in srgb,var(--yellow) 55%,#6b4a00);transform:translateY(-2px)}
+.qhd{display:flex;gap:8px;align-items:center;margin:2px 2px 12px}
+.stim{background:#f3f6fc;border:1.5px dashed #b9c6de;box-shadow:none;font-size:15px}
+.stim .st{display:none}
+.stim>b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:16px;display:block;margin-bottom:4px}
+.q{font-size:15px}
 .q p,.stim p{margin-bottom:8px}
 .ask{font-weight:600}
 .tw{overflow-x:auto;margin:6px 0 10px}
 table{border-collapse:collapse;font-size:13px;min-width:60%}
-th,td{border:1px solid var(--line);padding:5px 8px;text-align:left}
-th{background:var(--fill);font-weight:600}
-.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;font:14.5px/1.45 inherit;font-family:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-top:6px;cursor:pointer}
-.opt .lt{width:22px;height:22px;border-radius:6px;background:var(--fill);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
-.opt.sel{border-color:var(--acc);background:var(--acc-s)}.opt.sel .lt{background:var(--acc);color:#fff}
-.opt.good{border-color:var(--ok);background:var(--ok-s)}.opt.good .lt{background:var(--ok);color:#fff}
-.opt.wrong{border-color:var(--bad);background:var(--bad-s)}.opt.wrong .lt{background:var(--bad);color:#fff}
-.opt:disabled{cursor:default;color:var(--ink);opacity:1}
-.why{display:block;font-size:12.5px;color:var(--mut);margin-top:2px}
-.pq{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
-.pq div{background:var(--fill);border-radius:8px;padding:8px 10px}
-.pern{margin:4px 0 8px;padding-left:26px}
-.pern li{margin-bottom:4px}
-.bsr{display:flex;gap:6px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
-.bsr button{font:600 12px inherit;font-family:inherit;border:1px solid var(--line);background:var(--sf);color:var(--mut);border-radius:6px;padding:6px 8px;cursor:pointer;flex:none}
-.bsr button.sel{background:var(--acc-s);border-color:var(--acc);color:var(--acc)}
-.bsr button.key{border-color:var(--ok);color:var(--ok)}
-.bsr.wrong button.sel{background:var(--bad-s);border-color:var(--bad);color:var(--bad)}
-.isi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
-.isi input{font:600 17px inherit;font-family:inherit;color:var(--ink);background:var(--fill);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:180px;max-width:100%}
+th,td{padding:5px 8px;text-align:left;border-bottom:2px dashed var(--edge)}
+th{font-weight:700}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;font:14.5px/1.4 "Rubik",sans-serif;color:var(--text);background:var(--plate);border:1.5px solid var(--soft);box-shadow:0 2px 0 var(--soft2);border-radius:10px;padding:10px 12px;margin-top:9px;cursor:pointer;transition:transform .05s,box-shadow .05s}
+.opt:active:not(:disabled){transform:translateY(2px);box-shadow:none}
+.opt .lt{flex:none;width:22px;height:22px;border-radius:5px;display:grid;place-items:center;font-family:"Lilita One","Rubik",sans-serif;font-size:13px;background:#eef2f9;color:var(--muted);border:1.5px solid var(--soft);margin-top:-1px}
+.opt.sel{border-color:var(--blue);background:var(--acc-s)}.opt.sel .lt{background:var(--blue);color:#fff;border-color:var(--blue)}
+.opt.good{background:var(--ok-s);border-color:var(--green);animation:snap .3s cubic-bezier(.3,1.7,.5,1)}.opt.good .lt{background:var(--green);color:#fff;border-color:var(--green)}
+.opt.wrong{background:var(--bad-s);border-color:var(--red);animation:shake .3s}.opt.wrong .lt{background:var(--red);color:#fff;border-color:var(--red)}
+.opt:disabled{cursor:default;color:var(--text);opacity:1}
+@keyframes snap{0%{transform:translateY(-4px)}60%{transform:translateY(2px)}100%{transform:none}}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.why{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.pq{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:6px 0 4px}
+.pq div{background:var(--base);border:2px solid var(--line);border-radius:9px;padding:8px 11px;font-weight:600}
+.pq .sm{font-family:"Lilita One","Rubik",sans-serif;font-size:13px;color:var(--blue)}
+.pern{margin:6px 0 4px}
+.pern p{margin:0 0 6px;padding:7px 10px;border-radius:9px;background:var(--base);border:1.5px solid var(--soft)}
+.bs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.bsr{display:flex;gap:6px;align-items:center;padding:9px 10px;border-radius:10px;background:var(--plate);border:1.5px solid var(--soft);box-shadow:0 2px 0 var(--soft2);font-size:14px}
+.bsr.good{background:var(--ok-s);border-color:var(--green)}.bsr.wrong{background:var(--bad-s);border-color:var(--red)}
+.bsr button{font:700 11.5px "Rubik",sans-serif;border:1.5px solid var(--soft);background:#f6f8fc;color:var(--muted);border-radius:8px;padding:6px 9px;cursor:pointer;flex:none}
+.bsr button.sel{background:var(--blue);border-color:var(--blue);color:#fff}
+.bsr button.key{box-shadow:0 0 0 2px var(--green)}
+.bsr.wrong button.sel{background:var(--red);border-color:var(--red)}
+.isi{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.isi input{font:700 18px "Rubik",sans-serif;color:var(--text);background:var(--plate);border:2px solid var(--line);border-radius:9px;padding:8px 12px;width:180px;max-width:100%;outline:none}
 .pb{font-size:14px}
-.pb.good{border-color:var(--ok)}.pb.wrong{border-color:var(--bad)}
-.pb>b{font-size:14px}.pb.good>b{color:var(--ok)}.pb.wrong>b{color:var(--bad)}
-.kunci{font-weight:600;margin:4px 0}
+.pb.good{border-color:var(--green);background:#f5fbf7}.pb.wrong{border-color:var(--red);background:#fef7f6}
+.pb.good .st i{border-color:var(--green);background:#f5fbf7}.pb.wrong .st i{border-color:var(--red);background:#fef7f6}
+.pb>b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:17px}.pb.good>b{color:var(--green)}.pb.wrong>b{color:var(--red)}
+.kunci{font-weight:700;margin:6px 0}
 .steps{margin:4px 0 8px;padding-left:20px}
-.lbl{font-size:12px;color:var(--mut);margin:8px 0 0;padding-top:8px;border-top:1px solid var(--line)}
-.score{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.big{font-size:24px;font-weight:700;display:block;line-height:1.2}
-.rev summary{display:flex;gap:8px;align-items:center;color:var(--ink)}
-.rev .pb{border:0;padding:8px 0 0;margin:0;background:none}
-.rev.good{border-left:3px solid var(--ok)}.rev.wrong{border-left:3px solid var(--bad)}
+.steps li{margin-bottom:2px}
+.lbl{font-size:12px;color:var(--muted);margin:10px 0 0;padding-top:9px;border-top:2px dashed var(--edge)}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.big{font-size:38px;display:block;line-height:1.05}
+.rev summary{display:flex;gap:8px;align-items:center;color:var(--text)}
+.rev .pb{border:0;padding:8px 0 0;margin:0;background:none;box-shadow:none}
+.rev.good{border-left:6px solid var(--green)}.rev.wrong{border-left:6px solid var(--red)}
 .snip1{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ol{list-style:none;padding:0;margin:6px 0;font-size:14px}
-.ol li{padding:4px 6px;border-radius:6px}.ol .k{background:var(--ok-s)}.ol .x{background:var(--bad-s)}
-.kl{text-align:center;margin-top:12px}
-.kl.good{border-color:var(--ok)}.kl.wrong{border-color:var(--bad)}
-.klq{font-size:24px;font-weight:700;margin:12px 0}
+.ol li{padding:5px 8px;border-radius:7px}.ol .k{background:var(--ok-s)}.ol .x{background:var(--bad-s)}
+
+/* hitung cepat & game */
+.kl{text-align:center;margin-top:14px}
+.kl.good{border-color:var(--green)}.kl.wrong{border-color:var(--red)}
+.kl.good .st i{border-color:var(--green)}.kl.wrong .st i{border-color:var(--red)}
+.klq{font-size:30px;line-height:1.2;margin:12px 0}
+.klq.sm2{font-size:21px}
 .kl .isi{justify-content:center}.kl .steps{text-align:left}
-#nav{position:fixed;left:0;right:0;bottom:0;background:var(--sf);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
-#nav a{flex:1;max-width:160px;text-align:center;padding:14px 4px;font-size:12.5px;font-weight:600;color:var(--mut);text-decoration:none;border-top:2px solid transparent;margin-top:-1px}
-#nav a.on{color:var(--acc);border-top-color:var(--acc)}
-#nav i{font-style:normal;background:var(--bad-s);color:var(--bad);border-radius:8px;font-size:11px;padding:1px 5px;margin-left:4px}
-#toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;border-radius:8px;padding:9px 14px;z-index:20;max-width:90vw;text-align:center}
-button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.kl.wide{text-align:left}.kl.wide .klh{margin-top:6px}
+.klo{text-align:left;margin-top:8px}
+table.kisi{min-width:0;margin:6px auto;border-collapse:separate;border-spacing:0}
+table.kisi td{border:0;padding:3px 6px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+table.kisi td.n{background:var(--yellow);border:2px solid color-mix(in srgb,var(--yellow) 55%,#6b4a00);border-radius:6px;min-width:32px;box-shadow:0 2px 0 color-mix(in srgb,var(--yellow) 60%,#7a5200)}
+table.kisi td.o{color:var(--muted);font-size:13px}
+table.kisi td.r{color:var(--blue);font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:16px}
+
+/* tab bar balok */
+#nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 12px);display:flex;gap:6px;padding:14px 8px 8px;border-radius:14px;z-index:20;width:min(440px,calc(100% - 20px));
+  background:#3a4f86;border:2px solid #2e3f6e;box-shadow:0 5px 0 var(--sh)}
+#nav a{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0 5px;border-radius:7px;font-family:"Lilita One","Rubik",sans-serif;font-size:11.5px;letter-spacing:.3px;text-decoration:none;
+  color:#fff;background:var(--c);border:2px solid color-mix(in srgb,var(--c) 62%,#1f2a4d);box-shadow:0 2px 0 var(--sh);transform:translateY(3px);transition:transform .15s,box-shadow .15s;opacity:.9}
+#nav a.yk{color:var(--ink)}
+#nav a svg{width:19px;height:19px}
+#nav a::before,#nav a::after{content:'';position:absolute;top:-8px;width:14px;height:6px;background:var(--c);border:2px solid color-mix(in srgb,var(--c) 62%,#1f2a4d);border-bottom:0;border-radius:4px 4px 0 0;opacity:0;transition:opacity .15s}
+#nav a::before{left:18%}#nav a::after{right:18%}
+#nav a.on{transform:translateY(-3px);box-shadow:0 5px 0 color-mix(in srgb,var(--c) 60%,#141c36);opacity:1}
+#nav a.on::before,#nav a.on::after{opacity:1}
+#nav i{position:absolute;top:-7px;right:-4px;font-style:normal;font-family:"Rubik",sans-serif;font-weight:700;font-size:10.5px;background:#fff;color:var(--red);border:2px solid var(--red);border-radius:8px;padding:0 4px;line-height:14px;z-index:2}
+
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);z-index:50;padding:8px 14px;font-family:"Lilita One","Rubik",sans-serif;font-size:15px;border-radius:9px;
+  background:var(--yellow);color:#2f333d;border:2px solid color-mix(in srgb,var(--yellow) 55%,#6b4a00);box-shadow:0 4px 0 color-mix(in srgb,var(--yellow) 60%,#7a5200);max-width:90vw;text-align:center}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.appbar .ttl{white-space:normal;text-align:left;font-size:21px;overflow:visible}
 </style>
 </head>
 <body>
+<div class="scene" id="scene"></div>
 <main id="view"></main>
 <nav id="nav" aria-label="Menu utama"></nav>
 <div id="toast" role="status" hidden></div>
@@ -249,14 +350,22 @@ const TUAS=[{id:'bungkus',t:'ganti bungkus cerita',dim:'stim'},{id:'sembunyi',t:
 /* Arsip bentuk 2019–2026 (ringkas). Ditiru hanya pada soal LAMA; dihindari pada GESER dan BARU. */
 const LAMA={
   PU:ob([['PU-K1','5–6 nilai naik-turun selang-seling; tanya nilai periode berikutnya'],['PU-K2','dua barisan sekaligus, suku ke-5 kosong'],['PU-K3','desimal dan persen/pecahan; bilangan PALING MENDEKATI hasil'],['PU-K4','tabel 3 seri × 5 periode; kenaikan terbesar atau perkiraan periode berikutnya'],['PU-K5','nilai setelah perubahan persen diketahui; tanya nilai sebelum'],['PU-K6','tiga pilihan dengan satuan berbeda; pernyataan PALING TEPAT'],['PU-K7','dua informasi jumlah anggota dua kelompok beririsan'],['PU-K8','"a/b dari p% total adalah n"; tanya persen lain dari total'],['PU-K9','jumlah dua harga sekarang, perbandingan beberapa tahun lalu, kenaikan tetap'],['PU-K10','pola dua operasi bergantian dengan titik awal digeser'],['PU-K11','dua persamaan pendek (6x^2y = 12 dan xy = 3)'],['PU-K12','tabel persen capaian dengan nilai maksimum berbeda per kolom'],['PU-K13','persentase satu sumber digabung tabel persentase lain'],['PU-K14','dua kejadian berulang dengan periode berbeda; kapan bersamaan lagi'],['PU-K15','pertanyaan "apakah …" dengan pernyataan (i) dan (ii), opsi kecukupan data']]),
-  PK:ob([['PK-F1','informasi singkat lalu kuantitas P dan Q'],['PK-F2','pertanyaan lalu pernyataan (1) dan (2): kecukupan data'],['PK-F3','informasi lalu 3–4 pernyataan: benar/salah atau banyak yang benar'],['PK-F5','pilihan ganda dengan hasil akhir "a + b" atau "2p + q"']]),
-  PKM:ob([['PK-M1','operasi baru bersimbol'],['PK-M2','sifat bilangan: prima, ganjil-genap, sisa bagi, faktor'],['PK-M3','barisan aritmetika/geometri dengan suku berhuruf'],['PK-M8','rata-rata, median, jangkauan dengan satu data berhuruf'],['PK-M9','membandingkan pecahan, desimal, persen'],['PK-M10','prosedur: mesin input–output']]),
+  PK:ob([['PK-F1','informasi singkat lalu kuantitas P dan Q'],['PK-F2','pertanyaan lalu pernyataan (1) dan (2): kecukupan data'],['PK-F3','informasi lalu 3–4 pernyataan: benar/salah atau banyak yang benar'],['PK-F5','pilihan ganda dengan hasil akhir "a + b" atau "2p + q"'],['PK-F6','pilihan ganda "Ya/Tidak, karena …": setiap opsi berupa jawaban beserta alasannya']]),
+  PKM:ob([['PK-M1','operasi baru bersimbol'],['PK-M2','sifat bilangan: prima, ganjil-genap, sisa bagi, faktor'],['PK-M3','barisan aritmetika/geometri dengan suku berhuruf'],['PK-M8','rata-rata, median, jangkauan dengan satu data berhuruf'],['PK-M9','membandingkan pecahan, desimal, persen'],['PK-M10','prosedur: mesin input–output'],['PK-M11','teka-teki operasi kisi: simbol # dan @ mewakili operasi yang sama di persamaan mendatar dan menurun'],['PK-M12','langkah pembuktian: beberapa langkah penyelesaian bernomor, cari langkah yang salah atau alasan yang tepat']]),
   PM:ob([['PM-1','jual-beli: harga, diskon, uang muka, angsuran'],['PM-2','pola bertingkat: benda bertambah tiap tahap'],['PM-5','tabel data penjualan, stok, produksi'],['PM-7','jarak, kecepatan, waktu pada lintasan'],['PM-8','perubahan persen berulang (bocor, tumbuh, susut)']])
 };
 /* Bentuk arsip yang menuntut materi tertentu hanya dipakai setelah materinya dipelajari. */
-const NEED={'PU-K3':['BIL-13'],'PU-K4':['BIL-13'],'PU-K5':['BIL-13'],'PU-K8':['BIL-13'],'PU-K12':['BIL-13'],'PU-K13':['BIL-13'],'PU-K9':['BIL-14'],'PU-K11':['ALJ-01'],'PU-K14':['BIL-08','BIL-11'],'PU-K7':['ALJ-05'],'PK-M3':['ALJ-10'],'PK-M8':['DAT-09','U3-PU4'],'PK-M9':['BIL-13'],'PM-1':['BIL-13','BIL-19'],'PM-7':['BIL-14'],'PM-8':['BIL-13']};
-const PQ4=['Kuantitas P lebih besar daripada Q.','Kuantitas Q lebih besar daripada P.','Kuantitas P sama dengan Q.','Hubungan P dan Q tidak dapat ditentukan.'];
-const CK5=['Pernyataan (1) SAJA cukup, tetapi pernyataan (2) SAJA tidak cukup.','Pernyataan (2) SAJA cukup, tetapi pernyataan (1) SAJA tidak cukup.','DUA pernyataan BERSAMA-SAMA cukup, tetapi SATU pernyataan SAJA tidak cukup.','Pernyataan (1) SAJA cukup dan pernyataan (2) SAJA cukup.','Pernyataan (1) dan pernyataan (2) tidak cukup.'];
+const NEED={'PU-K3':['BIL-13'],'PU-K4':['BIL-13'],'PU-K5':['BIL-13'],'PU-K8':['BIL-13'],'PU-K12':['BIL-13'],'PU-K13':['BIL-13'],'PU-K9':['BIL-14'],'PU-K11':['ALJ-01'],'PU-K14':['BIL-08','BIL-11'],'PU-K7':['ALJ-05'],'PK-M3':['ALJ-10'],'PK-M8':['DAT-09','U3-PU4'],'PK-M9':['BIL-13'],'PM-1':['BIL-13','BIL-19'],'PM-7':['BIL-14'],'PK-M12':['BIL-15'],'PM-8':['BIL-13']};
+/* Opsi baku UTBK 2026. PQ5 bawaan (Q selalu positif); PQ4 bila Q bisa nol/negatif. PQ_OLD hanya untuk set lama. */
+const PQ5=['Kuantitas P lebih dari atau sama dengan 2 kali kuantitas Q.','Kuantitas P lebih dari kuantitas Q, tetapi kurang dari 2 kali kuantitas Q.','Kuantitas P sama dengan kuantitas Q.','Kuantitas P kurang dari kuantitas Q.','Tidak dapat ditentukan hubungan antara kuantitas P dan Q.'];
+const PQ4=['Kuantitas P lebih dari Q.','Kuantitas P kurang dari Q.','Kuantitas P sama dengan Q.','Tidak dapat ditentukan hubungan antara kuantitas P dan Q.'];
+const PQ_OLD=['Kuantitas P lebih besar daripada Q.','Kuantitas Q lebih besar daripada P.','Kuantitas P sama dengan Q.','Hubungan P dan Q tidak dapat ditentukan.'];
+const PQ_ASK='Berdasarkan informasi yang diberikan, manakah hubungan antara kuantitas P dan Q berikut yang benar?';
+const CK_PK=['Pernyataan (1) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (2) SAJA tidak cukup.','Pernyataan (2) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (1) SAJA tidak cukup.','DUA pernyataan BERSAMA-SAMA cukup untuk menjawab pertanyaan, tetapi SATU pernyataan SAJA tidak cukup.','Pernyataan (1) SAJA cukup untuk menjawab pertanyaan dan pernyataan (2) SAJA cukup.','Pernyataan (1) dan pernyataan (2) tidak cukup untuk menjawab pertanyaan.'];
+const CK_PU=['Pernyataan (i) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (ii) SAJA tidak cukup.','Pernyataan (ii) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (i) SAJA tidak cukup.','DUA pernyataan BERSAMA-SAMA cukup untuk menjawab pertanyaan, tetapi SATU pernyataan SAJA tidak cukup.','SALAH SATU pernyataan SAJA cukup untuk menjawab pertanyaan.','Pernyataan (i) dan pernyataan (ii) tidak cukup untuk menjawab pertanyaan.'];
+const pqList=q=>q.versi===5?PQ5:q.versi===4?PQ4:PQ_OLD;
+const ckList=q=>q.sub==='PU'?CK_PU:CK_PK;
+const ckLab=q=>q.sub==='PU'?['(i)','(ii)']:['(1)','(2)'];
 const JN={lama:'Bentuk lama',geser:'Digeser',baru:'Bentuk baru',varian:'Varian'};
 
 /* ---------- Simpanan ---------- */
@@ -264,18 +373,18 @@ const $=s=>document.querySelector(s);
 const KEY='latihan-kuantitatif.v2', SKEY=KEY+'.sesi', DAY=86400000;
 const HUB='https://faiqdk07-tech.github.io/progres-harian/#hari-ini';
 const UMAP={}; UNITS.concat(OLD).forEach(u=>UMAP[u.id]=u);
-function fresh(){ return {v:2,sets:[],hist:[],kil:[],resep:{},lunas:{},cek:'langsung',semua:false}; }
+function fresh(){ return {v:2,sets:[],hist:[],kil:[],game:{},resep:{},lunas:{},cek:'langsung',semua:false}; }
 let S; try{ S=Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||'null')||{}); }catch(_){ S=fresh(); }
-Object.keys(S.resep).forEach(k=>{ if(S.resep[k].v!==2) delete S.resep[k]; });
+Object.keys(S.resep).forEach(k=>{ if(S.resep[k].v!==3) delete S.resep[k]; });
 function save(){
   if(S.hist.length>6000) S.hist=S.hist.slice(-6000);
-  if(S.kil.length>4000) S.kil=S.kil.slice(-4000);
+  if(S.kil.length>4000) S.kil=S.kil.slice(-4000); Object.keys(S.game||{}).forEach(k=>{ if(S.game[k].length>600) S.game[k]=S.game[k].slice(-600); });
   try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem('lk.ringkas',JSON.stringify(ringkas())); }catch(e){}
 }
 function ringkas(){ const t=tasksOn(new Date()), k=ymd(new Date()), h=S.hist.filter(x=>dk(x.ts)===k), q=S.kil.filter(x=>dk(x.ts)===k);
   return {app:'latihan-kuantitatif',tanggal:k,tugas_selesai:t.filter(x=>x.done).length,tugas_total:t.length,soal:h.length+q.length,benar:h.filter(x=>x.ok).length+q.filter(x=>x.ok).length,beruntun:streak(),diperbarui:Date.now()}; }
 
-function applyTema(){ try{ const r=document.documentElement; if(S.tema==='terang') r.setAttribute('data-theme','light'); else if(S.tema==='gelap') r.setAttribute('data-theme','dark'); else r.removeAttribute('data-theme'); }catch(e){} }
+function applyTema(){ /* tampilan balok selalu terang */ }
 
 /* ---------- Utilitas ---------- */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -325,39 +434,50 @@ function weakUnits(date){ const pool=poolUnits(date), h=first(); return pool.map
 
 /* ---------- Resep bentuk harian ---------- */
 function lruMap(){ const m={}; Object.values(S.resep).forEach(r=>{ (r.keys||[]).forEach(k=>{ if(m[k]===undefined||m[k]<r.d) m[k]=r.d; }); }); return m; }
-/* Tahap bertahap: porsi bentuk baru naik setelah bentuk sebelumnya dikuasai (30 jawaban terakhir, benar ≥ 75%). */
-const TAHAP=[null,{nama:'Fondasi',w:[.5,.1],ket:'Sebagian besar bentuk lama supaya konsepnya kokoh dulu. Naik tahap setelah 20 soal bentuk lama dengan benar minimal 75%.'},{nama:'Peralihan',w:[.3,.2],ket:'Bentuk yang digeser mulai dominan. Naik tahap setelah 30 soal digeser dengan benar minimal 75%.'},{nama:'Bentuk baru',w:[.2,.3],ket:'Porsi bentuk baru paling besar. Ini tahap tertinggi.'}];
-function tahap(){ const h=first().filter(x=>x.mode==='harian'), a=stat(h.filter(x=>x.jenis==='lama').slice(-30)), b=stat(h.filter(x=>x.jenis==='geser').slice(-30)); return a.n<20||a.p<75?1:b.n<30||b.p<75?2:3; }
-function jenisList(n,t){ if(!n) return []; const w=TAHAP[t||2].w, lama=Math.round(n*w[0]), baru=t===1?Math.round(n*w[1]):Math.max(1,Math.round(n*w[1])); const a=[]; for(let i=0;i<n;i++) a.push(i<lama?'lama':i<lama+baru?'baru':'geser'); return RN.shuf(a); }
+/* Tahap per subtes: Fondasi → Peralihan setelah 20 soal bentuk lama benar ≥ 80%, Peralihan → Bentuk baru setelah 30 soal digeser
+   benar ≥ 80%. Turun satu tahap bila 10 soal terakhir subtes itu di bawah 60%. Bobot w = [porsi lama, porsi baru]. */
+const TAHAP=[null,{nama:'Fondasi',w:[.7,0],lv:[.5,.4,.1]},{nama:'Peralihan',w:[.3,.2],lv:[.3,.5,.2]},{nama:'Bentuk baru',w:[.2,.3],lv:[.2,.5,.3]}];
+function tahapInfo(sub){ const h=first().filter(x=>x.mode==='harian'&&x.sub===sub), a=stat(h.filter(x=>x.jenis==='lama').slice(-20)), b=stat(h.filter(x=>x.jenis==='geser').slice(-30));
+  let t=a.n<20||a.p<80?1:b.n<30||b.p<80?2:3, turun=false; const l=stat(h.slice(-10)); if(t>1&&l.n>=10&&l.p<60){ t--; turun=true; }
+  const txt=turun?'turun sementara: 10 soal terakhir '+l.p+'%':t===1?'bentuk lama '+Math.min(a.n,20)+'/20 soal'+(a.n?', benar '+a.p+'%':''):t===2?'digeser '+Math.min(b.n,30)+'/30 soal'+(b.n?', benar '+b.p+'%':''):'tahap tertinggi';
+  return {t,txt}; }
+function tahap(sub){ return tahapInfo(sub).t; }
+function jenisList(n,t){ if(!n) return []; const w=TAHAP[t||2].w, lama=Math.round(n*w[0]), baru=t===1?0:Math.max(1,Math.round(n*w[1])); const a=[]; for(let i=0;i<n;i++) a.push(i<lama?'lama':i<lama+baru?'baru':'geser'); return RN.shuf(a); }
 function buildResep(id,date,plan,mode){
-  const last=lruMap(), loc={}, keys=[], d=dayNo(date), th=mode==='sim'?2:tahap();
+  const last=lruMap(), loc={}, keys=[], d=dayNo(date), TH={PU:tahap('PU'),PK:tahap('PK'),PM:tahap('PM')};
   const pick=(dim,list)=>{ let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
     const k=dim+':'+best.id; loc[k]=(loc[k]||0)+1; keys.push(k); return best; };
   const kemFree={PU:['PU-KUA-1','PU-KUA-2','PU-KUA-3','PU-KUA-4'],PK:['PK-A','PK-A','PK-B','PK-C']};
   const pickKem=sub=>{ const ids=[...new Set(kemFree[sub])].map(x=>({id:x})); const w=kemFree[sub]; let k=pick('kem',ids).id; if(sub==='PK'&&k!=='PK-A'&&(loc['kem:'+k]||0)>1&&(loc['kem:PK-A']||0)<w.filter(x=>x==='PK-A').length){ k='PK-A'; loc['kem:PK-A']=(loc['kem:PK-A']||0)+1; } return k; };
   const op0=eqUnits(date), okL=l=>{ const f=l.filter(it=>!NEED[it.id]||NEED[it.id].some(u=>op0.has(u))); return f.length?f:l; };
   const slots=[], grup=[];
-  ['PU','PK'].forEach(sub=>{ jenisList(plan[sub]||0,th).forEach(j=>{ const s={sub,jenis:j};
+  const f4=!!plan.PK&&(mode==='sim'||((d%7)+7)%7===2), cnt={PU:plan.PU||0,PK:(plan.PK||0)-(f4?3:0)};
+  ['PU','PK'].forEach(sub=>{ jenisList(cnt[sub],TH[sub]).forEach(j=>{ const s={sub,jenis:j};
     if(j==='lama'){ s.lama=pick('lama',okL(LAMA[sub])); if(sub==='PK') s.lama2=pick('lamaM',okL(LAMA.PKM)); }
     else if(j==='baru'){ s.tanya=pick('tanya:'+sub,TANYA[sub]); s.stim=pick('stim:'+sub,STIM[sub]); s.kem=s.tanya.kem||pickKem(sub); }
     else { s.tuas=pick('tuas',TUAS); if(s.tuas.dim==='stim') s.stim=pick('stim:'+sub,STIM[sub]); if(s.tuas.dim==='tanya') s.tanya=pick('tanya:'+sub,TANYA[sub]); s.kem=(s.tanya&&s.tanya.kem)||pickKem(sub); }
     slots.push(s); }); });
+  if(f4){ const g={id:'k1',sub:'PK',jenis:TH.PK===1||RN.chance(.5)?'lama':'geser',lama:{id:'PK-F4',t:'satu informasi untuk tiga soal berurutan'}};
+    if(g.jenis==='geser'){ g.tuas=pick('tuas',TUAS.filter(t=>t.dim==='stim')); g.stim=pick('stim:PK',STIM.PK); }
+    grup.push(g); RN.shuf(['PK-A','PK-A','PK-B','PK-C']).slice(0,3).forEach(k=>slots.push({sub:'PK',jenis:g.jenis,grup:'k1',kem:k})); }
   if(plan.PM){ const ng=plan.PM[0], sz=plan.PM[1];
-    const js=ng===2?(th===1?['lama','geser']:th===3?['geser','baru']:d%3===0?['lama','baru']:['geser','baru']):RN.shuf(Array.from({length:ng},(_,i)=>i===0?'lama':i===ng-1?'baru':'geser'));
-    for(let i=0;i<ng;i++){ const g={id:'g'+(i+1),jenis:js[i]};
+    const js=ng===2?(TH.PM===1?['lama','geser']:TH.PM===3?['geser','baru']:d%3===0?['lama','baru']:['geser','baru']):jenisList(ng,TH.PM);
+    for(let i=0;i<ng;i++){ const g={id:'g'+(i+1),sub:'PM',jenis:js[i]};
       if(g.jenis!=='baru') g.lama=pick('lama',okL(LAMA.PM));
       if(g.jenis!=='lama'){ g.stim=pick('stim:PM',STIM.PM); g.kon=pick('kon',KONTEKS); }
       if(g.jenis==='geser') g.tuas=pick('tuas',TUAS.filter(t=>t.id!=='format'));
       grup.push(g);
-      (sz===4?['PM-A','PM-B','PM-B','PM-C']:['PM-A','PM-B','PM-C']).forEach(k=>{ const s={sub:'PM',jenis:g.jenis,grup:g.id,kem:k}; if(g.jenis!=='lama') s.tanya=pick('tanya:'+k,TANYA[k]); slots.push(s); }); } }
+      (g.jenis==='lama'?(sz===4?['PM-B','PM-B','PM-B','PM-C']:['PM-B','PM-B','PM-C']):(sz===4?['PM-A','PM-B','PM-B','PM-C']:['PM-A','PM-B','PM-C'])).forEach(k=>{ const s={sub:'PM',jenis:g.jenis,grup:g.id,kem:k}; if(g.jenis!=='lama') s.tanya=pick('tanya:'+k,TANYA[k]); slots.push(s); }); } }
   /* materi: fokus hari ini, lalu unit lemah, sisanya acak dari unit terbuka dan ulasan */
   const open=poolUnits(date), rec=recentUnits(date), fokus=fokusUnits(date), weak=weakUnits(date).filter(u=>!fokus.includes(u));
   const bag=[]; open.forEach(u=>{ bag.push(u); if(rec.includes(u)) bag.push(u,u); });
-  const owners=slots.filter(s=>s.sub!=='PM'&&s.jenis!=='lama').concat(grup); const nf=Math.max(1,Math.ceil(owners.length/3));
+  const owners=slots.filter(s=>!s.grup&&s.jenis!=='lama').concat(grup); const nf=Math.max(1,Math.ceil(owners.length/3));
   RN.shuf(owners).forEach((o,i)=>{ o.unit=i<nf?fokus[i%fokus.length]:i<nf+Math.min(weak.length,2)*2?weak[Math.floor((i-nf)/2)]:RN.pick(bag); });
   grup.forEach(g=>{ let u2=RN.pick(bag), t=0; while(u2===g.unit&&t++<8) u2=RN.pick(bag); g.unit2=u2!==g.unit?u2:null; });
+  ['PU','PK','PM'].forEach(sub=>{ const ss=RN.shuf(slots.filter(s=>s.sub===sub)), lv=TAHAP[TH[sub]].lv, nL=Math.round(ss.length*lv[0]), nH=Math.round(ss.length*lv[2]);
+    ss.forEach((s,i)=>{ s.lvl=i<nL?'L':i<nL+nH?'H':'M'; }); });
   slots.forEach((s,i)=>{ s.no=i+1; });
-  const r={v:2,id,d,tgl:ymd(date),mode:mode||'harian',tahap:th,fokus,slots,grup,keys,ts:Date.now()};
+  const r={v:3,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,fokus,slots,grup,keys,ts:Date.now()};
   S.resep[id]=r;
   Object.keys(S.resep).forEach(k=>{ if(S.resep[k].d<dayNo()-45) delete S.resep[k]; });
   save(); return r;
@@ -373,19 +493,20 @@ function slotShort(s,r){ const g=s.grup?r.grup.find(x=>x.id===s.grup):null;
 function sidikLama(){ const out=[], lim=dayNo()-10; S.sets.slice().reverse().forEach(st=>{ if(dayNo(st.ts)<lim) return; st.soal.forEach(q=>{ if(q.sidik&&out.length<50) out.push(q.sub+': '+q.sidik); }); }); return out; }
 function judulLama(){ const out=[]; S.sets.slice(-8).forEach(st=>(st.stimulus||[]).forEach(g=>{ if(g.judul) out.push(g.judul); })); return out.slice(-12); }
 function slotLine(s){
-  const u=s.unit?' Unit utama: '+uname(s.unit)+'.':' Unit: pilih dari daftar MATERI yang cocok dengan kerangka ini.';
-  if(s.sub==='PM'){ const head=s.no+'. ['+s.kem+'] '+KEM[s.kem].split(':')[0]; return s.jenis==='lama'?head+' (rangkaian pertanyaan mengikuti arsip).':head+' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").'; }
-  if(s.jenis==='lama') return s.no+'. ['+s.sub+' · LAMA] Tiru kerangka arsip '+s.lama.id+' ('+s.lama.t+')'+(s.lama2?' pada materi '+s.lama2.id+' ('+s.lama2.t+'); bila materi itu di luar unit, pakai materi unit ini':'')+'. Mode Dasar: hanya angka dan konteks yang baru.'+u;
-  if(s.jenis==='geser') return s.no+'. ['+s.sub+' · GESER] Kemampuan '+s.kem+'.'+u+' Ambil bentuk arsip terdekat, ubah SATU hal dengan tuas "'+s.tuas.t+'"'+(s.stim?' → stimulus: '+s.stim.t:'')+(s.tanya?' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'")':'')+'.';
-  return s.no+'. ['+s.sub+' · BARU] Kemampuan '+s.kem+'.'+u+' Bentuk yang belum pernah keluar → stimulus: '+s.stim.t+'; arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").';
+  const u=s.unit?' Unit utama: '+uname(s.unit)+'.':' Unit: pilih dari daftar MATERI yang cocok dengan kerangka ini.', lv=' Level '+s.lvl+'.';
+  if(s.grup){ const head=s.no+'. ['+s.kem+'] '+KEM[s.kem].split(':')[0]+'.'+lv; return s.jenis==='lama'?head+(s.sub==='PK'?' Tipe bebas (pg, pq, cukup, atau bs) asal berbeda dari dua soal lain di stimulus ini.':' Pertanyaan mengikuti rangkaian arsip.'):head+(s.tanya?' Arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").':' Tipe bebas, berbeda dari dua soal lain di stimulus ini.'); }
+  if(s.jenis==='lama') return s.no+'. ['+s.sub+' · LAMA]'+lv+' Tiru kerangka arsip '+s.lama.id+' ('+s.lama.t+')'+(s.lama2?' pada materi '+s.lama2.id+' ('+s.lama2.t+'); bila materi itu di luar unit, pakai materi unit ini':'')+'. Mode Dasar: hanya angka dan konteks yang baru.'+u;
+  if(s.jenis==='geser') return s.no+'. ['+s.sub+' · GESER]'+lv+' Kemampuan '+s.kem+'.'+u+' Ambil bentuk arsip terdekat, ubah SATU hal dengan tuas "'+s.tuas.t+'"'+(s.stim?' → stimulus: '+s.stim.t:'')+(s.tanya?' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'")':'')+'.';
+  return s.no+'. ['+s.sub+' · BARU]'+lv+' Kemampuan '+s.kem+'.'+u+' Bentuk yang belum pernah keluar → stimulus: '+s.stim.t+'; arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").';
 }
 function grupLine(g){ const u='Unit: '+uname(g.unit)+(g.unit2?' dan '+uname(g.unit2):'')+'.';
+  if(g.sub==='PK') return 'STIMULUS '+g.id+' [PK-F4 · '+(g.jenis==='lama'?'LAMA':'GESER')+'] Satu informasi (cerita, tabel, atau aturan) dipakai tiga soal berurutan; tiap soal bisa dijawab tanpa jawaban soal lain'+(g.jenis==='geser'?'; ubah dengan tuas "'+g.tuas.t+'" → stimulus: '+g.stim.t:'')+'. Unit: '+uname(g.unit)+'.';
   if(g.jenis==='lama') return 'STIMULUS '+g.id+' [PM · LAMA] Tiru templat arsip '+g.lama.id+' ('+g.lama.t+'). '+u;
   if(g.jenis==='geser') return 'STIMULUS '+g.id+' [PM · GESER] Berangkat dari templat arsip '+g.lama.id+' ('+g.lama.t+'), ubah dengan tuas "'+g.tuas.t+'" → stimulus: '+g.stim.t+', konteks '+g.kon.t+'. '+u;
   return 'STIMULUS '+g.id+' [PM · BARU] Belum pernah keluar → stimulus: '+g.stim.t+', konteks '+g.kon.t+', menggabungkan dua konsep. '+u; }
 const ATURAN=[
  'Mulai dari KEMAMPUAN, bukan dari templat. Soal yang baik bisa dijawab orang yang menguasai kemampuannya walau belum pernah melihat bentuknya. Bila soal bisa dijawab hanya dengan mengenali templat, ganti bentuknya.',
- 'Soal LAMA = Mode Dasar (level L). Soal GESER = satu unsur diubah (level M). Soal BARU = sedikitnya dua unsur diubah (level H). Dalam satu set, tidak ada dua soal dengan bentuk yang sama.',
+ 'Jenis bentuk dan level adalah dua hal terpisah; ikuti keduanya sesuai resep. LAMA = Mode Dasar, GESER = satu unsur diubah, BARU = sedikitnya dua unsur diubah. Level L = satu–dua langkah dengan konsep langsung; M = dua–tiga langkah atau satu jebakan; H = penalaran berlapis, gabungan dua konsep, atau menuntut menguji kasus. Jadi bisa ada bentuk baru yang mudah dan bentuk lama yang sulit. Dalam satu set, tidak ada dua soal dengan bentuk yang sama.',
  'Setiap soal bisa dijawab hanya dari stimulusnya dan selesai dalam waktu resmi: PU 60 detik, PK 60 detik, PM sekitar 2 menit. Tanpa kalkulator. Bila terlalu panjang, sederhanakan angkanya, bukan bentuknya.',
  'Hitungan hanya memakai konsep dari daftar MATERI. Jangan menuntut konsep yang tidak ada di daftar. Bila sebuah kerangka arsip menuntut materi di luar daftar, pertahankan bentuk pertanyaannya dan ganti isinya dengan materi dari daftar; bila tidak mungkin, pakai bentuk arsip lain yang cocok dan tulis kodenya di "bentuk_lama".',
  'Pilihan ganda: lima opsi, tepat satu benar. Setiap pengecoh mewakili satu kesalahan khas (hasil langkah antara, persen dari nilai yang salah, arah terbalik, syarat terlewat), bukan asal salah. Opsi angka diurutkan naik. Kunci tersebar di A–E dalam satu set.',
@@ -399,18 +520,19 @@ function fmtJson(mode,tg,sub,adaPM){
   (adaPM?'    "stimulus": [\n      {"id": "g1", "judul": "judul pendek", "teks": ["paragraf 1", "paragraf 2"], "tabel": [["Kolom 1", "Kolom 2"], ["isi", "isi"]]}\n    ],\n':'')+
   '    "soal": [\n'+
   '      {"no": 1, "sub": "PU", "kemampuan": "PU-KUA-1", "jenis": "geser", "bentuk_lama": "PU-K5", "diubah": "arah tanya", "unit": "BIL-13", "level": "M", "sidik": "struk belanja, cari harga sebelum diskon, PG angka", "teks": ["stimulus soal ini (boleh dihapus bila tidak perlu)"], "tabel": [["Kolom 1", "Kolom 2"], ["isi", "isi"]], "tipe": "pg", "perintah": "kalimat pertanyaan", "opsi": ["…", "…", "…", "…", "…"], "kunci": "C", "alasan": ["kesalahan yang menghasilkan opsi A", "…", "Kunci.", "…", "…"], "langkah": ["langkah 1", "langkah 2"], "jebakan": "kesalahan paling sering"},\n'+
-  '      {"no": 2, "sub": "PK", "kemampuan": "PK-B", "jenis": "baru", "bentuk_lama": "PK-F1", "diubah": "stimulus dan arah tanya", "unit": "BIL-15", "level": "H", "sidik": "…", "tipe": "pq", "perintah": "informasi yang diberikan", "p": "isi kuantitas P", "q": "isi kuantitas Q", "kunci": "A", "alasan": ["Kunci.", "…", "…", "…"], "langkah": ["…"], "jebakan": "…"},\n'+
+  '      {"no": 2, "sub": "PK", "kemampuan": "PK-B", "jenis": "baru", "bentuk_lama": "PK-F1", "diubah": "stimulus dan arah tanya", "unit": "BIL-15", "level": "H", "sidik": "…", "tipe": "pq", "versi": 5, "perintah": "informasi yang diberikan", "p": "isi kuantitas P", "q": "isi kuantitas Q", "kunci": "B", "alasan": ["…", "Kunci.", "…", "…", "…"], "langkah": ["…"], "jebakan": "…"},\n'+
   '      {"no": 3, "sub": "PK", "kemampuan": "PK-A", "jenis": "lama", "bentuk_lama": "PK-F2", "diubah": "-", "unit": "BIL-09", "level": "L", "sidik": "…", "tipe": "cukup", "perintah": "pertanyaan yang ingin dijawab", "pernyataan": ["isi pernyataan (1)", "isi pernyataan (2)"], "kunci": "C", "alasan": ["…", "…", "Kunci.", "…", "…"], "langkah": ["…"], "jebakan": "…"},\n'+
   '      {"no": 4, "sub": "PM", "stim": "g1", "kemampuan": "PM-B", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "isian", "perintah": "…", "kunci": "12,5", "langkah": ["…"], "jebakan": "…"},\n'+
   '      {"no": 5, "sub": "PM", "stim": "g1", "kemampuan": "PM-C", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "bs", "perintah": "Tentukan apakah setiap pernyataan berikut BENAR atau SALAH.", "pernyataan": [{"teks": "…", "benar": true}, {"teks": "…", "benar": false}, {"teks": "…", "benar": true}], "langkah": ["satu langkah per pernyataan"], "jebakan": "…"}\n'+
   '    ]\n  }\n}\n'+
-  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja, opsinya sudah baku di aplikasi (A: P lebih besar · B: Q lebih besar · C: sama · D: tidak dapat ditentukan); "cukup" = isi dua pernyataan saja, opsi kecukupan baku A–E (A: (1) saja · B: (2) saja · C: bersama-sama · D: masing-masing · E: tidak cukup); "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal.';
+  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p", "q", dan "versi" saja, opsinya baku UTBK 2026 di aplikasi: "versi": 5 (bawaan, hanya bila Q selalu positif) A: P ≥ 2Q · B: Q < P < 2Q · C: P = Q · D: P < Q · E: tidak dapat ditentukan; "versi": 4 bila Q bisa nol atau negatif, A: P > Q · B: P < Q · C: P = Q · D: tidak dapat ditentukan. "cukup" = isi dua pernyataan saja, opsinya baku dan berbeda per subtes: PU memakai pernyataan (i) dan (ii) dengan A: (i) saja · B: (ii) saja · C: bersama-sama · D: SALAH SATU saja cukup · E: tidak cukup; PK memakai (1) dan (2) dengan A: (1) saja · B: (2) saja · C: bersama-sama · D: masing-masing cukup · E: tidak cukup. Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal.';
 }
+function tahapNote(r){ const subs=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)); return ' Tahapku: '+subs.map(x=>x+' '+TAHAP[r.tahap[x]].nama).join(', ')+'.'+(subs.some(x=>r.tahap[x]===1)?' Pada subtes bertahap Fondasi, soal GESER hanya mengubah bentuk, bukan kerumitan hitungannya.':''); }
 function promptSet(r){
   const pool=[...new Set(r.fokus.concat(r.slots.map(s=>s.unit),r.grup.map(g=>g.unit),r.grup.map(g=>g.unit2),weakUnits(fromYmd(r.tgl))).filter(Boolean))];
   const kems=[...new Set(r.slots.map(s=>s.kem).filter(Boolean))];
   const lain=poolUnits(fromYmd(r.tgl)).filter(u=>!pool.includes(u));
-  const adaPM=r.grup.length>0, sub=r.mode==='sim'?r.slots[0].sub:null, sd=sidikLama(), jd=judulLama();
+  const adaGrup=r.grup.length>0, adaPM=r.grup.some(g=>g.sub==='PM'), sub=r.mode==='sim'?r.slots[0].sub:null, sd=sidikLama(), jd=judulLama();
   const arsip=[]; if(r.slots.some(s=>s.sub==='PU')) arsip.push('PU kuantitatif: '+LAMA.PU.map(x=>x.id+' '+x.t).join('; ')+'.');
   if(r.slots.some(s=>s.sub==='PK')) arsip.push('PK format: '+LAMA.PK.map(x=>x.id+' '+x.t).join('; ')+'; PK-F4 satu informasi untuk tiga soal berurutan.','PK materi: '+LAMA.PKM.map(x=>x.id+' '+x.t).join('; ')+'.');
   if(adaPM) arsip.push('PM templat: '+LAMA.PM.map(x=>x.id+' '+x.t).join('; ')+'; urutan soal lama selalu hitung total → hitung bagian → pilihan termurah.');
@@ -418,7 +540,7 @@ function promptSet(r){
   r.slots.forEach(s=>{ if(s.grup&&s.grup!==lastG){ lastG=s.grup; body+='\n'+grupLine(r.grup.find(g=>g.id===s.grup))+'\n'; } else if(!s.grup&&lastG){ lastG=null; body+='\n'; } body+=(s.grup?'   ':'')+slotLine(s)+'\n'; });
   return 'Buatkan '+(r.mode==='sim'?'satu set simulasi '+SUB[sub].nama+' ('+r.slots.length+' soal, '+mmss(SUB[sub].simMs)+' menit)':'set latihan kuantitatif UTBK-SNBT untuk '+tgl(r.tgl,true)+' ('+r.slots.length+' soal)')+
   ' dengan arah bentuk soal tahun 2027. Keluarkan HANYA satu blok kode json, tanpa teks lain.\n\n'+
-  'TUJUAN\nKonsep materinya tetap, bentuk soalnya yang berganti. Resep di bawah sudah diputar oleh aplikasiku supaya stimulus, arah tanya, dan format hari ini berbeda dari hari-hari sebelumnya. Ikuti resep tiap nomor.'+(r.mode!=='sim'&&r.tahap===1?' Aku masih di tahap fondasi: pakai angka sederhana dan satu gagasan per soal; pada soal GESER dan BARU yang baru hanya bentuknya, bukan tingkat kerumitan hitungannya.':'')+'\n\n'+
+  'TUJUAN\nKonsep materinya tetap, bentuk soalnya yang berganti. Resep di bawah sudah diputar oleh aplikasiku supaya stimulus, arah tanya, dan format hari ini berbeda dari hari-hari sebelumnya. Ikuti resep tiap nomor, termasuk levelnya.'+tahapNote(r)+'\n\n'+
   'KEMAMPUAN YANG DIUJI\n'+kems.map(k=>'- '+k+': '+KEM[k]).join('\n')+'\n\n'+
   'MATERI (hitungan hanya dari unit ini)\n'+pool.map(u=>'- '+unameP(u,fromYmd(r.tgl))+(r.fokus.includes(u)?' (fokus hari ini)':'')).join('\n')+'\n'+
   (lain.length?'Sudah kupelajari juga dan boleh dipakai bila bentuk soal menuntutnya: '+lain.map(uname).join('; ')+'.\n':'')+
@@ -429,21 +551,23 @@ function promptSet(r){
   (jd.length?'\nCERITA YANG SUDAH DIPAKAI (jangan mirip): '+jd.join('; ')+'\n':'')+
   '\nATURAN\n'+ATURAN.map((a,i)=>(i+1)+'. '+a).join('\n')+'\n'+
   (adaPM?(ATURAN.length+1)+'. PM: satu stimulus dipakai beberapa soal dengan urutan merumuskan (PM-A) → menggunakan (PM-B) → menafsirkan (PM-C). Angka realistis; pembulatan harus masuk akal.\n':'')+
-  '\nFORMAT JSON (persis; contoh di bawah hanya menunjukkan bentuk tiap tipe, isi dan jumlah soal mengikuti resep)\n'+fmtJson(r.mode,r.tgl,sub,adaPM);
+  '\nFORMAT JSON (persis; contoh di bawah hanya menunjukkan bentuk tiap tipe, isi dan jumlah soal mengikuti resep)\n'+fmtJson(r.mode,r.tgl,sub,adaGrup);
 }
 function qPlain(q,st){ const g=q.stim&&st?(st.stimulus||[]).find(x=>x.id===q.stim):null; let t='';
   if(g) t+=g.teks.join('\n')+'\n'+(g.tabel?g.tabel.map(r=>r.join(' | ')).join('\n')+'\n':'');
   if(q.teks&&q.teks.length) t+=q.teks.join('\n')+'\n'; if(q.tabel) t+=q.tabel.map(r=>r.join(' | ')).join('\n')+'\n';
   t+=q.perintah+'\n';
   if(q.tipe==='pg') t+=q.opsi.map((o,i)=>'ABCDE'[i]+'. '+o).join('\n')+'\nKunci: '+'ABCDE'[q.kunci];
-  else if(q.tipe==='pq') t+='P: '+q.p+'\nQ: '+q.q+'\nKunci: '+PQ4[q.kunci];
-  else if(q.tipe==='cukup') t+='(1) '+q.pern[0]+'\n(2) '+q.pern[1]+'\nKunci: '+CK5[q.kunci];
+  else if(q.tipe==='pq') t+='P: '+q.p+'\nQ: '+q.q+'\nKunci: '+pqList(q)[q.kunci];
+  else if(q.tipe==='cukup') t+=ckLab(q)[0]+' '+q.pern[0]+'\n'+ckLab(q)[1]+' '+q.pern[1]+'\nKunci: '+ckList(q)[q.kunci];
   else if(q.tipe==='bs') t+=q.bs.map(b=>'- '+b.teks+' ['+(b.benar?'BENAR':'SALAH')+']').join('\n');
   else t+='Kunci: '+fmt(q.kunciNum);
   return t; }
+function varLvl(q){ const o='LMH', a=o.indexOf(q.lvl||'M'), cap=tahap(q.sub)===1?1:2; return o[Math.max(0,Math.min(a<0?1:a,cap))]; }
 function promptVarian(q,st){
   return 'Aku salah mengerjakan soal di bawah. Buatkan 3 varian untuk melatih kemampuan yang sama dengan bentuk berbeda. Keluarkan HANYA satu blok kode json.\n\n'+
   'KEMAMPUAN: '+(q.kem||'-')+(KEM[q.kem]?' ('+KEM[q.kem]+')':'')+'\nUNIT: '+uname(q.unit)+'\n\nSOAL ASAL\n'+qPlain(q,st)+'\n\n'+
+  'TAHAP '+q.sub+': '+TAHAP[tahap(q.sub)].nama+'. Level ketiga varian: '+varLvl(q)+' (tidak lebih sulit dari soal asal dan dari tahapku)'+(tahap(q.sub)===1?'; tetap memakai bentuk yang dekat dengan arsip':'')+'.\n\n'+
   'TIGA VARIAN\n1. Konteks diganti total, struktur hitungan sama.\n2. Arah tanya dibalik: yang tadinya diketahui menjadi yang ditanya.\n3. Satu syarat ditambah sehingga perlu satu langkah lagi.\nKetiganya memakai stimulus dan format jawaban yang berbeda dari soal asal bila memungkinkan.\n\n'+
   'ATURAN\n'+[ATURAN[2],ATURAN[3],ATURAN[4],ATURAN[5],ATURAN[7]].map((a,i)=>(i+1)+'. '+a).join('\n')+'\n\n'+
   'FORMAT JSON (set "mode" tetap "varian", "jenis" tiap soal "varian", "sub" tiap soal "'+q.sub+'")\n'+fmtJson('varian','',q.sub,q.sub==='PM').replace('"mode": "varian",','"mode": "varian",\n    "asal": "'+q.qid+'",');
@@ -469,8 +593,8 @@ function parseSet(raw){
     if(q.stim&&!stim.some(g=>g.id===q.stim)) E('stimulus "'+q.stim+'" tidak ada di daftar stimulus.');
     const k=String(x.kunci==null?'':x.kunci).trim().toUpperCase();
     if(q.tipe==='pg'){ q.opsi=[].concat(x.opsi||[]).map(String); if(q.opsi.length!==5) E('pilihan ganda harus 5 opsi.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>=q.opsi.length) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
-    else if(q.tipe==='pq'){ q.p=String(x.p||'').trim(); q.q=String(x.q||'').trim(); if(!q.p||!q.q) E('isi "p" dan "q".'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>3) E('kunci P–Q harus A–D.'); q.alasan=[].concat(x.alasan||[]).map(String); }
-    else if(q.tipe==='cukup'){ q.pern=[].concat(x.pernyataan||[]).map(String); if(q.pern.length!==2) E('kecukupan data butuh tepat 2 pernyataan.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
+    else if(q.tipe==='pq'){ q.p=String(x.p||'').trim(); q.q=String(x.q||'').trim(); q.versi=String(x.versi)==='4'?4:5; if(!q.p||!q.q) E('isi "p" dan "q".'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>=q.versi) E('kunci P–Q versi '+q.versi+' harus '+(q.versi===5?'A–E':'A–D')+'.'); q.alasan=[].concat(x.alasan||[]).map(String); }
+    else if(q.tipe==='cukup'){ q.pern=[].concat(x.pernyataan||[]).map(p=>String(p).replace(/^\s*\((i{1,2}|1|2)\)\s*/,'')); if(q.pern.length!==2) E('kecukupan data butuh tepat 2 pernyataan.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
     else if(q.tipe==='bs'){ q.bs=[].concat(x.pernyataan||[]).map(p=>({teks:String(p&&p.teks||''),benar:p&&p.benar})); if(q.bs.length<3||q.bs.length>4||q.bs.some(p=>!p.teks||typeof p.benar!=='boolean')) E('benar/salah butuh 3 pernyataan dengan "teks" dan "benar": true/false.'); }
     else if(q.tipe==='isian'){ q.kunciNum=parseNum(x.kunci); if(isNaN(q.kunciNum)) E('kunci isian harus angka.'); }
     else E('"tipe" harus pg, pq, cukup, bs, atau isian.');
@@ -498,7 +622,7 @@ function tasksOn(date){ const k=ymd(date);
   const kil=S.kil.filter(x=>dk(x.ts)===k).length, st=harianSet(k), pr=st?setProg(st):{n:16,a:0};
   const redo=S.hist.filter(h=>h.rep&&dk(h.ts)===k).length+Object.values(S.lunas).filter(t=>dk(t)===k).length, pend=salahList().length;
   return [
-    {id:'kilat',t:'Hitung cepat',d:'20 isian kilat, target 20 detik per soal',cur:Math.min(kil,20),n:20,act:'kilat',btn:'Mulai'},
+    {id:'kilat',t:'Hitung cepat',d:'20 soal: 12 hitungan, 5 dibalik arah, 3 estimasi. Target 20 detik per soal',cur:Math.min(kil,20),n:20,act:'kilat',btn:'Mulai'},
     {id:'set',t:'Set hari ini',d:st?pr.n+' soal: PU, PK, dan PM dengan bentuk yang diputar':'Belum ada set. Salin prompt, jalankan di Claude, tempel hasilnya.',cur:pr.a,n:pr.n,act:st?'mulai':'gosoal',v:st?st.id:'',btn:st?(pr.a?'Lanjut':'Mulai'):'Siapkan'},
     {id:'salah',t:'Ulang soal salah',d:pend?pend+' soal menunggu diulang':'Tidak ada soal salah yang menunggu',cur:pend?Math.min(redo,3):3,n:3,act:'ulang',btn:'Ulang',off:!pend}
   ].map(x=>Object.assign(x,{done:x.cur>=x.n}));
@@ -518,7 +642,7 @@ function isAns(q,a){ return q.tipe==='isian'?!isNaN(parseNum(a.is)):q.tipe==='bs
 function grade(q,a){ if(q.tipe==='isian') return Math.abs(parseNum(a.is)-q.kunciNum)<1e-9; if(q.tipe==='bs') return q.bs.every((r,i)=>a.bs[i]===r.benar); return a.c===q.kunci; }
 function tick(R){ if(!R||R.fin) return; const now=Date.now(); if(!R.A[R.cur].done) R.T[R.cur]+=Math.min(now-R.t0,10*60000); R.t0=now; }
 function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a);
-  S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
+  S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
   if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid]; }
 function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; save(); clearSesi(); V.hasil=R; V.run=null; render(); window.scrollTo(0,0); }
 function timeLeft(R){ return R.limit?R.started+R.limit-Date.now():null; }
@@ -532,14 +656,263 @@ function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null')
 function kilatGens(){ const pool=eqUnits(); const ok=g=>pool.has(g.unit)||(V13[g.unit]?V13[g.unit][0]:[]).some(p=>pool.has(p)); let gs=GENS.filter(ok); if(!gs.length) gs=GENS.filter(g=>g.unit==='MD-02'); return gs; }
 function kilatSet(n){ const pool=poolUnits(); let gs=kilatGens(); gs=RN.shuf(gs); const out=[]; let i=0, guard=0;
   while(out.length<n&&guard++<n*40){ const g=gs[i++%gs.length]; let it=null; try{ it=g.fn({open:pool}); }catch(e){} if(it&&isFinite(it.kunci)) out.push(Object.assign(it,{key:g.key})); } return out; }
-function startKilat(){ V.kl={items:kilatSet(20),i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
-function kilatCheck(){ const K=V.kl; if(!K||K.fb) return; const it=K.items[K.i], v=parseNum(K.ans); if(isNaN(v)) return; const ok=Math.abs(v-it.kunci)<1e-9, ms=Date.now()-K.t0;
-  K.fb={ok,ms}; K.res.push({it,ok,ms}); S.kil.push({k:it.key,ok,ms,ts:Date.now()}); save(); render();
-  if(ok){ clearTimeout(K._t); K._t=setTimeout(()=>{ if(V.kl===K&&K.fb) kilatNext(); },600); } }
-function kilatNext(){ const K=V.kl; if(!K) return; clearTimeout(K._t); if(K.i>=K.items.length-1){ K.done=true; render(); return; } K.i++; K.ans=''; K.fb=null; K.t0=Date.now(); render(); }
+function startKilat(){ V.kl={title:'Hitung cepat',game:null,limit:null,items:kilatMix(),i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
+function kilatCheck(pick,timeout){ const K=V.kl; if(!K||K.fb) return; const it=K.items[K.i], ms=Date.now()-K.t0; let ok;
+  if(timeout) ok=false; else if(it.opsi){ if(pick==null) return; K.pick=+pick; ok=K.pick===it.kunci; } else { const v=parseNum(K.ans); if(isNaN(v)) return; ok=Math.abs(v-it.kunci)<1e-9; }
+  K.fb={ok,ms,timeout:!!timeout}; K.res.push({it,ok,ms});
+  if(K.game){ (S.game[K.game]=S.game[K.game]||[]).push({ok,ms,ts:Date.now()}); } else S.kil.push({k:it.key,ok,ms,ts:Date.now()});
+  save(); render();
+  if(ok){ clearTimeout(K._t); K._t=setTimeout(()=>{ if(V.kl===K&&K.fb) kilatNext(); },700); } }
+function kilatNext(){ const K=V.kl; if(!K) return; clearTimeout(K._t); if(K.i>=K.items.length-1){ K.done=true; render(); return; } K.i++; K.ans=''; K.pick=null; K.fb=null; K.t0=Date.now(); render(); }
+
+/* ================== Latihan cepat: Hitung Cepat (maju, balik, estimasi) dan mini game ==================
+   Semua soal di sini dibangkitkan aplikasi sendiri (tanpa Claude) dan hanya memakai materi yang sudah terbuka.
+   Bentuk item: {perintah, html?, opsi?, kunci (angka, atau indeks opsi bila ada opsi), langkah[]} */
+
+const has=(...u)=>{ const p=eqUnits(); return u.some(x=>p.has(x)); };
+const LTR='ABCDE';
+function niceStep(v){ const a=Math.abs(v); const e=Math.pow(10,Math.floor(Math.log10(a||1))); const m=a/e; return (m<2?.1:m<5?.2:.5)*e*2; }
+function rnd(x){ return Math.round(x*1e6)/1e6; }
+
+/* ---------- Estimasi "paling mendekati" ---------- */
+function estimItem(){
+  /* tiap templat mengembalikan e (soal), v (nilai sebenarnya), est (hasil pembulatan), s (langkah) */
+  const r10=x=>Math.round(x/10)*10, T=[];
+  T.push(()=>{ const a=RN.int(2,9)*10+RN.pick([-2,-1,1,2]), b=RN.int(2,9)*10+RN.pick([-2,-1,1,2]), A=r10(a), B=r10(b); return {e:a+' × '+b,v:a*b,est:A*B,s:['Bulatkan: '+a+' ≈ '+A+', '+b+' ≈ '+B,A+' × '+B+' = '+fmt(A*B)]}; });
+  T.push(()=>{ const d=RN.int(2,9)*10+RN.pick([-1,1]), D=r10(d), q=RN.int(3,30), n=q*D+RN.int(-4,4); return {e:fmt(n)+' ÷ '+d,v:n/d,est:n/D,s:['Bulatkan pembagi: '+d+' ≈ '+D,fmt(n)+' ÷ '+D+' ≈ '+fmt(Math.round(n/D*10)/10)]}; });
+  if(has('BIL-13','BIL-14')){
+    T.push(()=>{ const a0=RN.pick([.25,.5,.75]), a=Math.round((a0+RN.pick([-.02,-.01,.01,.02]))*100)/100, b0=RN.int(4,30)*4, b=Math.round((b0+RN.pick([-.3,-.2,.2,.3]))*10)/10; return {e:fmt(a)+' × '+fmt(b),v:a*b,est:a0*b0,s:['Bulatkan: '+fmt(a)+' ≈ '+fmt(a0)+', '+fmt(b)+' ≈ '+b0,fmt(a0)+' × '+b0+' = '+fmt(a0*b0)]}; });
+    T.push(()=>{ const p0=RN.pick([10,20,25,50]), p=p0+RN.pick([-.6,-.4,.4,.6]), N0=RN.int(2,9)*100, N=N0+RN.pick([-3,-2,2,3]); return {e:fmt(p)+'% dari '+fmt(N),v:p*N/100,est:p0*N0/100,s:['Bulatkan: '+fmt(p)+'% ≈ '+p0+'%, '+fmt(N)+' ≈ '+fmt(N0),p0+'% × '+fmt(N0)+' = '+fmt(p0*N0/100)]}; });
+    T.push(()=>{ const [a,b]=RN.pick([[1,3],[2,3],[1,6],[5,6],[1,7],[3,7]]), M=RN.int(10,60)*b, N=M+RN.pick([1,2,-1,-2]); return {e:a+'/'+b+' dari '+fmt(N),v:a*N/b,est:a*M/b,s:['Bulatkan '+fmt(N)+' ke kelipatan '+b+' terdekat: '+fmt(M),fmt(M)+' ÷ '+b+' × '+a+' = '+fmt(a*M/b)]}; });
+  }
+  for(let t=0;t<40;t++){ const it=RN.pick(T)(); const step=niceStep(it.v)/2, T0=Math.round(it.v/step)*step;
+    if(Math.abs(it.v-T0)>step*.3||T0<=0||Math.abs(it.est-T0)>step*.45) continue;
+    const k=RN.int(0,4), opsi=[]; for(let i=0;i<5;i++) opsi.push(rnd(T0+(i-k)*step)); if(opsi[0]<=0) continue;
+    return {perintah:'Paling mendekati: '+it.e,opsi:opsi.map(fmt),kunci:k,langkah:it.s.concat(['Nilai sebenarnya '+fmt(Math.round(it.v*100)/100)+', paling dekat dengan '+fmt(T0)])}; }
+  return null;
+}
+
+/* ---------- Hitung Cepat: soal balik arah ---------- */
+function balikItem(){
+  const B=[
+    ()=>{ const a=RN.int(3,12), x=RN.int(4,19); return {perintah:'□ × '+a+' = '+a*x+'. Nilai □?',kunci:x,langkah:[a*x+' ÷ '+a+' = '+x]}; },
+    ()=>{ const a=RN.int(3,9), q=RN.int(6,25); return {perintah:'□ ÷ '+a+' = '+q+'. Nilai □?',kunci:a*q,langkah:[q+' × '+a+' = '+a*q]}; },
+    ()=>{ const a=RN.int(2,9), b=RN.int(3,30), x=RN.int(3,15); return {perintah:a+' × □ + '+b+' = '+(a*x+b)+'. Nilai □?',kunci:x,langkah:[(a*x+b)+' − '+b+' = '+a*x,a*x+' ÷ '+a+' = '+x]}; }
+  ];
+  if(has('BIL-13')){
+    B.push(()=>{ const p=RN.pick([10,20,25,40,50,75]), x=RN.int(2,30)*20; const v=p*x/100; return {perintah:p+'% dari □ = '+fmt(v)+'. Nilai □?',kunci:x,langkah:[fmt(v)+' ÷ '+p+'% = '+fmt(v)+' × 100/'+p,'= '+fmt(x)],w:3}; });
+    B.push(()=>{ const p=RN.pick([10,20,25,50]), up=RN.chance(.5), x=RN.int(4,40)*5000; const v=x*(100+(up?p:-p))/100; return {perintah:'Setelah '+(up?'naik':'turun')+' '+p+'%, harga menjadi '+fmt(v)+'. Harga awal?',kunci:x,langkah:['Harga akhir = '+(100+(up?p:-p))+'% harga awal',fmt(v)+' ÷ '+fmt((100+(up?p:-p))/100)+' = '+fmt(x)],w:3}; });
+    B.push(()=>{ const b=RN.pick([3,4,5,6,8]); let a; do{ a=RN.int(1,b-1); }while(gcd(a,b)!==1); const x=b*RN.int(3,25); return {perintah:a+'/'+b+' dari □ = '+fmt(a*x/b)+'. Nilai □?',kunci:x,langkah:[fmt(a*x/b)+' × '+b+'/'+a+' = '+fmt(x)],w:2}; });
+  }
+  if(has('BIL-15')) B.push(()=>{ if(RN.chance(.5)){ const n=RN.int(4,9); return {perintah:'2^□ = '+Math.pow(2,n)+'. Nilai □?',kunci:n,langkah:['2^'+n+' = '+Math.pow(2,n)]}; } const n=RN.int(11,19); return {perintah:'□² = '+n*n+', □ positif. Nilai □?',kunci:n,langkah:[n+' × '+n+' = '+n*n]}; });
+  return RN.pick(B.concat(B.slice(3)))(); /* soal persen dibobot dua kali bila sudah terbuka */
+}
+function kilatMix(){
+  const maju=kilatSet(12).map(it=>Object.assign(it,{jenis:'maju'}));
+  const balik=[]; for(let i=0;i<5;i++) balik.push(Object.assign(balikItem(),{key:'balik',jenis:'balik'}));
+  const est=[]; for(let i=0;i<10&&est.length<3;i++){ const e=estimItem(); if(e) est.push(Object.assign(e,{key:'estimasi',jenis:'estimasi'})); }
+  const all=RN.shuf(maju.concat(balik)); est.forEach((e,i)=>all.splice(4+i*6,0,e)); return all;
+}
+
+/* ---------- Game 1: Timbangan P–Q ---------- */
+function exprOf(v){ /* ekspresi bilangan bulat bernilai v */
+  for(let t=0;t<20;t++){ const k=RN.int(0,2);
+    if(k===0){ const a=RN.int(2,9), b=Math.floor(v/a), c=v-a*b; if(b>=2) return {s:a+' × '+b+(c>0?' + '+c:c<0?' − '+(-c):''),st:a+' × '+b+(c?(c>0?' + ':' − ')+Math.abs(c):'')+' = '+v}; }
+    if(k===1){ const c=RN.int(2,9), a=RN.int(2,9), b=Math.round((v+c)/a); if(b>=2&&a*b-c===v) return {s:a+' × '+b+' − '+c,st:a*b+' − '+c+' = '+v}; }
+    if(k===2){ const d=RN.int(2,6); return {s:fmt(v*d)+' ÷ '+d,st:fmt(v*d)+' ÷ '+d+' = '+v}; } }
+  return {s:String(v),st:String(v)};
+}
+function zone5(p,q){ return p>=2*q-1e-9?0:p>q+1e-9?1:Math.abs(p-q)<1e-9?2:3; }
+function zone4(p,q){ return Math.abs(p-q)<1e-9?2:p>q?0:1; }
+function pqJudge(samples){ /* samples: [{p,q,lab}] */
+  const pos=samples.every(x=>x.q>0), z=samples.map(x=>pos?zone5(x.p,x.q):zone4(x.p,x.q)), same=z.every(v=>v===z[0]);
+  return {versi:pos?5:4,kunci:same?z[0]:(pos?4:3)};
+}
+function pqItem(){
+  const T=[];
+  T.push(()=>{ const q=RN.int(12,60), zone=RN.int(0,3), p=zone===0?2*q+RN.pick([0,0,RN.int(1,9)]):zone===1?RN.int(q+1,2*q-1):zone===2?q:RN.int(Math.max(2,q-20),q-1);
+    const P=exprOf(p), Q=exprOf(q); return {info:'Perhatikan dua kuantitas berikut.',P:P.s,Q:Q.s,smp:[{p,q}],st:['P = '+P.st,'Q = '+Q.st]}; });
+  T.push(()=>{ const lo=RN.int(1,4), hi=lo+RN.int(2,4), k=RN.int(2,3), c=RN.int(1,6); const xs=[]; for(let x=lo;x<=hi;x++) xs.push(x);
+    return {info:'x bilangan bulat dengan '+lo+' ≤ x ≤ '+hi+'.',P:k+'x',Q:'x + '+c,smp:xs.map(x=>({p:k*x,q:x+c,lab:'x = '+x})),st:null}; });
+  T.push(()=>{ const a=RN.int(2,4), c=RN.int(1,6); const xs=[-1,-2,-3,-5,-8];
+    const f=RN.pick([[a+'x','x',x=>a*x,x=>x],['x − '+c,c+' − x',x=>x-c,x=>c-x],['x + '+c,'−x',x=>x+c,x=>-x]]);
+    return {info:'x bilangan bulat negatif.',P:f[0],Q:f[1],smp:xs.map(x=>({p:f[2](x),q:f[3](x),lab:'x = '+x})),st:null,edge:'Uji beberapa nilai negatif, termasuk yang dekat dan jauh dari nol.'}; });
+  if(has('BIL-13')){
+    T.push(()=>{ const [a,b]=RN.pick([[1,2],[2,3],[3,4],[2,5],[3,5]]), [c,d]=RN.pick([[1,3],[1,4],[3,8],[1,5],[4,5]]); const N=b*d*RN.int(2,8), M=b*d*RN.int(2,8); const p=a*N/b, q=c*M/d;
+      return {info:'Perhatikan dua kuantitas berikut.',P:a+'/'+b+' dari '+N,Q:c+'/'+d+' dari '+M,smp:[{p,q}],st:['P = '+a+'/'+b+' × '+N+' = '+fmt(p),'Q = '+c+'/'+d+' × '+M+' = '+fmt(q)]}; });
+    T.push(()=>{ const p1=RN.pick([10,20,25,40,50,75]), p2=RN.pick([10,20,25,40,50,75]), A=RN.int(2,20)*20, B=RN.int(2,20)*20; const p=p1*A/100, q=p2*B/100; if(q<=0) return null;
+      return {info:'Perhatikan dua kuantitas berikut.',P:p1+'% dari '+A,Q:p2+'% dari '+B,smp:[{p,q}],st:['P = '+fmt(p),'Q = '+fmt(q)]}; });
+  }
+  if(has('BIL-15')) T.push(()=>{ const hi=RN.int(3,5); const xs=[]; for(let x=1;x<=hi;x++) xs.push(x); const f=RN.pick([['x²','2x',x=>x*x,x=>2*x],['x³','x²',x=>x*x*x,x=>x*x],['2^x','x + 1',x=>Math.pow(2,x),x=>x+1]]);
+    return {info:'x bilangan bulat dengan 1 ≤ x ≤ '+hi+'.',P:f[0],Q:f[1],smp:xs.map(x=>({p:f[2](x),q:f[3](x),lab:'x = '+x})),st:null}; });
+  if(has('ALJ-01','BIL-14')) T.push(()=>{ const S=RN.int(8,16); const xs=[]; for(let x=Math.floor(S/2)+1;x<S;x++) xs.push(x);
+    return {info:'x dan y bilangan bulat positif, x + y = '+S+', dan x > y.',P:'x',Q:'y',smp:xs.map(x=>({p:x,q:S-x,lab:'x = '+x+', y = '+(S-x)})),st:null,edge:'Coba nilai x terkecil dan terbesar yang mungkin.'}; });
+  T.push(T[0]); /* soal angka murni dibobot dua kali supaya opsi "sama" dan "dua kali" juga sering muncul */
+  for(let t=0;t<20;t++){ const r=RN.pick(T)(); if(!r) continue; const j=pqJudge(r.smp), L=j.versi===5?PQ5:PQ4;
+    const st=r.st||r.smp.slice(0,4).map(x=>x.lab+': P = '+fmt(x.p)+', Q = '+fmt(x.q)+' → '+L[(j.versi===5?zone5:zone4)(x.p,x.q)].replace(/^Kuantitas /,'').replace(/\.$/,''));
+    const why=j.versi===4?'Q bisa nol atau negatif, jadi dipakai versi 4 opsi.':(j.kunci===4||j.kunci===3&&j.versi===4)?'Hubungannya berubah untuk nilai yang berbeda, jadi tidak dapat ditentukan.':'';
+    return {perintah:r.info+' P: '+r.P+'. Q: '+r.Q+'.',html:'<p class="sm">'+esc(r.info)+'</p><div class="pq"><div><span class="sm">P</span>'+mx(r.P)+'</div><div><span class="sm">Q</span>'+mx(r.Q)+'</div></div>',opsi:L,kunci:j.kunci,langkah:st.concat(r.edge&&!r.st?[r.edge]:[],why?[why]:[])}; }
+}
+
+/* ---------- Game 2: Cukup Nggak? ---------- */
+const NAMA=['Ani','Budi','Cici','Dodi','Eka','Fajar','Gita','Hadi','Indah','Joko'];
+function ckItem(i){
+  const pu=i%2===0, T=[];
+  T.push(()=>{ const [a,b,c]=RN.shuf(NAMA).slice(0,3), sf=RN.pick(['tinggi','berat','tua']), inv={tinggi:'pendek',berat:'ringan',tua:'muda'}[sf];
+    const set=RN.pick([
+      [a+' lebih '+sf+' daripada '+b+'.',c+' lebih '+sf+' daripada '+a+'.',2,'Gabungan: '+c+' > '+a+' > '+b+', jadi '+c+' paling '+sf+'. Masing-masing saja belum membandingkan ketiganya.'],
+      [a+' lebih '+sf+' daripada '+b+' dan '+c+'.',b+' lebih '+sf+' daripada '+c+'.',0,'Pernyataan pertama langsung menunjukkan '+a+' paling '+sf+'. Pernyataan kedua tidak menyebut '+a+'.'],
+      [a+' paling '+inv+' di antara mereka bertiga.',b+' lebih '+sf+' daripada '+a+'.',4,'Kedua pernyataan tidak membandingkan '+b+' dengan '+c+', jadi yang paling '+sf+' tidak dapat dipastikan.'],
+      [b+' lebih '+sf+' daripada '+a+' dan '+c+'.',a+' dan '+c+' lebih '+inv+' daripada '+b+'.',3,'Kedua pernyataan sama isinya: '+b+' paling '+sf+'. Masing-masing cukup.'],
+      [a+' lebih '+inv+' daripada '+b+'.',c+' lebih '+inv+' daripada '+a+'.',2,'Gabungan: '+b+' > '+a+' > '+c+', jadi '+b+' paling '+sf+'.']]);
+    return {q:'Siapa yang paling '+sf+' di antara '+a+', '+b+', dan '+c+'?',s:[set[0],set[1]],k:set[2],w:set[3]}; });
+  T.push(()=>{ const o=2*RN.int(1,5)+1, e=2*RN.int(1,5), m=2*RN.int(1,4)+1;
+    const set=RN.pick([
+      ['n + '+o+' bilangan ganjil.',m+'n bilangan genap.',3,'n + '+o+' ganjil berarti n genap. '+m+'n genap dengan '+m+' ganjil berarti n genap. Masing-masing cukup.'],
+      ['n habis dibagi 3.','n + 1 bilangan ganjil.',1,'n + 1 ganjil berarti n genap. Habis dibagi 3 bisa genap (6) atau ganjil (9).'],
+      ['n habis dibagi 3.','n lebih dari 10.',4,'Contoh 12 genap dan 15 ganjil memenuhi keduanya, jadi tidak cukup.'],
+      ['n + m bilangan genap.','m bilangan ganjil.',2,'Gabungan: m ganjil dan n + m genap, jadi n ganjil. Masing-masing saja tidak cukup.'],
+      ['2n bilangan genap.','n + '+e+' bilangan ganjil.',1,'2n selalu genap untuk n bulat, jadi pernyataan pertama tidak memberi informasi. n + '+e+' ganjil berarti n ganjil.']]);
+    return {q:'n'+(set[0].includes('m ')||set[1].includes('m ')?' dan m':'')+' bilangan bulat. Apakah n genap?',s:[set[0],set[1]],k:set[2],w:set[3]}; });
+  if(has('ALJ-11')) T.push(()=>{ const x=RN.int(2,12), y=RN.int(1,x-1), a=RN.int(2,5), b=RN.int(1,9);
+    const set=RN.pick([
+      ['x + y = '+(x+y)+'.','x − y = '+(x-y)+'.',2,'Dua persamaan dengan dua variabel: dijumlahkan, 2x = '+2*x+', jadi x = '+x+'. Masing-masing saja punya banyak penyelesaian.'],
+      [a+'x + '+b+' = '+(a*x+b)+'.','x + y = '+(x+y)+'.',0,'Pernyataan pertama: x = '+x+'. Pernyataan kedua masih memuat y yang tidak diketahui.'],
+      ['x + y = '+(x+y)+'.',2+'x + '+2+'y = '+2*(x+y)+'.',4,'Pernyataan kedua hanya kelipatan pernyataan pertama, jadi tetap satu persamaan dengan dua variabel.'],
+      [a+'x = '+a*x+'.','x − '+b+' = '+(x-b)+'.',3,'Masing-masing langsung memberi x = '+x+'.']]);
+    return {q:'Berapakah nilai x?',s:[set[0],set[1]],k:set[2],w:set[3]}; });
+  const r=RN.pick(T)(); let s=r.s, k=r.k;
+  if(RN.chance(.5)){ s=[s[1],s[0]]; k=k===0?1:k===1?0:k; }
+  const lab=pu?['(i)','(ii)']:['(1)','(2)'], L=pu?CK_PU:CK_PK;
+  return {perintah:r.q+' '+lab[0]+' '+s[0]+' '+lab[1]+' '+s[1],html:'<span class="bd bd-'+(pu?'mint':'blue')+'">'+(pu?'Versi PU':'Versi PK')+'</span><p class="ask">'+esc(r.q)+'</p><div class="pern"><p><b>'+lab[0]+'</b> '+esc(s[0])+'</p><p><b>'+lab[1]+'</b> '+esc(s[1])+'</p></div>',opsi:L,kunci:k,langkah:[r.w,'Tidak perlu menghitung jawabannya; cukup pastikan jawabannya tunggal.']};
+}
+
+/* ---------- Game 3: Kisi Operasi ---------- */
+const OPS={'+':(a,b)=>a+b,'−':(a,b)=>a-b,'×':(a,b)=>a*b};
+function kisiItem(){
+  const ok=Object.keys(OPS);
+  for(let t=0;t<400;t++){ const g=[0,1,2].map(()=>[0,1,2].map(()=>RN.int(1,9))), o1=RN.pick(ok); let o2=RN.pick(ok); if(o2===o1) continue;
+    const ev=(a,b,c,x,y)=>OPS[y](OPS[x](a,b),c);
+    const rows=g.map(r=>ev(r[0],r[1],r[2],o1,o2)), cols=[0,1,2].map(j=>ev(g[0][j],g[1][j],g[2][j],o1,o2));
+    const match=[]; ok.forEach(x=>ok.forEach(y=>{ if(x===y) return; let good=true; for(let i=0;i<3;i++){ if(ev(g[i][0],g[i][1],g[i][2],x,y)!==rows[i]||ev(g[0][i],g[1][i],g[2][i],x,y)!==cols[i]) good=false; } if(good) match.push(x+y); }));
+    const hide=RN.int(0,5), isRow=hide<3, idx=hide%3, ans=isRow?rows[idx]:cols[idx];
+    /* teka-teki harus tetap tunggal walau satu hasil disembunyikan */
+    const match2=[]; ok.forEach(x=>ok.forEach(y=>{ if(x===y) return; let good=true; for(let i=0;i<3;i++){ if(!(isRow&&i===idx)&&ev(g[i][0],g[i][1],g[i][2],x,y)!==rows[i]) good=false; if(!(!isRow&&i===idx)&&ev(g[0][i],g[1][i],g[2][i],x,y)!==cols[i]) good=false; } if(good) match2.push(x+y); }));
+    if(match.length!==1||match2.length!==1||Math.abs(ans)>150) continue;
+    const alt=new Set([ans]); ok.forEach(x=>ok.forEach(y=>{ if(x!==y){ const v=isRow?ev(g[idx][0],g[idx][1],g[idx][2],x,y):ev(g[0][idx],g[1][idx],g[2][idx],x,y); alt.add(v); } }));
+    let d=1; while(alt.size<5){ alt.add(ans+d); alt.add(ans-d); d++; }
+    const opsi=[...alt].slice(0,5).sort((a,b)=>a-b); if(!opsi.includes(ans)){ opsi[RN.int(0,4)]=ans; opsi.sort((a,b)=>a-b); }
+    const R=i=>isRow&&i===idx?'?':fmt(rows[i]), C=j=>!isRow&&j===idx?'?':fmt(cols[j]);
+    let h='<p class="sm">Simbol # dan @ masing-masing mewakili satu operasi (+, −, atau ×), sama di semua baris dan kolom. Hitung dari kiri ke kanan dan dari atas ke bawah.</p><div class="tw"><table class="kisi">';
+    for(let i=0;i<3;i++){ h+='<tr>'+g[i].map((v,j)=>'<td class="n">'+v+'</td>'+(j<2?'<td class="o">'+(j===0?'#':'@')+'</td>':'')).join('')+'<td class="o">=</td><td class="r">'+R(i)+'</td></tr>';
+      if(i<2) h+='<tr>'+[0,1,2].map(j=>'<td class="o">'+(i===0?'#':'@')+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr>'; }
+    h+='<tr>'+[0,1,2].map(j=>'<td class="o">=</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr><tr>'+[0,1,2].map(j=>'<td class="r">'+C(j)+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr></table></div><p class="ask">Nilai yang tepat untuk ? adalah …</p>';
+    const line=isRow?'('+g[idx][0]+' '+o1+' '+g[idx][1]+') '+o2+' '+g[idx][2]:'('+g[0][idx]+' '+o1+' '+g[1][idx]+') '+o2+' '+g[2][idx];
+    const cek=isRow?(idx===0?1:0):-1, contoh=cek>=0?'Cek baris '+(cek+1)+': ('+g[cek][0]+' '+o1+' '+g[cek][1]+') '+o2+' '+g[cek][2]+' = '+fmt(rows[cek]):'Cek baris 1: ('+g[0][0]+' '+o1+' '+g[0][1]+') '+o2+' '+g[0][2]+' = '+fmt(rows[0]);
+    return {perintah:'Kisi operasi',html:h,opsi:opsi.map(fmt),kunci:opsi.indexOf(ans),langkah:['# = '+o1+' dan @ = '+o2+' (satu-satunya pasangan yang cocok dengan semua hasil yang terlihat)',contoh,(isRow?'Baris ':'Kolom ')+(idx+1)+': '+line+' = '+fmt(ans)]}; }
+  return null;
+}
+
+/* ---------- Game 4: Detektif Barisan ---------- */
+function barisanItem(){
+  const mode=RN.int(0,3);
+  if(mode===0){ const a=RN.int(1,20), b=RN.int(20,60), d1=RN.int(2,9), d2=-RN.int(1,6); const t=[]; for(let i=0;i<4;i++){ t.push(a+i*d1,b+i*d2); }
+    return {perintah:'Lanjutkan: '+t.slice(0,6).map(fmt).join(', ')+', …',kunci:t[6],langkah:['Suku ganjil: '+[t[0],t[2],t[4]].map(fmt).join(', ')+' (beda '+sg(d1)+')','Suku genap: '+[t[1],t[3],t[5]].map(fmt).join(', ')+' (beda '+sg(d2)+')','Suku ke-7 = '+fmt(t[4])+' + '+d1+' = '+fmt(t[6])]}; }
+  if(mode===1){ const s=RN.int(1,9), p=RN.int(1,6), q=RN.int(2,3); const t=[s]; for(let i=1;i<7;i++) t.push(i%2?t[i-1]+p:t[i-1]*q);
+    return {perintah:'Lanjutkan: '+t.slice(0,6).map(fmt).join(', ')+', …',kunci:t[6],langkah:['Polanya bergantian: + '+p+', × '+q,'Suku ke-7 = '+fmt(t[5])+' + '+p+' = '+fmt(t[6])]}; }
+  if(mode===2){ const a=RN.int(2,30), d=RN.int(3,12); const t=[]; for(let i=0;i<7;i++) t.push(a+i*d); const k=RN.int(2,5), w=t[k]+RN.pick([-2,-1,1,2])*RN.int(1,Math.max(1,Math.floor(d/2))); const shown=t.slice(); shown[k]=w;
+    return {perintah:'Satu suku salah catat: '+shown.map(fmt).join(', ')+'. Berapa nilai yang seharusnya?',kunci:t[k],langkah:['Beda antarsuku yang konsisten: '+d,'Suku ke-'+(k+1)+' seharusnya '+fmt(t[k-1])+' + '+d+' = '+fmt(t[k])+', bukan '+fmt(w)]}; }
+  const p=RN.int(2,7), q=RN.int(2,3), s=RN.int(1,8); const t=[s]; for(let i=1;i<7;i++) t.push(i%2?t[i-1]*q:t[i-1]+p);
+  return {perintah:'Suku ke-4 sampai ke-7 suatu barisan: '+t.slice(3).map(fmt).join(', ')+'. Polanya bergantian × '+q+' dan + '+p+'. Suku pertamanya?',kunci:s,langkah:['Mundur dari suku ke-4 ('+fmt(t[3])+'): kebalikan dari × dan + adalah ÷ dan −','Suku ke-3 = '+fmt(t[3])+' ÷ '+q+' = '+fmt(t[2]),'Suku ke-2 = '+fmt(t[2])+' − '+p+' = '+fmt(t[1]),'Suku ke-1 = '+fmt(t[1])+' ÷ '+q+' = '+fmt(t[0])]};
+}
+
+/* ---------- Game 6: Mesin Fungsi ---------- */
+function mesinItem(){
+  const R=[()=>{ const a=RN.int(2,6), b=RN.int(-9,9); return {f:x=>a*x+b,t:a+'x '+(b<0?'− '+(-b):'+ '+b),inv:y=>(y-b)/a}; },
+           ()=>{ const a=RN.int(2,5), b=RN.int(1,7); return {f:x=>a*(x+b),t:a+'(x + '+b+')',inv:y=>y/a-b}; }];
+  if(has('BIL-15')) R.push(()=>{ const b=RN.int(-5,9); return {f:x=>x*x+b,t:'x² '+(b<0?'− '+(-b):'+ '+b),inv:null}; });
+  const r=RN.pick(R)(), xs=RN.shuf([1,2,3,4,5,6]).slice(0,3).sort((a,b)=>a-b), pairs=xs.map(x=>x+' → '+fmt(r.f(x))).join(', ');
+  if(r.inv&&has('ALJ-08')&&RN.chance(.5)){ let x0; do{ x0=RN.int(7,15); }while(xs.includes(x0)); const y=r.f(x0);
+    return {perintah:'Mesin: '+pairs+'. Input berapa yang menghasilkan '+fmt(y)+'?',kunci:x0,langkah:['Aturan mesin: '+r.t,'Jalankan mundur: '+r.t+' = '+fmt(y)+' → x = '+x0]}; }
+  const x0=RN.int(7,12); return {perintah:'Mesin: '+pairs+'. Output untuk input '+x0+'?',kunci:r.f(x0),langkah:['Aturan mesin: '+r.t,'Input '+x0+' → '+fmt(r.f(x0))]};
+}
+
+const GAMES=[
+  {id:'pq',nama:'Timbangan P–Q',ket:'Pilih hubungan P dan Q dari opsi baku, 20 detik per soal. Banyak kasus tepi: negatif, pecahan, variabel.',bentuk:'PK-F1',limit:20,gen:pqItem},
+  {id:'cukup',nama:'Cukup Nggak?',ket:'Tentukan apakah pernyataan cukup untuk menjawab, tanpa menghitung jawabannya. Bergantian versi PU dan PK.',bentuk:'PU-K15, PK-F2',gen:ckItem},
+  {id:'kisi',nama:'Kisi Operasi',ket:'Temukan operasi # dan @ dari kisi 3 × 3, lalu isi hasil yang hilang.',bentuk:'PK-M1, PK-M11',gen:kisiItem},
+  {id:'barisan',nama:'Detektif Barisan',ket:'Barisan selang-seling, suku yang salah catat, dan mundur ke suku pertama.',bentuk:'PU-K1, PU-K2, PU-K10',gen:barisanItem},
+  {id:'dekat',nama:'Paling Mendekati',ket:'Lima opsi, 15 detik, bulatkan dulu baru hitung.',bentuk:'PU-K3',limit:15,need:['BIL-13'],gen:estimItem},
+  {id:'mesin',nama:'Mesin Fungsi',ket:'Tebak aturan dari tiga pasang input–output. Versi jalan mundur terbuka setelah ALJ-08.',bentuk:'PK-M10',gen:mesinItem}
+];
+const GMAP={}; GAMES.forEach(g=>GMAP[g.id]=g);
+function gameOpen(g){ return !g.need||has(...g.need); }
+function startGame(id){ const g=GMAP[id]; if(!g||!gameOpen(g)) return; const items=[]; let guard=0;
+  while(items.length<10&&guard++<60){ let it=null; try{ it=g.gen(items.length); }catch(e){} if(it) items.push(Object.assign(it,{key:id})); }
+  V.kl={title:g.nama,game:id,limit:g.limit||null,items,i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
+function gameStat(id){ const l=(S.game[id]||[]); const w=l.filter(x=>x.ts>Date.now()-7*DAY); return {n:l.length,n7:w.length,p7:pct(w.filter(x=>x.ok).length,w.length)}; }
+function viewGame(){
+  let h='<h1>Mini game</h1><p class="lead">Latihan cepat untuk bentuk opsi baku dan pola. Soal dibuat aplikasi sendiri dari materi yang sudah terbuka; tidak memengaruhi tahap.</p><div class="card list">';
+  GAMES.forEach(g=>{ const op=gameOpen(g), st=gameStat(g.id);
+    h+='<div class="row"><div class="grow"><b>'+esc(g.nama)+' <span class="code">'+esc(g.bentuk)+'</span></b><span class="sm">'+esc(g.ket)+'</span><span class="sm">'+(op?(st.n7?'7 hari: '+st.n7+' soal, benar '+st.p7+'%':'Belum dimainkan minggu ini'):'Terbuka setelah '+g.need.map(uname).join(' atau '))+'</span></div><button class="btn'+(op?' pri':'')+'" data-action="game" data-v="'+g.id+'"'+(op?'':' disabled')+'>Main</button></div>'; });
+  return h+'</div>';
+}
 
 /* ---------- Tampilan ---------- */
-const NAV=[['beranda','Beranda'],['soal','Set soal'],['salah','Soal salah'],['progres','Progres']];
+function mascot(pose){
+  const c='#ffd24f',d='#c9971a',ink='#26304b',arm=(x1,y1,x2,y2)=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${d}" stroke-width="13" stroke-linecap="round"/><path d="M${x1} ${y1} L${x2} ${y2}" stroke="${c}" stroke-width="8" stroke-linecap="round"/><circle cx="${x2}" cy="${y2}" r="7.5" fill="${c}" stroke="${d}" stroke-width="2.5"/>`;
+  let L='',R='',prop='',mouth=`<path d="M70 109 Q80 121 90 109" stroke="${ink}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`,extra='';
+  const open=`<path d="M69 107 Q80 124 91 107 Z" fill="#a8434f" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/><path d="M74 114 Q80 119 86 114" fill="#ff8fa3"/>`;
+  switch(pose){
+    case'wave':L=arm(34,104,16,118);R=arm(126,98,150,64);mouth=open;extra=`<path d="M158 48 q6 6 2 14 M164 40 q9 9 3 22" stroke="${d}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;break;
+    case'jump':L=arm(34,98,12,66);R=arm(126,98,148,66);mouth=open;extra=`<path d="M22 40 l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#ff9d4d"/><path d="M146 30 l2.5 5.5 6 .8-4.4 4.2 1 6-5.1-2.8-5.1 2.8 1-6-4.4-4.2 6-.8z" fill="#4b8ae8"/>`;break;
+    case'map':L=arm(34,104,18,122);R=arm(126,104,144,96);prop=`<g transform="rotate(-8 150 92)"><rect x="132" y="70" width="34" height="42" rx="3" fill="#fff" stroke="${ink}" stroke-width="2.5"/><path d="M143 70v42M155 70v42" stroke="#9fb3d9" stroke-width="2"/><path d="M137 100 q8-10 14-4 t11-12" stroke="#ef5f5a" stroke-width="2.5" fill="none" stroke-dasharray="3 3"/><circle cx="160" cy="82" r="3" fill="#ef5f5a"/></g>`;break;
+    case'trophy':L=arm(34,104,18,122);R=arm(126,100,146,84);prop=`<g><path d="M136 56 h28 v10 q0 16 -14 18 q-14 -2 -14 -18z" fill="#ffd24f" stroke="${d}" stroke-width="2.5"/><path d="M136 60 q-8 0 -6 8 q2 6 8 6 M164 60 q8 0 6 8 q-2 6 -8 6" stroke="${d}" stroke-width="2.5" fill="none"/><rect x="145" y="84" width="10" height="6" fill="${d}"/><rect x="139" y="89" width="22" height="6" rx="2" fill="#4b8ae8" stroke="${ink}" stroke-width="2"/></g>`;mouth=open;break;
+    case'pencil':L=arm(34,104,18,122);R=arm(126,104,140,92);prop=`<g transform="rotate(35 150 80)"><rect x="144" y="50" width="12" height="44" rx="2" fill="#ff9d4d" stroke="${ink}" stroke-width="2.3"/><rect x="144" y="50" width="12" height="7" fill="#f47eab" stroke="${ink}" stroke-width="2.3"/><path d="M144 94 l6 12 6-12z" fill="#f6e2c0" stroke="${ink}" stroke-width="2.3" stroke-linejoin="round"/><path d="M148.5 103 l1.5 3 1.5-3z" fill="${ink}"/></g>`;break;
+    case'box':L=arm(34,104,24,124);R=arm(126,104,138,124);prop=`<g><rect x="118" y="112" width="44" height="34" rx="4" fill="#4b8ae8" stroke="${ink}" stroke-width="2.5"/><rect x="124" y="104" width="12" height="9" rx="3" fill="#4b8ae8" stroke="${ink}" stroke-width="2.3"/><rect x="144" y="104" width="12" height="9" rx="3" fill="#4b8ae8" stroke="${ink}" stroke-width="2.3"/><rect x="123" y="117" width="5" height="18" rx="2.5" fill="#fff" opacity=".35"/></g>`;break;
+    case'think':L=arm(34,104,18,122);R=arm(126,104,112,116);prop=`<g><circle cx="150" cy="58" r="13" fill="#fff" stroke="${ink}" stroke-width="2.5"/><text x="150" y="64" text-anchor="middle" font-family="Lilita One,Rubik,sans-serif" font-size="17" fill="#4b8ae8">?</text><circle cx="138" cy="78" r="4" fill="#fff" stroke="${ink}" stroke-width="2"/><circle cx="131" cy="88" r="2.5" fill="#fff" stroke="${ink}" stroke-width="1.8"/></g>`;break;
+    default:L=arm(34,104,18,122);R=arm(126,104,142,122);
+  }
+  return`<svg class="masc" viewBox="0 0 175 175" aria-hidden="true">
+  <ellipse cx="80" cy="166" rx="46" ry="6" fill="#26304b" opacity=".12"/>
+  ${extra}${L}${R}
+  <rect x="50" y="134" width="22" height="20" rx="5" fill="#4b8ae8" stroke="${ink}" stroke-width="2.5"/><rect x="88" y="134" width="22" height="20" rx="5" fill="#4b8ae8" stroke="${ink}" stroke-width="2.5"/>
+  <rect x="45" y="150" width="30" height="11" rx="5" fill="${ink}"/><rect x="85" y="150" width="30" height="11" rx="5" fill="${ink}"/>
+  <rect x="46" y="44" width="26" height="20" rx="7" fill="${c}" stroke="${d}" stroke-width="3"/><rect x="88" y="44" width="26" height="20" rx="7" fill="${c}" stroke="${d}" stroke-width="3"/>
+  <rect x="51" y="48" width="9" height="4" rx="2" fill="#fff" opacity=".55"/><rect x="93" y="48" width="9" height="4" rx="2" fill="#fff" opacity=".55"/>
+  <rect x="30" y="58" width="100" height="82" rx="17" fill="${c}" stroke="${d}" stroke-width="3.2"/>
+  <rect x="40" y="67" width="9" height="36" rx="4.5" fill="#fff" opacity=".4"/>
+  <ellipse cx="64" cy="89" rx="11" ry="13" fill="#fff" stroke="${ink}" stroke-width="2.5"/><ellipse cx="96" cy="89" rx="11" ry="13" fill="#fff" stroke="${ink}" stroke-width="2.5"/>
+  <circle class="pupil" cx="66" cy="92" r="6" fill="${ink}"/><circle class="pupil" cx="98" cy="92" r="6" fill="${ink}"/>
+  <circle cx="68.5" cy="89" r="2.2" fill="#fff"/><circle cx="100.5" cy="89" r="2.2" fill="#fff"/>
+  <ellipse cx="50" cy="107" rx="7" ry="4.2" fill="#ff8fa3" opacity=".6"/><ellipse cx="110" cy="107" rx="7" ry="4.2" fill="#ff8fa3" opacity=".6"/>
+  ${mouth}${prop}</svg>`}
+function sceneHTML(){
+  const B=[['#ef5f5a',6,14,-14],['#4b8ae8',84,10,12],['#3fb46e',90,38,-8],['#ff9d4d',4,46,10],['#f47eab',80,64,-18],['#ffd24f',10,76,16],['#4fc0ec',58,4,6],['#a2d058',30,30,-6]];
+  const brick=(c,x,y,r,i)=>`<svg class="fbrick" style="left:${x}%;top:${y}%;--r:${r}deg;animation-delay:${-i*1.3}s" viewBox="0 0 44 30"><rect x="6" y="2" width="11" height="7" rx="3" fill="${c}" stroke="#26304b" stroke-opacity=".25" stroke-width="1.5"/><rect x="27" y="2" width="11" height="7" rx="3" fill="${c}" stroke="#26304b" stroke-opacity=".25" stroke-width="1.5"/><rect x="2" y="8" width="40" height="20" rx="5" fill="${c}" stroke="#26304b" stroke-opacity=".25" stroke-width="1.5"/><rect x="6" y="11" width="4" height="12" rx="2" fill="#fff" opacity=".45"/></svg>`;
+  const cloud=(x,y,s)=>`<svg class="cloud" style="left:${x}%;top:${y}%;width:${s}px" viewBox="0 0 120 50"><path d="M20 44 h80 a16 16 0 0 0 -4 -31 a24 24 0 0 0 -44 -6 a18 18 0 0 0 -30 14 a12 12 0 0 0 -2 23z" fill="#fff"/></svg>`;
+  return cloud(-4,8,130)+cloud(62,20,110)+cloud(28,52,90)+B.map((b,i)=>brick(...b,i)).join('')+
+  `<svg class="hills" viewBox="0 0 400 140" preserveAspectRatio="none"><path d="M0 70 Q60 20 130 58 T260 50 T400 40 V140 H0z" fill="#c6ebd1"/><path d="M0 100 Q90 60 190 92 T400 78 V140 H0z" fill="#a6dcb6"/></svg>`}
+
+
+const NAV=[['beranda','Hari ini','var(--yellow)','<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'],
+ ['soal','Set soal','var(--red)','<path d="M8 4h8M9 2h6v4H9z"/><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 11h6M9 15h4"/>'],
+ ['salah','Salah','var(--blue)','<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'],
+ ['game','Game','var(--green)','<rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="17.8" cy="14" r=".8"/>'],
+ ['progres','Progres','var(--orange)','<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>']];
+const svgI=p=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+const STUDS='<span class="st"><i></i><i></i><i></i></span><span class="st r"><i></i><i></i></span>';
+function appbar(){ const sk=streak();
+  return '<header class="appbar">'+STUDS.replace('<i></i><i></i><i></i>','<i></i><i></i><i></i><i></i>')+'<svg class="logo" viewBox="0 0 34 34"><rect x="7" y="2" width="8" height="5" rx="2" fill="#ffd24f" stroke="#9a6f00" stroke-width="2"/><rect x="19" y="2" width="8" height="5" rx="2" fill="#ffd24f" stroke="#9a6f00" stroke-width="2"/><rect x="2" y="6" width="30" height="16" rx="3" fill="#ffd24f" stroke="#9a6f00" stroke-width="2.5"/><rect x="2" y="21" width="30" height="10" rx="3" fill="#4b8ae8" stroke="#2b4f99" stroke-width="2.5"/></svg>'+
+  '<div class="grow"><div class="ttl">Latihan Kuantitatif</div><span class="sub">'+esc(tgl(ymd(new Date()),true))+'</span></div><span class="chip">'+(sk?sk+' hari · ':'')+'H−'+daysToUtbk()+'</span>'+
+  '<a class="ibtn" href="'+HUB+'" aria-label="Kembali ke Progres Harian">'+svgI('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>')+'</a></header>'; }
+function hero(r){ const k=ymd(new Date()), t=tasksOn(new Date()), all=t.every(x=>x.done), fk=fokusUnits(new Date()).map(uname).join(', ');
+  const H={beranda:all?['trophy','Tugas hari ini beres. Sampai besok, ya!','R']:['wave','Fokus hari ini: '+fk+'. Mulai dari hitung cepat, lalu set hari ini.','R'],
+    soal:['box','Salin prompt, jalankan di Claude, lalu tempel hasilnya di sini.','R tilt flip'],
+    salah:['think','Ulang sampai benar, lalu minta tiga varian supaya kemampuannya teruji di bentuk lain.','L'],
+    game:['jump','Main sebentar, otak tetap jalan. Pilih satu!','L'],
+    progres:['map','Ini peta kemampuanmu. Kuatkan yang batangnya masih pendek.','R peek']}[r];
+  return H?'<div class="hero '+H[2]+'"><div class="bubble">'+esc(H[1])+'</div><span class="mw">'+mascot(H[0])+'</span></div>':''; }
 function route(){ const h=(location.hash||'').slice(1); return h==='main'||NAV.some(n=>n[0]===h)?h:'beranda'; }
 function go(h){ if(location.hash==='#'+h) render(); else location.hash='#'+h; window.scrollTo(0,0); }
 function badge(sub){ return '<span class="bd bd-'+SUB[sub].tone+'">'+sub+'</span>'; }
@@ -549,16 +922,15 @@ function tabel(t){ if(!t||!t.length) return ''; return '<div class="tw"><table><
 
 function viewBeranda(){
   const now=new Date(), k=ymd(now), t=tasksOn(now), fokus=fokusUnits(now), r=resepHarian(k), ss=loadSesi(), sk=streak();
-  let h='<header class="top"><a class="hub" href="'+HUB+'">‹ Progres Harian</a><span class="cd">H−'+daysToUtbk()+'</span></header>';
-  h+='<h1>Latihan Kuantitatif</h1><p class="lead">'+esc(tgl(k,true))+' · fokus '+esc(fokus.map(uname).join(', '))+(sk?' · '+sk+' hari beruntun':'')+'</p>';
+  let h='';
   if(ss&&!V.run) h+='<div class="card note"><div class="grow"><b>'+esc(ss.label)+'</b><span class="sm">Belum selesai, '+ss.A.filter(a=>a.done).length+' dari '+ss.qids.length+' soal</span></div><button class="btn pri" data-action="resume">Lanjutkan</button></div>';
   h+='<h2>Tugas hari ini <span class="cnt">'+t.filter(x=>x.done).length+'/'+t.length+'</span></h2><div class="card list">';
   t.forEach((x,i)=>{ h+='<div class="row'+(x.done?' done':'')+'"><span class="num">'+(x.done?'✓':i+1)+'</span><div class="grow"><b>'+esc(x.t)+'</b><span class="sm">'+esc(x.d)+'</span>'+bar(pct(x.cur,x.n),x.done?'ok':'')+'</div><button class="btn'+(x.done?'':' pri')+'" data-action="'+x.act+'"'+(x.v?' data-v="'+esc(x.v)+'"':'')+(x.off?' disabled':'')+'>'+(x.done&&x.id!=='salah'?'Lagi':x.btn)+'</button></div>'; });
   h+='</div>';
   const cj={lama:0,geser:0,baru:0}; r.slots.forEach(s=>cj[s.jenis]++);
-  const T=TAHAP[r.tahap||2];
-  h+='<h2>Bentuk soal hari ini</h2><div class="card"><p><b>Tahap '+(r.tahap||2)+' dari 3: '+T.nama+'</b></p><p class="sm">'+T.ket+'</p><p class="sm">Materi tetap mengikuti jadwal. Yang berganti tiap hari adalah stimulus, arah tanya, dan format jawabannya.</p><div class="chips">'+jbadge('lama')+'<b>'+cj.lama+'</b>'+jbadge('geser')+'<b>'+cj.geser+'</b>'+jbadge('baru')+'<b>'+cj.baru+'</b></div>';
-  h+='<details><summary>Lihat resep '+r.slots.length+' soal</summary><ol class="resep">'+r.slots.map(s=>'<li>'+badge(s.sub)+' '+jbadge(s.jenis)+' <span>'+esc(slotShort(s,r))+'</span></li>').join('')+'</ol></details></div>';
+  h+='<h2>Tahap per subtes</h2><div class="card list">'+['PU','PK','PM'].map(x=>{ const ti=tahapInfo(x); return '<div class="row">'+badge(x)+'<div class="grow"><b>Tahap '+ti.t+': '+TAHAP[ti.t].nama+'</b><span class="sm">'+esc(ti.txt)+'</span></div></div>'; }).join('')+'</div><p class="sm note2">Naik tahap: 20 soal bentuk lama benar ≥ 80%, lalu 30 soal digeser benar ≥ 80%. Turun satu tahap bila 10 soal terakhir di bawah 60%.</p>';
+  h+='<h2>Bentuk soal hari ini</h2><div class="card"><p class="sm">Materi tetap mengikuti jadwal. Yang berganti tiap hari adalah stimulus, arah tanya, dan format jawabannya.</p><div class="chips">'+jbadge('lama')+'<b>'+cj.lama+'</b>'+jbadge('geser')+'<b>'+cj.geser+'</b>'+jbadge('baru')+'<b>'+cj.baru+'</b></div>';
+  h+='<details><summary>Lihat resep '+r.slots.length+' soal</summary><ol class="resep">'+r.slots.map(s=>'<li>'+badge(s.sub)+' '+jbadge(s.jenis)+' <span class="code">'+s.lvl+'</span> <span>'+esc(slotShort(s,r))+'</span></li>').join('')+'</ol></details></div>';
   h+='<h2>Simulasi waktu resmi</h2><div class="card list">'+['PU','PK','PM'].map(sub=>{ const st=S.sets.filter(x=>x.mode==='sim'&&x.sub===sub&&setProg(x).a===0).pop(); return '<div class="row">'+badge(sub)+'<div class="grow"><b>'+SUB[sub].simN+' soal · '+String(SUB[sub].simMs/60000).replace('.',',')+' menit</b><span class="sm">'+(st?'Set siap dikerjakan':'Belum ada set baru')+'</span></div><button class="btn" data-action="'+(st?'mulai':'gosim')+'" data-v="'+(st?st.id:sub)+'">'+(st?'Mulai':'Siapkan')+'</button></div>'; }).join('')+'</div>';
   return h;
 }
@@ -567,7 +939,7 @@ function viewSoal(){
   const Z=V.soal, today=new Date(); const dates=[0,1,2].map(i=>ymd(addDays(today,i)));
   if(!Z.tgl||!dates.includes(Z.tgl)) Z.tgl=dates.find(d=>!harianSet(d))||dates[0];
   const r=Z.tab==='harian'?resepHarian(Z.tgl):resepSim(Z.tab);
-  let h='<h1>Set soal</h1><p class="lead">Salin prompt, jalankan di Claude, lalu tempel hasilnya di sini.</p>';
+  let h='<h1>Set soal</h1>';
   h+='<div class="seg">'+[['harian','Harian'],['PU','Sim PU'],['PK','Sim PK'],['PM','Sim PM']].map(x=>'<button data-action="tab" data-v="'+x[0]+'"'+(Z.tab===x[0]?' class="on"':'')+'>'+x[1]+'</button>').join('')+'</div>';
   h+='<div class="card"><div class="stephd"><span class="num">1</span><b>Salin prompt</b></div>';
   if(Z.tab==='harian') h+='<div class="chips">'+dates.map(d=>'<button class="chip'+(d===Z.tgl?' on':'')+'" data-action="tgl" data-v="'+d+'">'+esc(tgl(d))+(harianSet(d)?' ✓':'')+'</button>').join('')+'</div><p class="sm">Resep untuk '+esc(tgl(Z.tgl,true))+': '+r.slots.length+' soal, fokus '+esc(r.fokus.map(uname).join(', '))+'. Bisa disiapkan sampai dua hari ke depan.</p>';
@@ -586,7 +958,7 @@ function viewSoal(){
 
 function viewSalah(){
   const L=salahList();
-  let h='<h1>Soal salah</h1><p class="lead">Ulang sampai benar, lalu minta tiga varian supaya kemampuannya teruji di bentuk lain.</p>';
+  let h='<h1>Soal salah</h1>';
   if(!L.length) return h+'<div class="card"><p class="sm">Tidak ada soal salah yang menunggu.</p></div>';
   h+='<div class="btns"><button class="btn pri" data-action="ulang">Ulang '+Math.min(L.length,10)+' soal</button></div>';
   h+=L.slice(0,40).map(it=>{ const q=it.q; return '<div class="card"><div class="chips">'+badge(q.sub)+jbadge(q.jenis)+(q.kem?'<span class="code">'+esc(q.kem)+'</span>':'')+'<span class="sm">'+esc(uname(q.unit))+'</span></div><p class="snip">'+mx(q.perintah.slice(0,180))+(q.perintah.length>180?'…':'')+'</p><div class="btns"><button class="btn" data-action="ulang1" data-v="'+q.qid+'">Ulang</button><button class="btn" data-action="varian" data-v="'+q.qid+'">Salin prompt 3 varian</button><button class="btn" data-action="paham" data-v="'+q.qid+'">Sudah paham</button></div></div>'; }).join('');
@@ -604,8 +976,8 @@ function viewProgres(){
   h+='<h2>Per materi</h2><div class="card">'+(us.length?us.map(x=>statRow(esc(uname(x.u)),x.s)).join(''):'<p class="sm">Belum ada data.</p>')+'</div>';
   const kl=S.kil.filter(x=>x.ts>Date.now()-7*DAY), kt=kl.length?kl.reduce((a,x)=>a+x.ms,0)/kl.length/1000:0;
   const sid=new Set(); S.sets.forEach(st=>st.soal.forEach(q=>{ if(q.sidik) sid.add(q.sidik.toLowerCase()); }));
-  h+='<h2>Lainnya</h2><div class="card list"><div class="row"><div class="grow"><b>Hitung cepat (7 hari)</b><span class="sm">'+kl.length+' soal · benar '+pct(kl.filter(x=>x.ok).length,kl.length)+'% · rata-rata '+kt.toFixed(1).replace('.',',')+' detik</span></div></div><div class="row"><div class="grow"><b>Ragam bentuk</b><span class="sm">'+sid.size+' bentuk soal berbeda sudah kamu temui</span></div></div></div>';
-  h+='<h2>Pengaturan</h2><div class="card list"><div class="row"><div class="grow"><b>Tema</b><span class="sm">'+(S.tema==='terang'?'Terang':S.tema==='gelap'?'Gelap':'Mengikuti perangkat')+'</span></div><button class="btn" data-action="tema">Ganti</button></div><div class="row"><div class="grow"><b>Periksa jawaban</b><span class="sm">'+(S.cek==='langsung'?'Langsung setelah tiap soal':'Di akhir set')+'</span></div><button class="btn" data-action="cek">Ganti</button></div>'+
+  h+='<h2>Lainnya</h2><div class="card list"><div class="row"><div class="grow"><b>Hitung cepat (7 hari)</b><span class="sm">'+kl.length+' soal · benar '+pct(kl.filter(x=>x.ok).length,kl.length)+'% · rata-rata '+kt.toFixed(1).replace('.',',')+' detik</span></div></div><div class="row"><div class="grow"><b>Mini game (7 hari)</b><span class="sm">'+(GAMES.map(g=>({g,st:gameStat(g.id)})).filter(x=>x.st.n7).map(x=>x.g.nama+' '+x.st.p7+'%').join(' · ')||'Belum dimainkan')+'</span></div></div><div class="row"><div class="grow"><b>Ragam bentuk</b><span class="sm">'+sid.size+' bentuk soal berbeda sudah kamu temui</span></div></div></div>';
+  h+='<h2>Pengaturan</h2><div class="card list"><div class="row"><div class="grow"><b>Periksa jawaban</b><span class="sm">'+(S.cek==='langsung'?'Langsung setelah tiap soal':'Di akhir set')+'</span></div><button class="btn" data-action="cek">Ganti</button></div>'+
   '<div class="row"><div class="grow"><b>Materi</b><span class="sm">'+(S.semua?'Semua unit dibuka':'Hanya unit yang sudah dipelajari di jadwal Progres Harian ('+openUnits().length+' unit)')+'</span></div><button class="btn" data-action="semua">Ganti</button></div>'+
   '<div class="row"><div class="grow"><b>Materi jadwal lama</b><span class="sm">'+(S.ulas===false?'Tidak dipakai':oldUnits().length+' unit ikut sebagai ulasan')+'</span></div><button class="btn" data-action="ulas">Ganti</button></div>'+
   '<div class="row"><div class="grow"><b>Cadangan data</b><span class="sm">Salin seluruh data latihan sebagai teks</span></div><button class="btn" data-action="ekspor">Salin</button></div>'+
@@ -626,8 +998,8 @@ function viewRun(){
   h+='<div class="card q">'+q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>';
   if(a.prev) h+='<p class="sm">Soal ini sudah dijawab sebelumnya ('+(a.ok?'benar':'salah')+').</p>';
   else if(q.tipe==='pg') h+=q.opsi.map((o,i)=>optBtn(i,o,R,k,rv)).join('');
-  else if(q.tipe==='pq') h+='<div class="pq"><div><span class="sm">P</span>'+txt(q.p)+'</div><div><span class="sm">Q</span>'+txt(q.q)+'</div></div>'+PQ4.map((o,i)=>optBtn(i,o,R,k,rv)).join('');
-  else if(q.tipe==='cukup') h+='<ol class="pern"><li>'+txt(q.pern[0])+'</li><li>'+txt(q.pern[1])+'</li></ol>'+CK5.map((o,i)=>optBtn(i,o,R,k,rv)).join('');
+  else if(q.tipe==='pq') h+='<div class="pq"><div><span class="sm">P</span>'+txt(q.p)+'</div><div><span class="sm">Q</span>'+txt(q.q)+'</div></div>'+pqList(q).map((o,i)=>optBtn(i,o,R,k,rv)).join('');
+  else if(q.tipe==='cukup') h+='<div class="pern">'+q.pern.map((p,i)=>'<p><b>'+ckLab(q)[i]+'</b> '+txt(p)+'</p>').join('')+'</div>'+ckList(q).map((o,i)=>optBtn(i,o,R,k,rv)).join('');
   else if(q.tipe==='bs') h+='<div class="bs">'+q.bs.map((b,i)=>'<div class="bsr'+(rv?(a.bs[i]===b.benar?' good':' wrong'):'')+'"><span class="grow">'+txt(b.teks)+'</span>'+[true,false].map(v=>'<button data-action="bs" data-v="'+i+':'+(v?1:0)+'" class="'+(a.bs[i]===v?'sel':'')+(rv&&b.benar===v?' key':'')+'"'+(rv?' disabled':'')+'>'+(v?'Benar':'Salah')+'</button>').join('')+'</div>').join('')+'</div>';
   else h+='<div class="isi"><input id="isian" inputmode="decimal" autocomplete="off" placeholder="jawaban angka" value="'+esc(a.is)+'"'+(rv?' disabled':'')+'><span class="sm">Desimal pakai koma, tanpa satuan.</span></div>';
   h+='</div>';
@@ -640,7 +1012,7 @@ function viewRun(){
   return h;
 }
 function pembahasan(q,a){
-  let key=q.tipe==='pg'?'ABCDE'[q.kunci]+'. '+q.opsi[q.kunci]:q.tipe==='pq'?PQ4[q.kunci]:q.tipe==='cukup'?CK5[q.kunci]:q.tipe==='bs'?q.bs.map((b,i)=>(i+1)+' '+(b.benar?'Benar':'Salah')).join(' · '):fmt(q.kunciNum);
+  let key=q.tipe==='pg'?'ABCDE'[q.kunci]+'. '+q.opsi[q.kunci]:q.tipe==='pq'?pqList(q)[q.kunci]:q.tipe==='cukup'?ckList(q)[q.kunci]:q.tipe==='bs'?q.bs.map((b,i)=>(i+1)+' '+(b.benar?'Benar':'Salah')).join(' · '):fmt(q.kunciNum);
   let h='<div class="card pb '+(a.ok?'good':'wrong')+'"><b>'+(a.ok?'Benar':'Belum tepat')+'</b><p class="kunci">Kunci: '+mx(key)+'</p>';
   if(q.langkah.length) h+='<ol class="steps">'+q.langkah.map(s=>'<li>'+mx(s)+'</li>').join('')+'</ol>';
   if(q.jebakan) h+='<p class="sm"><b>Jebakan:</b> '+mx(q.jebakan)+'</p>';
@@ -656,31 +1028,35 @@ function viewHasil(){
   h+='<h2>Pembahasan</h2>'+R.items.map((it,i)=>{ const q=it.q, a=R.A[i], slow=R.T[i]>SUB[q.sub].dtk*1500;
     return '<details class="card rev '+(a.ok?'good':'wrong')+'"><summary><span class="num">'+(i+1)+'</span>'+badge(q.sub)+'<span class="grow snip1">'+esc(q.perintah.slice(0,70))+'</span><span class="sm">'+(a.ok?'benar':'salah')+' · '+Math.round(R.T[i]/1000)+' dtk'+(slow?' (lambat)':'')+'</span></summary>'+
     q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>'+
-    (q.tipe==='pg'?'<ul class="ol">'+q.opsi.map((o,j)=>'<li class="'+(j===q.kunci?'k':a.c===j?'x':'')+'"><b>'+'ABCDE'[j]+'.</b> '+mx(o)+(q.alasan&&q.alasan[j]&&j!==q.kunci?'<span class="why">'+mx(q.alasan[j])+'</span>':'')+'</li>').join('')+'</ul>':q.tipe==='pq'?'<p>P: '+txt(q.p)+'<br>Q: '+txt(q.q)+'</p>':q.tipe==='cukup'?'<p>(1) '+txt(q.pern[0])+'<br>(2) '+txt(q.pern[1])+'</p>':q.tipe==='bs'?'<ul class="ol">'+q.bs.map(b=>'<li>'+mx(b.teks)+' <b>('+(b.benar?'Benar':'Salah')+')</b></li>').join('')+'</ul>':'<p class="sm">Jawabanmu: '+esc(a.is||'kosong')+'</p>')+
+    (q.tipe==='pg'?'<ul class="ol">'+q.opsi.map((o,j)=>'<li class="'+(j===q.kunci?'k':a.c===j?'x':'')+'"><b>'+'ABCDE'[j]+'.</b> '+mx(o)+(q.alasan&&q.alasan[j]&&j!==q.kunci?'<span class="why">'+mx(q.alasan[j])+'</span>':'')+'</li>').join('')+'</ul>':q.tipe==='pq'?'<p>P: '+txt(q.p)+'<br>Q: '+txt(q.q)+'</p>':q.tipe==='cukup'?'<p>'+ckLab(q)[0]+' '+txt(q.pern[0])+'<br>'+ckLab(q)[1]+' '+txt(q.pern[1])+'</p>':q.tipe==='bs'?'<ul class="ol">'+q.bs.map(b=>'<li>'+mx(b.teks)+' <b>('+(b.benar?'Benar':'Salah')+')</b></li>').join('')+'</ul>':'<p class="sm">Jawabanmu: '+esc(a.is||'kosong')+'</p>')+
     pembahasan(q,a)+'</details>'; }).join('');
   h+='<div class="btns foot"><a class="btn pri grow" href="#beranda">Selesai</a>'+(R.A.some(a=>!a.ok)?'<a class="btn" href="#salah">Lihat soal salah</a>':'')+'</div>';
   return h;
 }
+function klKey(it){ return it.opsi?LTR[it.kunci]+'. '+it.opsi[it.kunci]:fmt(it.kunci); }
 function viewKilat(){
-  const K=V.kl;
+  const K=V.kl, tgt=K.limit||20, back=K.game?'#game':'#beranda';
   if(K.done){ const ok=K.res.filter(r=>r.ok).length, n=K.res.length, avg=n?K.res.reduce((s,r)=>s+r.ms,0)/n/1000:0;
-    return '<header class="top"><a class="hub" href="#beranda" data-action="klclose">‹ Beranda</a></header><h1>Hitung cepat</h1><div class="card score"><div><b class="big">'+ok+'/'+n+'</b><span class="sm">benar</span></div><div><b class="big">'+avg.toFixed(1).replace('.',',')+'</b><span class="sm">detik per soal · target 20</span></div></div>'+
-    (K.res.some(r=>!r.ok)?'<h2>Yang salah</h2>'+K.res.filter(r=>!r.ok).map(r=>'<div class="card"><p class="ask">'+mx(r.it.perintah)+'</p><p class="kunci">Kunci: '+esc(fmt(r.it.kunci))+'</p><ol class="steps">'+r.it.langkah.map(s=>'<li>'+mx(s)+'</li>').join('')+'</ol></div>').join(''):'')+
-    '<div class="btns foot"><button class="btn pri grow" data-action="klclose">Selesai</button><button class="btn" data-action="kilat">Main lagi</button></div>'; }
-  const it=K.items[K.i], n=K.items.length;
-  let h='<header class="top run"><button class="hub" data-action="klstop">‹ Selesai</button><span class="grow ttl">Hitung cepat</span><span class="cd" id="kt">0 dtk</span></header>'+bar(pct(K.i,n));
-  h+='<div class="card kl'+(K.fb?(K.fb.ok?' good':' wrong'):'')+'"><span class="sm">Soal '+(K.i+1)+' dari '+n+'</span><p class="klq">'+mx(it.perintah)+'</p>';
-  if(K.fb) h+='<p class="kunci">'+(K.fb.ok?'Benar':'Kunci: '+esc(fmt(it.kunci)))+'</p>'+(K.fb.ok?'':'<ol class="steps">'+it.langkah.map(s=>'<li>'+mx(s)+'</li>').join('')+'</ol>')+'<button class="btn pri block" data-action="klnext" id="pbtn">Lanjut</button>';
-  else h+='<div class="isi"><input id="klans" inputmode="decimal" autocomplete="off" placeholder="jawaban" value="'+esc(K.ans)+'"><button class="btn" data-action="klneg" aria-label="Ganti tanda">±</button></div><button class="btn pri block" data-action="klcheck" id="pbtn"'+(isNaN(parseNum(K.ans))?' disabled':'')+'>Periksa</button>';
+    return '<header class="top"><a class="hub" href="'+back+'" data-action="klclose">‹ Kembali</a></header><h1>'+esc(K.title)+'</h1><div class="card score"><div><b class="big">'+ok+'/'+n+'</b><span class="sm">benar</span></div><div><b class="big">'+avg.toFixed(1).replace('.',',')+'</b><span class="sm">detik per soal · target '+tgt+'</span></div></div>'+
+    (K.res.some(r=>!r.ok)?'<h2>Yang salah</h2>'+K.res.filter(r=>!r.ok).map(r=>'<div class="card">'+(r.it.html||'<p class="ask">'+mx(r.it.perintah)+'</p>')+'<p class="kunci">Kunci: '+mx(klKey(r.it))+'</p><ol class="steps">'+r.it.langkah.map(s=>'<li>'+mx(s)+'</li>').join('')+'</ol></div>').join(''):'')+
+    '<div class="btns foot"><button class="btn pri grow" data-action="klclose">Selesai</button><button class="btn" data-action="'+(K.game?'game':'kilat')+'" data-v="'+(K.game||'')+'">Main lagi</button></div>'; }
+  const it=K.items[K.i], n=K.items.length, rv=!!K.fb;
+  let h='<header class="top run"><button class="hub" data-action="klstop">‹ Selesai</button><span class="grow ttl">'+esc(K.title)+'</span><span class="cd" id="kt">'+(K.limit?K.limit+' dtk':'0 dtk')+'</span></header>'+bar(pct(K.i,n));
+  h+='<div class="card kl'+(it.html?' wide':'')+(K.fb?(K.fb.ok?' good':' wrong'):'')+'"><span class="sm">Soal '+(K.i+1)+' dari '+n+(it.jenis&&it.jenis!=='maju'?' · '+(it.jenis==='balik'?'dibalik arah':'estimasi'):'')+'</span>'+(it.html?'<div class="klh">'+it.html+'</div>':'<p class="klq'+(it.opsi?' sm2':'')+'">'+mx(it.perintah)+'</p>');
+  if(it.opsi){ h+='<div class="klo">'+it.opsi.map((o,i)=>{ let c='opt'; if(rv&&i===it.kunci) c+=' good'; else if(rv&&K.pick===i) c+=' wrong'; return '<button class="'+c+'" data-action="klpick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+LTR[i]+'</span><span class="grow">'+mx(o)+'</span></button>'; }).join('')+'</div>'; }
+  if(K.fb) h+='<p class="kunci">'+(K.fb.ok?'Benar':(K.fb.timeout?'Waktu habis. ':'')+'Kunci: '+mx(klKey(it)))+'</p>'+(K.fb.ok?'':'<ol class="steps">'+it.langkah.map(s=>'<li>'+mx(s)+'</li>').join('')+'</ol>')+'<button class="btn pri block" data-action="klnext" id="pbtn">Lanjut</button>';
+  else if(!it.opsi) h+='<div class="isi"><input id="klans" inputmode="decimal" autocomplete="off" placeholder="jawaban" value="'+esc(K.ans)+'"><button class="btn" data-action="klneg" aria-label="Ganti tanda">±</button></div><button class="btn pri block" data-action="klcheck" id="pbtn"'+(isNaN(parseNum(K.ans))?' disabled':'')+'>Periksa</button>';
   return h+'</div>';
 }
 
 function render(){
   let r=route(), h, full=false;
   if(r==='main'){ if(V.run){ h=viewRun(); full=true; } else if(V.kl){ h=viewKilat(); full=true; } else if(V.hasil){ h=viewHasil(); full=true; } else { r='beranda'; } }
-  if(!h) h=r==='soal'?viewSoal():r==='salah'?viewSalah():r==='progres'?viewProgres():viewBeranda();
-  $('#view').innerHTML=h; $('#nav').hidden=full;
-  $('#nav').innerHTML=NAV.map(x=>'<a href="#'+x[0]+'"'+(r===x[0]?' class="on"':'')+'>'+x[1]+(x[0]==='salah'&&salahList().length?'<i>'+salahList().length+'</i>':'')+'</a>').join('');
+  if(!h) h=r==='game'?viewGame():r==='soal'?viewSoal():r==='salah'?viewSalah():r==='progres'?viewProgres():viewBeranda();
+  $('#view').innerHTML=(full?'':appbar()+hero(r))+h; $('#nav').hidden=full;
+  document.querySelectorAll('#view .card').forEach(c=>{ if(c.tagName!=='DETAILS') c.insertAdjacentHTML('afterbegin',STUDS); });
+  const ns=salahList().length;
+  $('#nav').innerHTML=NAV.map(x=>'<a href="#'+x[0]+'" class="'+(r===x[0]?'on ':'')+(x[0]==='beranda'?'yk':'')+'" style="--c:'+x[2]+'">'+svgI(x[3])+'<span>'+x[1]+'</span>'+(x[0]==='salah'&&ns?'<i>'+ns+'</i>':'')+'</a>').join('');
   const f=$('#klans')||(V.run&&!V.run.A[V.run.cur].done?$('#isian'):null); if(f&&!('ontouchstart' in window)) f.focus();
 }
 
@@ -716,10 +1092,12 @@ function act(a,v){
   else if(R&&a==='selesai'){ finishRun(); }
   else if(R&&a==='keluar'){ tick(R); persist(); V.run=null; go('beranda'); toast('Sesi disimpan. Lanjutkan dari Beranda.'); }
   else if(K&&a==='klcheck') kilatCheck();
+  else if(K&&a==='klpick') kilatCheck(v);
+  else if(a==='game') startGame(v);
   else if(K&&a==='klnext') kilatNext();
   else if(K&&a==='klneg'){ const i=$('#klans'); K.ans=i.value.trim().startsWith('-')||i.value.trim().startsWith('−')?i.value.trim().slice(1):'−'+i.value.trim(); render(); }
-  else if(K&&a==='klstop'){ if(K.res.length){ K.done=true; render(); } else { V.kl=null; go('beranda'); } }
-  else if(a==='klclose'){ V.kl=null; go('beranda'); }
+  else if(K&&a==='klstop'){ if(K.res.length){ K.done=true; render(); } else { const g=K.game; V.kl=null; go(g?'game':'beranda'); } }
+  else if(a==='klclose'){ const g=V.kl&&V.kl.game; V.kl=null; go(g?'game':'beranda'); }
 }
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-action]'); if(!b||b.disabled) return; if(b.tagName!=='A') e.preventDefault(); act(b.dataset.action,b.dataset.v); });
 document.addEventListener('input',e=>{ const t=e.target;
@@ -731,10 +1109,10 @@ window.addEventListener('hashchange',()=>{ if(route()!=='main'){ if(V.run){ tick
 setInterval(()=>{ const R=V.run, K=V.kl;
   if(R&&route()==='main'){ const el=$('#tm'), left=timeLeft(R); if(left!=null){ if(left<=0){ finishRun(); toast('Waktu habis.'); return; } if(el){ el.textContent=mmss(left); el.classList.toggle('late',left<60000); } }
     else if(el){ const a=R.A[R.cur], ms=R.T[R.cur]+(a.done?0:Date.now()-R.t0); el.textContent=mmss(ms); el.classList.toggle('late',!a.done&&ms>SUB[R.items[R.cur].q.sub].dtk*1000); } }
-  if(K&&!K.done&&!K.fb){ const el=$('#kt'); if(el){ const s=Math.round((Date.now()-K.t0)/1000); el.textContent=s+' dtk'; el.classList.toggle('late',s>20); } }
+  if(K&&!K.done&&!K.fb&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.t0)/1000; if(K.limit){ if(s>=K.limit){ kilatCheck(null,true); return; } if(el){ el.textContent=Math.ceil(K.limit-s)+' dtk'; el.classList.toggle('late',K.limit-s<5); } } else if(el){ el.textContent=Math.round(s)+' dtk'; el.classList.toggle('late',s>20); } }
 },500);
-if(typeof module!=='undefined'&&module.exports) module.exports={poolUnits,oldUnits,openUnits,fokusUnits,kilatGens,tahap,S,buildResep,resepHarian,resepSim,promptSet,promptVarian,parseSet,addSet,tasksOn,kilatSet,PLAN,findQ,salahList,viewBeranda,viewSoal,viewSalah,viewProgres};
-else { applyTema(); save(); render(); }
+if(typeof module!=='undefined'&&module.exports) module.exports={get V(){return V;},startGame,kilatMix,GAMES,pqItem,ckItem,kisiItem,barisanItem,estimItem,mesinItem,balikItem,tahapInfo,poolUnits,oldUnits,openUnits,fokusUnits,kilatGens,tahap,S,buildResep,resepHarian,resepSim,promptSet,promptVarian,parseSet,addSet,tasksOn,kilatSet,PLAN,findQ,salahList,viewBeranda,viewSoal,viewSalah,viewProgres};
+else { try{ $('#scene').innerHTML=sceneHTML(); }catch(e){} applyTema(); save(); render(); }
 </script>
 </body>
 </html>
