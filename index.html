@@ -478,6 +478,67 @@ table.kisi2 td.r.q.typed{background:#fff6d6;color:var(--ink);border-color:color-
 /* paling mendekati */
 .expr{margin:6px 0 18px}
 .nline{margin:4px 4px 6px}
+
+/* ===== revisi 3 ===== */
+/* mesin svg */
+.mhist{flex-direction:row;align-items:center;margin-bottom:14px}
+.mhist .cap{width:100%;text-align:center;margin:0 0 2px}
+.mhist .tk{font:400 14px "Lilita One","Rubik",sans-serif;padding:3px 9px;border-radius:7px;background:#fff6d6;border:2px dashed color-mix(in srgb,var(--yellow) 55%,#6b4a00);color:var(--ink)}
+.mhist .tk i{font-style:normal;color:var(--purple);margin:0 5px}
+.msvg{display:block;width:100%;max-width:330px;margin:0 auto}
+.msvg .tile{fill:#fff;stroke:#5b6d99;stroke-width:2.5}
+.msvg .tile.typed{fill:#fff6d6;stroke:#b8901c}
+.msvg .num{font:400 22px "Lilita One","Rubik",sans-serif;fill:#26304b;text-anchor:middle}
+.msvg .lbl2{font:700 9.5px "Rubik",sans-serif;fill:#64708e;letter-spacing:.8px}
+.msvg .lbl2.e{text-anchor:end}
+.msvg .funnel{fill:#c9d4ea;stroke:#5b6d99;stroke-width:2.5;stroke-linejoin:round}
+.msvg .body{fill:#8f7ae8;stroke:#5a4bb0;stroke-width:2.5}
+.msvg .scr{fill:#26304b}
+.msvg .scrt{font:600 12px ui-monospace,Menlo,monospace;fill:#9ff0c2;text-anchor:middle}
+.msvg .gear{fill:#ffd24f}
+.msvg .gear.g2{fill:#ffe9a3}
+.msvg .spin{transform-box:fill-box;transform-origin:center}
+.msvg.run .g1 .spin{animation:spin 1s linear 2}
+.msvg.run .g2 .spin{animation:spin 1s linear reverse 2}
+.msvg .lamp{fill:#7c87a6;stroke:#26304b;stroke-width:2}
+.msvg.run .lamp{fill:#3fb46e}.msvg.run.bad .lamp{fill:#ef5f5a}
+.msvg .pipe{fill:#9fb0d2;stroke:#5b6d99;stroke-width:2}
+.msvg.run .out{animation:pop .5s .9s cubic-bezier(.3,1.7,.5,1) both;transform-box:fill-box;transform-origin:center}
+@keyframes pop{0%{transform:scale(.6)}100%{transform:none}}
+/* kisi: slot simbol */
+.oslot{width:30px;height:30px;border-radius:50%;padding:0;font:400 17px "Lilita One","Rubik",sans-serif;color:var(--blue);background:#fff;border:2px dashed #9fb0d2;cursor:pointer;transition:transform .1s}
+.oslot.set{border-style:solid;border-color:var(--blue);background:var(--acc-s)}
+.oslot.fix{border-style:solid;border-color:#5b6d99;background:#5b6d99;color:#fff;cursor:default}
+.oslot.on{border-style:solid;border-color:#b8901c;background:var(--yellow);color:var(--ink);transform:scale(1.15);box-shadow:0 0 0 4px #fff2c2}
+.opal{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;max-width:244px;margin:0 auto}
+.opal button{height:48px;border-radius:10px;font:400 24px "Lilita One","Rubik",sans-serif;color:var(--ink);background:var(--plate);border:2px solid var(--line);box-shadow:0 3px 0 var(--sh);cursor:pointer}
+.opal button.fn{font-size:19px;color:var(--muted);background:var(--base)}
+.opal button:disabled{opacity:.4;cursor:default}
+.opal button:active:not(:disabled){transform:translateY(3px);box-shadow:none}
+/* barisan svg */
+.bsvg{display:block;width:100%;margin:6px 0 4px;overflow:visible}
+.bsvg .rail{stroke:#c3cfe6;stroke-width:6;stroke-linecap:round}
+.bsvg .hop{fill:none;stroke:#8f7ae8;stroke-width:2.2;stroke-dasharray:0}
+.bsvg .hop.dash{stroke:#c3cfe6;stroke-dasharray:4 4}
+.bsvg .hop.low{stroke:#ff9d4d}
+.bsvg .hb rect{fill:#fff;stroke:#8f7ae8;stroke-width:2;stroke-dasharray:3 3}
+.bsvg .hb[data-action]{cursor:pointer}
+.bsvg .hb.on rect{fill:#ece6fc;stroke-dasharray:0}
+.bsvg .hb text{font:700 11px "Rubik",sans-serif;fill:#5a4bb0;text-anchor:middle}
+.bsvg .hb text.r{font-size:9.5px;fill:#8f7ae8}
+.bsvg .sl{font:700 10.5px "Rubik",sans-serif;fill:#c46a1c;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:3px}
+.bsvg .stn rect{fill:#4b8ae8;stroke:#2b4f99;stroke-width:2}
+.bsvg .stn text.v{font:400 15px "Lilita One","Rubik",sans-serif;fill:#fff;text-anchor:middle}
+.bsvg .stn text.v.sm{font-size:12px}
+.bsvg .stn text.ix{font:700 9px "Rubik",sans-serif;fill:#a3aec6;text-anchor:middle}
+.bsvg .stn.q rect{fill:#ffd24f;stroke:#b8901c}.bsvg .stn.q text.v{fill:#26304b}
+.bsvg .stn.bl rect{fill:#eef3fb;stroke:#c3cfe6;stroke-dasharray:3 3}.bsvg .stn.bl text.v{fill:#a3aec6}
+.bsvg .stn.pk{cursor:pointer}
+.bsvg .stn.sel rect{fill:#ef5f5a;stroke:#a3302c}
+.bsvg .stn.was rect{stroke:#3fb46e;stroke-width:4}
+.bsvg .stn .old{font:600 9.5px "Rubik",sans-serif;fill:#ef5f5a;text-anchor:middle;text-decoration:line-through}
+.bctl{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
+.mhist .cap{background:none;border:0;padding:0;font:700 10.5px "Rubik",sans-serif;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -901,7 +962,7 @@ function kilatSet(n){ const pool=poolUnits(); let gs=kilatGens(); gs=RN.shuf(gs)
   while(out.length<n&&guard++<n*40){ const g=gs[i++%gs.length]; let it=null; try{ it=g.fn({open:pool}); }catch(e){} if(it&&isFinite(it.kunci)) out.push(Object.assign(it,{key:g.key})); } return out; }
 function startKilat(){ V.kl={title:'Hitung cepat',game:null,limit:null,items:kilatMix(),i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
 function kilatCheck(pick,timeout){ const K=V.kl; if(!K||K.fb) return; const it=K.items[K.i], ms=Date.now()-K.t0; let ok;
-  if(timeout) ok=false; else if(it.opsi){ if(pick==null) return; K.pick=+pick; ok=K.pick===it.kunci; } else { const v=parseNum(K.ans); if(isNaN(v)) return; ok=Math.abs(v-it.kunci)<1e-9; if(it.needSel!=null&&K.st.sel!==it.needSel) ok=false; }
+  if(timeout) ok=false; else if(it.check){ ok=!!it.check(K); } else if(it.opsi){ if(pick==null) return; K.pick=+pick; ok=K.pick===it.kunci; } else { const v=parseNum(K.ans); if(isNaN(v)) return; ok=Math.abs(v-it.kunci)<1e-9; if(it.needSel!=null&&K.st.sel!==it.needSel) ok=false; }
   K.fb={ok,ms,timeout:!!timeout}; K.res.push({it,ok,ms});
   if(K.game){ (S.game[K.game]=S.game[K.game]||[]).push({ok,ms,ts:Date.now()}); } else S.kil.push({k:it.key,ok,ms,ts:Date.now()});
   save(); render();
@@ -1030,29 +1091,23 @@ function ckItem(i){
   return {perintah:r.q+' '+lab[0]+' '+s[0]+' '+lab[1]+' '+s[1],ck:{q:r.q,s,lab,pu},html:'<span class="bd bd-'+(pu?'mint':'blue')+'">'+(pu?'Versi PU':'Versi PK')+'</span><p class="ask">'+esc(r.q)+'</p><div class="pern"><p><b>'+lab[0]+'</b> '+esc(s[0])+'</p><p><b>'+lab[1]+'</b> '+esc(s[1])+'</p></div>',opsi:L,kunci:k,langkah:[r.w,'Tidak perlu menghitung jawabannya; cukup pastikan jawabannya tunggal.']};
 }
 
-/* ---------- Game 3: Kisi Operasi ---------- */
+/* ---------- Game 3: Kisi Operasi (cross math) ----------
+   Kisi 3 × 3 dengan 12 slot operasi. Beberapa slot sudah terisi (seperti angka awal sudoku);
+   pemain mengisi sisanya satu per satu sampai semua baris dan kolom benar. Dihitung dari kiri/atas. */
 const OPS={'+':(a,b)=>a+b,'−':(a,b)=>a-b,'×':(a,b)=>a*b};
+const KSLOTS=[]; for(let i=0;i<3;i++) for(let j=0;j<2;j++){ KSLOTS.push('h'+i+j); KSLOTS.push('v'+i+j); }
+function kisiEval(g,o){ const r=[0,1,2].map(i=>OPS[o['h'+i+'1']](OPS[o['h'+i+'0']](g[i][0],g[i][1]),g[i][2])), c=[0,1,2].map(j=>OPS[o['v'+j+'1']](OPS[o['v'+j+'0']](g[0][j],g[1][j]),g[2][j])); return {r,c}; }
 function kisiItem(){
   const ok=Object.keys(OPS);
-  for(let t=0;t<400;t++){ const g=[0,1,2].map(()=>[0,1,2].map(()=>RN.int(1,9))), o1=RN.pick(ok); let o2=RN.pick(ok); if(o2===o1) continue;
-    const ev=(a,b,c,x,y)=>OPS[y](OPS[x](a,b),c);
-    const rows=g.map(r=>ev(r[0],r[1],r[2],o1,o2)), cols=[0,1,2].map(j=>ev(g[0][j],g[1][j],g[2][j],o1,o2));
-    const match=[]; ok.forEach(x=>ok.forEach(y=>{ if(x===y) return; let good=true; for(let i=0;i<3;i++){ if(ev(g[i][0],g[i][1],g[i][2],x,y)!==rows[i]||ev(g[0][i],g[1][i],g[2][i],x,y)!==cols[i]) good=false; } if(good) match.push(x+y); }));
-    const hide=RN.int(0,5), isRow=hide<3, idx=hide%3, ans=isRow?rows[idx]:cols[idx];
-    /* teka-teki harus tetap tunggal walau satu hasil disembunyikan */
-    const match2=[]; ok.forEach(x=>ok.forEach(y=>{ if(x===y) return; let good=true; for(let i=0;i<3;i++){ if(!(isRow&&i===idx)&&ev(g[i][0],g[i][1],g[i][2],x,y)!==rows[i]) good=false; if(!(!isRow&&i===idx)&&ev(g[0][i],g[1][i],g[2][i],x,y)!==cols[i]) good=false; } if(good) match2.push(x+y); }));
-    if(match.length!==1||match2.length!==1||Math.abs(ans)>150) continue;
-    const alt=new Set([ans]); ok.forEach(x=>ok.forEach(y=>{ if(x!==y){ const v=isRow?ev(g[idx][0],g[idx][1],g[idx][2],x,y):ev(g[0][idx],g[1][idx],g[2][idx],x,y); alt.add(v); } }));
-    let d=1; while(alt.size<5){ alt.add(ans+d); alt.add(ans-d); d++; }
-    const opsi=[...alt].slice(0,5).sort((a,b)=>a-b); if(!opsi.includes(ans)){ opsi[RN.int(0,4)]=ans; opsi.sort((a,b)=>a-b); }
-    const R=i=>isRow&&i===idx?'?':fmt(rows[i]), C=j=>!isRow&&j===idx?'?':fmt(cols[j]);
-    let h='<p class="sm">Simbol # dan @ masing-masing mewakili satu operasi (+, −, atau ×), sama di semua baris dan kolom. Hitung dari kiri ke kanan dan dari atas ke bawah.</p><div class="tw"><table class="kisi">';
-    for(let i=0;i<3;i++){ h+='<tr>'+g[i].map((v,j)=>'<td class="n">'+v+'</td>'+(j<2?'<td class="o">'+(j===0?'#':'@')+'</td>':'')).join('')+'<td class="o">=</td><td class="r">'+R(i)+'</td></tr>';
-      if(i<2) h+='<tr>'+[0,1,2].map(j=>'<td class="o">'+(i===0?'#':'@')+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr>'; }
-    h+='<tr>'+[0,1,2].map(j=>'<td class="o">=</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr><tr>'+[0,1,2].map(j=>'<td class="r">'+C(j)+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr></table></div><p class="ask">Nilai yang tepat untuk ? adalah …</p>';
-    const line=isRow?'('+g[idx][0]+' '+o1+' '+g[idx][1]+') '+o2+' '+g[idx][2]:'('+g[0][idx]+' '+o1+' '+g[1][idx]+') '+o2+' '+g[2][idx];
-    const cek=isRow?(idx===0?1:0):-1, contoh=cek>=0?'Cek baris '+(cek+1)+': ('+g[cek][0]+' '+o1+' '+g[cek][1]+') '+o2+' '+g[cek][2]+' = '+fmt(rows[cek]):'Cek baris 1: ('+g[0][0]+' '+o1+' '+g[0][1]+') '+o2+' '+g[0][2]+' = '+fmt(rows[0]);
-    return {perintah:'Kisi operasi: cari nilai ?',kisi:{g,rows,cols,isRow,idx},kp:1,kunci:ans,langkah:['# = '+o1+' dan @ = '+o2+' (satu-satunya pasangan yang cocok dengan semua hasil yang terlihat)',contoh,(isRow?'Baris ':'Kolom ')+(idx+1)+': '+line+' = '+fmt(ans)]}; }
+  for(let t=0;t<300;t++){ const g=[0,1,2].map(()=>[0,1,2].map(()=>RN.int(1,9))), o={}; KSLOTS.forEach(k=>o[k]=RN.pick(ok));
+    const ev=kisiEval(g,o); if(ev.r.concat(ev.c).some(v=>v<-20||v>90)) continue;
+    const given=RN.shuf(KSLOTS.slice()).slice(0,RN.int(4,5)); const fx={}; given.forEach(k=>fx[k]=o[k]);
+    const show=k=>k[0]==='h'?'baris '+(+k[1]+1):'kolom '+(+k[1]+1);
+    return {perintah:'Kisi operasi: isi semua simbol', kisi:{g,rows:ev.r,cols:ev.c,fixed:fx,sol:o}, kunci:0,
+      check:K=>{ const s=Object.assign({},fx,K.st.ops||{}); if(KSLOTS.some(k=>!s[k])) return false; const e=kisiEval(g,s); return e.r.every((v,i)=>v===ev.r[i])&&e.c.every((v,i)=>v===ev.c[i]); },
+      langkah:['Mulai dari baris atau kolom yang sudah punya simbol terisi: cukup cari satu simbol lagi.',
+        'Contoh jawaban: '+[0,1,2].map(i=>'('+g[i][0]+' '+o['h'+i+'0']+' '+g[i][1]+') '+o['h'+i+'1']+' '+g[i][2]+' = '+fmt(ev.r[i])).join('; ')+'.',
+        'Susunan lain juga diterima selama semua baris dan kolom benar.']}; }
   return null;
 }
 
@@ -1083,7 +1138,7 @@ function mesinItem(){
 const GAMES=[
   {id:'pq',nama:'Timbangan P–Q',ket:'Pilih hubungan P dan Q dari opsi baku. 20 detik per soal.',bentuk:'PK-F1',limit:20,gen:pqItem,c:'var(--yellow)',yk:1,ic:'<path d="M12 3v18M7 21h10M5 7h14"/><path d="M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>'},
   {id:'cukup',nama:'Cukup Nggak?',ket:'Pernyataan cukup untuk menjawab atau tidak? Versi PU dan PK bergantian.',bentuk:'PU-K15 · PK-F2',gen:ckItem,c:'var(--red)',ic:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>'},
-  {id:'kisi',nama:'Kisi Operasi',ket:'Temukan operasi # dan @ dari kisi 3 × 3, lalu isi hasil yang hilang.',bentuk:'PK-M1 · PK-M11',gen:kisiItem,c:'var(--blue)',ic:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>'},
+  {id:'kisi',nama:'Kisi Operasi',ket:'Isi simbol +, −, × satu per satu sampai semua baris dan kolom benar.',bentuk:'PK-M1 · PK-M11',gen:kisiItem,c:'var(--blue)',ic:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>'},
   {id:'barisan',nama:'Detektif Barisan',ket:'Barisan selang-seling, suku salah catat, mundur ke suku pertama.',bentuk:'PU-K1 · K2 · K10',gen:barisanItem,c:'var(--green)',ic:'<path d="M3 17l5-6 4 4 4-7 5 5"/><circle cx="3" cy="17" r="1"/><circle cx="21" cy="13" r="1"/>'},
   {id:'dekat',nama:'Paling Mendekati',ket:'Lima opsi, 15 detik. Bulatkan dulu, baru hitung.',bentuk:'PU-K3',limit:15,need:['BIL-13'],gen:estimItem,c:'var(--orange)',ic:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>'},
   {id:'mesin',nama:'Mesin Fungsi',ket:'Tebak aturan dari tiga pasang input–output, lalu jalankan.',bentuk:'PK-M10',gen:mesinItem,c:'var(--purple)',ic:'<rect x="5" y="7" width="14" height="10" rx="2"/><path d="M2 12h3M19 12h3M9 11h.01M15 11h.01M10 14h4"/>'}
@@ -1117,46 +1172,65 @@ function kpPress(v){ const K=V.kl; if(!K||K.fb) return; let a=K.ans||'';
   K.ans=a; render(); }
 
 /* ---------- Mesin Fungsi ---------- */
+function gearG(x,y,s,cls){ return '<g class="gear '+cls+'" transform="translate('+x+' '+y+') scale('+s+')"><g class="spin"><path d="M17 2h6l1 5 4 2 4-3 4 4-3 4 2 4 5 1v6l-5 1-2 4 3 4-4 4-4-3-4 2-1 5h-6l-1-5-4-2-4 3-4-4 3-4-2-4-5-1v-6l5-1 2-4-3-4 4-4 4 3 4-2z"/><circle cx="20" cy="20" r="6" fill="#8f7ae8"/></g></g>'; }
 function gvMesin(it,K,rv){ const m=it.mesin, mund=m.x==null, a=K.ans?K.ans.replace('-','−'):'';
-  let h='<p class="gq c">'+(mund?'Masukkan angka berapa agar keluar <b>'+nf(m.y)+'</b>?':'Angka berapa yang keluar?')+'</p>';
-  h+='<div class="mhist">'+m.pairs.map(p=>'<span>'+nf(p[0])+'<i>→</i>'+nf(p[1])+'</span>').join('')+'</div>';
-  h+='<div class="mach'+(rv?' run':'')+(rv&&K.fb&&!K.fb.ok?' bad':'')+'"><b class="slot'+(mund?' typed':'')+'">'+(mund?(a||'?'):nf(m.x))+'</b><i class="arw">→</i>'+
-    '<div class="mbox"><span class="gear">'+GEAR+'</span><span class="screen">'+(rv?esc(m.rule):'?')+'</span></div><i class="arw">→</i>'+
-    '<b class="slot'+(mund?'':' typed')+'">'+(mund?nf(m.y):(a||'?'))+'</b></div>';
+  const inV=mund?(a||'?'):nf(m.x), outV=mund?nf(m.y):(a||'?'), bad=rv&&K.fb&&!K.fb.ok;
+  let h='<p class="gq c">'+(mund?'Angka berapa yang harus dimasukkan agar keluar <b>'+nf(m.y)+'</b>?':'Mesin memproses <b>'+nf(m.x)+'</b>. Angka berapa yang keluar?')+'</p>';
+  h+='<div class="mhist"><span class="cap">Riwayat mesin</span>'+m.pairs.map(p=>'<span class="tk">'+nf(p[0])+'<i>→</i>'+nf(p[1])+'</span>').join('')+'</div>';
+  h+='<svg class="msvg'+(rv?' run':'')+(bad?' bad':'')+'" viewBox="0 0 320 222" aria-label="Mesin fungsi">'+
+   '<text x="22" y="30" class="lbl2">MASUK</text>'+
+   '<rect x="86" y="4" width="64" height="40" rx="9" class="tile'+(mund?' typed':'')+'"/><text x="118" y="32" class="num">'+esc(inV)+'</text>'+
+   '<polygon points="78,50 158,50 132,78 104,78" class="funnel"/>'+
+   '<rect x="40" y="78" width="200" height="104" rx="16" class="body"/>'+
+   '<rect x="58" y="92" width="164" height="28" rx="6" class="scr"/><text x="140" y="111" class="scrt">'+(rv?'f(x) = '+esc(m.rule):'f(x) = ?')+'</text>'+
+   gearG(58,130,1.05,'g1')+gearG(104,138,.7,'g2')+
+   '<circle cx="216" cy="160" r="7" class="lamp"/>'+
+   '<rect x="240" y="138" width="36" height="14" rx="3" class="pipe"/><rect x="262" y="138" width="14" height="34" rx="3" class="pipe"/>'+
+   '<rect x="238" y="172" width="64" height="42" rx="9" class="tile out'+(mund?'':' typed')+'"/><text x="270" y="201" class="num">'+esc(outV)+'</text>'+
+   '<text x="230" y="206" class="lbl2 e">KELUAR</text></svg>';
   return h; }
 
-/* ---------- Kisi Operasi ---------- */
-const OPC=[null,'+','−','×'];
-function gvKisi(it,K,rv){ const z=it.kisi, g=z.g, o=K.st.ops||{'#':null,'@':null}, both=o['#']&&o['@'];
-  const ev=(a,b,c)=>OPS[o['@']](OPS[o['#']](a,b),c);
-  const tok=s=>'<button class="otok'+(o[s]?' set':'')+'" data-action="gx" data-v="'+s+'"'+(rv?' disabled':'')+'>'+(o[s]||s)+'</button>';
-  const res=(isR,i)=>{ const hid=isR===z.isRow&&i===z.idx, val=isR?z.rows[i]:z.cols[i];
-    if(hid) return '<td class="r q'+(K.ans?' typed':'')+'">'+(rv?nf(it.kunci):(K.ans?esc(K.ans.replace('-','−')):'?'))+'</td>';
-    let mk=''; if(both){ const v=isR?ev(g[i][0],g[i][1],g[i][2]):ev(g[0][i],g[1][i],g[2][i]); mk=v===val?' ok':' no'; }
-    return '<td class="r'+mk+'">'+nf(val)+'</td>'; };
-  let h='<p class="gq c">Ketuk <b>#</b> dan <b>@</b> untuk menebak operasinya. Hasil yang cocok berubah hijau. Lalu isi kotak <b>?</b>.</p><div class="tw"><table class="kisi2">';
-  for(let i=0;i<3;i++){ h+='<tr>'+g[i].map((v,j)=>'<td class="n">'+v+'</td>'+(j<2?'<td class="o">'+tok(j===0?'#':'@')+'</td>':'')).join('')+'<td class="eq">=</td>'+res(true,i)+'</tr>';
-    if(i<2) h+='<tr>'+[0,1,2].map(j=>'<td class="o">'+tok(i===0?'#':'@')+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr>'; }
-  h+='<tr>'+[0,1,2].map(j=>'<td class="eq">=</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr><tr>'+[0,1,2].map(j=>res(false,j)+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr></table></div>';
-  h+='<div class="olegend"><span># = '+(o['#']||'?')+'</span><span>@ = '+(o['@']||'?')+'</span>'+(both?((()=>{ let all=true; for(let i=0;i<3;i++){ if(!(z.isRow&&i===z.idx)&&ev(g[i][0],g[i][1],g[i][2])!==z.rows[i]) all=false; if(!(!z.isRow&&i===z.idx)&&ev(g[0][i],g[1][i],g[2][i])!==z.cols[i]) all=false; } return all?'<span class="good">semua cocok ✓</span>':'<span class="bad">belum cocok</span>'; })()):'')+'</div>';
+/* ---------- Kisi Operasi: pilih slot, lalu pilih simbol ---------- */
+function gvKisi(it,K,rv){ const z=it.kisi, g=z.g, o=Object.assign({},z.fixed,K.st.ops||{}), sel=K.st.slot;
+  const slot=k=>{ const f=z.fixed[k]!=null, v=rv&&!o[k]?z.sol[k]:o[k];
+    return '<button class="oslot'+(f?' fix':v?' set':'')+(sel===k&&!rv?' on':'')+'" data-action="gx" data-v="s'+k+'"'+(f||rv?' disabled':'')+'>'+(v||'')+'</button>'; };
+  const lineOk=(isR,i)=>{ const ks=isR?['h'+i+'0','h'+i+'1']:['v'+i+'0','v'+i+'1']; if(ks.some(k=>!o[k])) return '';
+    const v=isR?OPS[o[ks[1]]](OPS[o[ks[0]]](g[i][0],g[i][1]),g[i][2]):OPS[o[ks[1]]](OPS[o[ks[0]]](g[0][i],g[1][i]),g[2][i]);
+    return v===(isR?z.rows[i]:z.cols[i])?' ok':' no'; };
+  let h='<p class="gq c">Ketuk lingkaran kosong, lalu pilih simbolnya. Buat semua baris dan kolom benar.</p><div class="tw"><table class="kisi2">';
+  for(let i=0;i<3;i++){ h+='<tr>'+g[i].map((v,j)=>'<td class="n">'+v+'</td>'+(j<2?'<td class="o">'+slot('h'+i+j)+'</td>':'')).join('')+'<td class="eq">=</td><td class="r'+lineOk(true,i)+'">'+nf(z.rows[i])+'</td></tr>';
+    if(i<2) h+='<tr>'+[0,1,2].map(j=>'<td class="o">'+slot('v'+j+i)+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr>'; }
+  h+='<tr>'+[0,1,2].map(j=>'<td class="eq">=</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr><tr>'+[0,1,2].map(j=>'<td class="r'+lineOk(false,j)+'">'+nf(z.cols[j])+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr></table></div>';
+  if(!rv){ const left=KSLOTS.filter(k=>!o[k]).length;
+    h+='<div class="kpwrap"><p class="sm kphint">'+(sel?'Pilih simbol untuk lingkaran yang menyala.':'Ketuk satu lingkaran kosong dulu.')+' Sisa '+left+' simbol.</p><div class="opal">'+Object.keys(OPS).map(s=>'<button data-action="gx" data-v="o'+s+'"'+(sel?'':' disabled')+'>'+s+'</button>').join('')+'<button class="fn" data-action="gx" data-v="x"'+(sel&&o[sel]?'':' disabled')+'>⌫</button></div>'+
+      '<button class="btn pri block" data-action="klcheck" id="pbtn"'+(left?' disabled':'')+'>Periksa</button></div>'; }
   return h; }
-function gxKisi(it,K,v){ const o=K.st.ops=K.st.ops||{'#':null,'@':null}; o[v]=OPC[(OPC.indexOf(o[v])+1)%OPC.length]; }
+function gxKisi(it,K,v){ const o=K.st.ops=K.st.ops||{};
+  if(v[0]==='s'){ K.st.slot=v.slice(1); return; }
+  const s=K.st.slot; if(!s) return;
+  if(v==='x'){ delete o[s]; return; }
+  o[s]=v.slice(1); const z=it.kisi, nx=KSLOTS.find(k=>z.fixed[k]==null&&!o[k]); K.st.slot=nx||null; }
 
-/* ---------- Detektif Barisan ---------- */
-function gapLbl(a,b){ const d=b-a; let s=(d<0?'−':'+')+fmt(Math.abs(d)); if(a!==0&&b%a===0&&b/a>=2&&b/a<=9) s+=' / ×'+(b/a); return s; }
-function gvBarisan(it,K,rv){ const B=it.bar, cs=B.cells, L=K.st.lup||{}, a=K.ans?K.ans.replace('-','−'):'';
-  let h='<p class="gq c">'+esc(B.hint)+'</p><div class="train">';
-  cs.forEach((c,i)=>{
-    const cls='brk'+(c.q?' q':'')+(c.blank?' blank':'')+(B.pick?' pk':'')+(K.st.sel===i?' sel':'')+(rv&&it.needSel===i?' was':'');
-    const inner=c.blank?'…':c.q?(rv?nf(it.kunci):(a||'?')):(K.st.sel===i&&!rv?(a||'?'):nf(c.v));
-    h+=(B.pick&&!rv?'<button class="'+cls+'" data-action="gx" data-v="s'+i+'">':'<span class="'+cls+'">')+'<small>'+(i+1)+'</small>'+inner+(B.pick&&K.st.sel===i&&!rv?'<em>'+nf(c.v)+'</em>':'')+(B.pick&&!rv?'</button>':'</span>');
-    const nx=cs[i+1]; if(nx){ const ok=c.v!=null&&nx.v!=null;
-      h+=ok?(L[i]?'<span class="gap on">'+esc(gapLbl(c.v,nx.v))+'</span>':'<button class="gap" data-action="gx" data-v="g'+i+'" aria-label="Lihat selisih"'+(rv?' disabled':'')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></button>'):'<span class="gap x"></span>'; } });
-  h+='</div>';
-  const known=cs.map((c,i)=>[c,i]).filter(x=>x[0].v!=null);
-  if(known.length>=4&&!B.pick){ h+='<button class="chip skipb'+(K.st.skip?' on':'')+'" data-action="gx" data-v="skip"'+(rv?' disabled':'')+'>Bandingkan selang satu</button>';
-    if(K.st.skip) h+='<div class="skips">'+cs.map((c,i)=>{ const n=cs[i+2]; return c.v!=null&&n&&n.v!=null?'<span>'+(i+1)+'→'+(i+3)+': <b>'+esc(gapLbl(c.v,n.v).split(' / ')[0])+'</b></span>':''; }).join('')+'</div>'; }
-  const nl=Object.keys(L).length; if(nl) h+='<p class="sm lupc">Lup dipakai: '+nl+'</p>';
+/* ---------- Detektif Barisan: suku di jalur, lompatan di atasnya ---------- */
+function dLbl(a,b){ const d=b-a; return (d<0?'−':'+')+fmt(Math.abs(d)); }
+function rLbl(a,b){ return a!==0&&b%a===0&&b/a>=2&&b/a<=9?'×'+(b/a):''; }
+function gvBarisan(it,K,rv){ const B=it.bar, cs=B.cells, n=cs.length, L=K.st.lup||{}, a=K.ans?K.ans.replace('-','−'):'';
+  const W=340, x0=26, dx=(W-2*x0)/(n-1), X=i=>x0+i*dx, Y=96, sk=!!K.st.skip, H=sk?196:136;
+  let s='<svg class="bsvg" viewBox="0 0 '+W+' '+H+'"><line x1="8" y1="'+Y+'" x2="'+(W-8)+'" y2="'+Y+'" class="rail"/>';
+  for(let i=0;i<n-1;i++){ const c=cs[i], d=cs[i+1], x1=X(i)+15, x2=X(i+1)-15, mx=(X(i)+X(i+1))/2, ok=c.v!=null&&d.v!=null;
+    s+='<path d="M'+x1+' '+(Y-20)+' Q'+mx+' '+(Y-62)+' '+x2+' '+(Y-20)+'" class="hop'+(ok?'':' dash')+'"/>';
+    if(ok){ const on=L[i]; s+='<g class="hb'+(on?' on':'')+'"'+(on||rv?'':' data-action="gx" data-v="g'+i+'"')+'><rect x="'+(mx-19)+'" y="'+(Y-62)+'" width="38" height="'+(on&&rLbl(c.v,d.v)?30:20)+'" rx="7"/>'+
+      (on?'<text x="'+mx+'" y="'+(Y-48)+'">'+esc(dLbl(c.v,d.v))+'</text>'+(rLbl(c.v,d.v)?'<text x="'+mx+'" y="'+(Y-37)+'" class="r">'+rLbl(c.v,d.v)+'</text>':''):'<text x="'+mx+'" y="'+(Y-48)+'">🔍</text>')+'</g>'; } }
+  if(sk) for(let i=0;i<n-2;i++){ const c=cs[i], d=cs[i+2]; if(c.v==null||d.v==null) continue; const x1=X(i), x2=X(i+2), mx=(x1+x2)/2, y=Y+20+(i%2?30:0);
+    s+='<path d="M'+x1+' '+(Y+18)+' Q'+mx+' '+(y+34)+' '+x2+' '+(Y+18)+'" class="hop low"/><text x="'+mx+'" y="'+(y+24)+'" class="sl">'+esc(dLbl(c.v,d.v))+'</text>'; }
+  cs.forEach((c,i)=>{ const x=X(i), sel=K.st.sel===i, val=c.blank?'…':c.q?(rv?nf(it.kunci):(a||'?')):(sel&&!rv?(a||'?'):nf(c.v));
+    const cls='stn'+(c.q?' q':'')+(c.blank?' bl':'')+(sel?' sel':'')+(rv&&it.needSel===i?' was':'')+(B.pick&&!rv?' pk':'');
+    s+='<g class="'+cls+'"'+(B.pick&&!rv?' data-action="gx" data-v="s'+i+'"':'')+'><rect x="'+(x-17)+'" y="'+(Y-18)+'" width="34" height="36" rx="8"/><text x="'+x+'" y="'+(Y+6)+'" class="v'+(String(val).length>3?' sm':'')+'">'+esc(val)+'</text><text x="'+x+'" y="'+(Y+32)+'" class="ix">'+(i+1)+'</text>'+
+      (sel&&!rv?'<text x="'+x+'" y="'+(Y-24)+'" class="old">'+nf(c.v)+'</text>':'')+'</g>'; });
+  s+='</svg>';
+  let h='<p class="gq c">'+esc(B.hint)+'</p>'+s;
+  const known=cs.filter(c=>c.v!=null).length;
+  if(known>=4&&!B.pick) h+='<div class="bctl"><button class="chip'+(sk?' on':'')+'" data-action="gx" data-v="skip"'+(rv?' disabled':'')+'>Lompat selang satu</button>'+(Object.keys(L).length?'<span class="sm">Lup dipakai: '+Object.keys(L).length+'</span>':'')+'</div>';
   return h; }
 function gxBarisan(it,K,v){ if(v==='skip'){ K.st.skip=!K.st.skip; return; } if(v[0]==='g'){ (K.st.lup=K.st.lup||{})[+v.slice(1)]=1; return; } if(v[0]==='s'){ K.st.sel=+v.slice(1); } }
 
