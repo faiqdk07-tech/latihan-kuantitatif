@@ -429,6 +429,55 @@ table.kisi2 td.r.q.typed{background:#26304b;color:#ffe48a;border-color:#1f2a4d}
 .olegend .good{background:var(--ok-s);color:var(--green)}.olegend .bad{background:var(--bad-s);color:var(--red)}
 .beam{left:17%;right:17%}
 .cup{left:-54px;width:108px}
+
+/* ===== revisi 2: jarak, papan di tengah, mesin sederhana ===== */
+.gstage{min-height:calc(100vh - 150px);display:flex;flex-direction:column;justify-content:center;padding:18px 0 24px}
+.gstage .card{margin:0}
+.kl.gm{padding:18px 16px 18px}
+.gq{margin:6px 0 16px}
+.gq.c{text-align:center}
+.kpwrap{margin-top:22px;padding-top:18px;border-top:2px dashed var(--edge)}
+.kphint{text-align:center;margin:-4px 0 10px}
+.kpad{max-width:244px;gap:9px}
+.kpad button{height:44px;font-size:20px}
+.kl.gm .btn.block{max-width:244px;margin-top:14px}
+.kl.gm .kunci{margin-top:18px;padding-top:14px;border-top:2px dashed var(--edge)}
+.kl.gm .steps{margin-bottom:6px}
+/* mesin */
+.mhist{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.mhist span{font:400 15px "Lilita One","Rubik",sans-serif;padding:4px 10px;border-radius:8px;background:var(--base);border:2px solid var(--soft);color:var(--ink)}
+.mhist i{font-style:normal;color:var(--purple);margin:0 6px}
+.mach{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 0}
+.mach .slot{min-width:56px;padding:9px 8px;text-align:center;border-radius:10px;font:400 22px "Lilita One","Rubik",sans-serif;background:var(--plate);border:2px solid var(--line);box-shadow:0 3px 0 var(--sh);color:var(--ink)}
+.mach .slot.typed{background:#fff6d6;border-color:color-mix(in srgb,var(--yellow) 55%,#6b4a00);box-shadow:0 3px 0 color-mix(in srgb,var(--yellow) 60%,#7a5200)}
+.mach .arw{font-style:normal;font-weight:700;color:var(--faint);font-size:18px}
+.mbox{position:relative;width:96px;height:84px;border-radius:14px;background:var(--purple);border:2px solid color-mix(in srgb,var(--purple) 60%,#1f2a4d);box-shadow:0 4px 0 color-mix(in srgb,var(--purple) 65%,#1f2a4d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:visible}
+.mbox .gear{position:static;width:34px;height:34px;color:#ffd24f}
+.mbox .screen{position:static;padding:1px 6px;border-radius:5px;background:#26304b;color:#9ff0c2;font:600 11px ui-monospace,Menlo,monospace;border:0;max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mach.run .gear{animation:spin 1s linear 2}
+.mach.run .mbox{box-shadow:0 4px 0 color-mix(in srgb,var(--purple) 65%,#1f2a4d),0 0 0 4px var(--ok-s)}
+.mach.run.bad .mbox{box-shadow:0 4px 0 color-mix(in srgb,var(--purple) 65%,#1f2a4d),0 0 0 4px var(--bad-s)}
+/* kisi */
+table.kisi2{border-spacing:2px 4px;margin:0 auto 14px}
+table.kisi2 td.n{width:40px;height:40px}
+table.kisi2 td.o{padding:0 4px}
+.otok{width:28px;height:28px;font-size:15px}
+.olegend{margin:6px 0 0}
+table.kisi2 td.r.q.typed{background:#fff6d6;color:var(--ink);border-color:color-mix(in srgb,var(--yellow) 55%,#6b4a00)}
+/* barisan */
+.train{margin:10px 0 18px;gap:16px 5px}
+.brk.q,.brk.sel{font-size:19px}
+/* timbangan */
+.scale{margin:10px 0 8px}
+.zones{margin-top:16px}
+/* cukup */
+.ckst{gap:10px;margin-bottom:4px}
+.flow{margin-top:20px}
+.ckres{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--base);border:1.5px dashed #b9c6de;font-size:13px;line-height:1.45}
+.ckres .cap{margin-bottom:3px}
+/* paling mendekati */
+.expr{margin:6px 0 18px}
+.nline{margin:4px 4px 6px}
 </style>
 </head>
 <body>
@@ -1060,9 +1109,8 @@ const nf=v=>v==null?'':fmt(v);
 
 function keypad(K,it){
   const need=it.needSel!=null&&K.st.sel==null, dis=isNaN(parseNum(K.ans))||need;
-  return '<div class="kp-scr'+(K.ans?'':' empty')+'">'+(K.ans?esc(K.ans.replace('-','−')):(need?'ketuk balok yang salah dulu':'ketik jawaban'))+'</div>'+
-    '<div class="kpad">'+['1','2','3','4','5','6','7','8','9','±','0','⌫'].map(k=>'<button data-action="kp" data-v="'+k+'"'+(k==='±'||k==='⌫'?' class="fn"':'')+'>'+k+'</button>').join('')+'</div>'+
-    '<button class="btn pri block" data-action="klcheck" id="pbtn"'+(dis?' disabled':'')+'>'+(K.game==='mesin'?'Jalankan mesin':'Periksa')+'</button>';
+  return '<div class="kpwrap">'+(need?'<p class="sm kphint">Ketuk balok yang salah dulu.</p>':'')+'<div class="kpad">'+['1','2','3','4','5','6','7','8','9','±','0','⌫'].map(k=>'<button data-action="kp" data-v="'+k+'"'+(k==='±'||k==='⌫'?' class="fn"':'')+'>'+k+'</button>').join('')+'</div>'+
+    '<button class="btn pri block" data-action="klcheck" id="pbtn"'+(dis?' disabled':'')+'>'+(K.game==='mesin'?'Jalankan mesin':'Periksa')+'</button></div>';
 }
 function kpPress(v){ const K=V.kl; if(!K||K.fb) return; let a=K.ans||'';
   if(v==='⌫') a=a.slice(0,-1); else if(v==='±') a=a.startsWith('-')?a.slice(1):'-'+a; else if(/^[0-9]$/.test(v)&&a.replace('-','').length<7) a=(a==='0'?'':a==='-0'?'-':a)+v;
@@ -1070,12 +1118,11 @@ function kpPress(v){ const K=V.kl; if(!K||K.fb) return; let a=K.ans||'';
 
 /* ---------- Mesin Fungsi ---------- */
 function gvMesin(it,K,rv){ const m=it.mesin, mund=m.x==null, a=K.ans?K.ans.replace('-','−'):'';
-  let h='<p class="gq">'+(mund?'Angka berapa yang harus dimasukkan supaya mesin mengeluarkan <b>'+nf(m.y)+'</b>?':'Mesin akan memproses <b>'+nf(m.x)+'</b>. Angka berapa yang keluar?')+'</p>';
-  h+='<div class="mlog"><span class="cap">Catatan mesin</span>'+m.pairs.map(p=>'<div class="mrow"><span class="tok">'+nf(p[0])+'</span><span class="belt"><i></i><i></i><i></i></span><span class="tok o">'+nf(p[1])+'</span></div>').join('')+'</div>';
-  h+='<div class="mach'+(rv?' run':'')+(rv&&K.fb&&!K.fb.ok?' bad':'')+'">'+
-    '<div class="slot"><span class="cap">Masuk</span><b class="'+(mund?'typed':'')+'">'+(mund?(a||'?'):nf(m.x))+'</b><span class="chute"></span></div>'+
-    '<div class="mbox"><span class="gear g1">'+GEAR+'</span><span class="gear g2">'+GEAR+'</span><div class="screen">'+(rv?'f(x) = '+esc(m.rule):'f(x) = ?')+'</div><span class="lamp"></span></div>'+
-    '<div class="slot"><span class="cap">Keluar</span><b class="'+(mund?'':'typed')+'">'+(mund?nf(m.y):(a||'?'))+'</b><span class="tray"></span></div></div>';
+  let h='<p class="gq c">'+(mund?'Masukkan angka berapa agar keluar <b>'+nf(m.y)+'</b>?':'Angka berapa yang keluar?')+'</p>';
+  h+='<div class="mhist">'+m.pairs.map(p=>'<span>'+nf(p[0])+'<i>→</i>'+nf(p[1])+'</span>').join('')+'</div>';
+  h+='<div class="mach'+(rv?' run':'')+(rv&&K.fb&&!K.fb.ok?' bad':'')+'"><b class="slot'+(mund?' typed':'')+'">'+(mund?(a||'?'):nf(m.x))+'</b><i class="arw">→</i>'+
+    '<div class="mbox"><span class="gear">'+GEAR+'</span><span class="screen">'+(rv?esc(m.rule):'?')+'</span></div><i class="arw">→</i>'+
+    '<b class="slot'+(mund?'':' typed')+'">'+(mund?nf(m.y):(a||'?'))+'</b></div>';
   return h; }
 
 /* ---------- Kisi Operasi ---------- */
@@ -1087,7 +1134,7 @@ function gvKisi(it,K,rv){ const z=it.kisi, g=z.g, o=K.st.ops||{'#':null,'@':null
     if(hid) return '<td class="r q'+(K.ans?' typed':'')+'">'+(rv?nf(it.kunci):(K.ans?esc(K.ans.replace('-','−')):'?'))+'</td>';
     let mk=''; if(both){ const v=isR?ev(g[i][0],g[i][1],g[i][2]):ev(g[0][i],g[1][i],g[2][i]); mk=v===val?' ok':' no'; }
     return '<td class="r'+mk+'">'+nf(val)+'</td>'; };
-  let h='<p class="gq">Ketuk <b>#</b> dan <b>@</b> untuk menebak operasinya. Hasil yang cocok berubah hijau. Lalu isi kotak <b>?</b>.</p><div class="tw"><table class="kisi2">';
+  let h='<p class="gq c">Ketuk <b>#</b> dan <b>@</b> untuk menebak operasinya. Hasil yang cocok berubah hijau. Lalu isi kotak <b>?</b>.</p><div class="tw"><table class="kisi2">';
   for(let i=0;i<3;i++){ h+='<tr>'+g[i].map((v,j)=>'<td class="n">'+v+'</td>'+(j<2?'<td class="o">'+tok(j===0?'#':'@')+'</td>':'')).join('')+'<td class="eq">=</td>'+res(true,i)+'</tr>';
     if(i<2) h+='<tr>'+[0,1,2].map(j=>'<td class="o">'+tok(i===0?'#':'@')+'</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr>'; }
   h+='<tr>'+[0,1,2].map(j=>'<td class="eq">=</td>'+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr><tr>'+[0,1,2].map(j=>res(false,j)+(j<2?'<td></td>':'')).join('')+'<td></td><td></td></tr></table></div>';
@@ -1098,7 +1145,7 @@ function gxKisi(it,K,v){ const o=K.st.ops=K.st.ops||{'#':null,'@':null}; o[v]=OP
 /* ---------- Detektif Barisan ---------- */
 function gapLbl(a,b){ const d=b-a; let s=(d<0?'−':'+')+fmt(Math.abs(d)); if(a!==0&&b%a===0&&b/a>=2&&b/a<=9) s+=' / ×'+(b/a); return s; }
 function gvBarisan(it,K,rv){ const B=it.bar, cs=B.cells, L=K.st.lup||{}, a=K.ans?K.ans.replace('-','−'):'';
-  let h='<p class="gq">'+esc(B.hint)+'</p><div class="train">';
+  let h='<p class="gq c">'+esc(B.hint)+'</p><div class="train">';
   cs.forEach((c,i)=>{
     const cls='brk'+(c.q?' q':'')+(c.blank?' blank':'')+(B.pick?' pk':'')+(K.st.sel===i?' sel':'')+(rv&&it.needSel===i?' was':'');
     const inner=c.blank?'…':c.q?(rv?nf(it.kunci):(a||'?')):(K.st.sel===i&&!rv?(a||'?'):nf(c.v));
@@ -1119,10 +1166,9 @@ function tilt(p,q,v5){ if(Math.abs(p-q)<1e-9) return 0; if(p>q) return v5&&p>=2*
 function gvPQ(it,K,rv){ const z=it.pqv, multi=z.smp.length>1, t=K.st.t, s=t!=null?z.smp[t]:null;
   let ang=0, wob=false, pv='', qv='';
   if(s){ ang=tilt(s.p,s.q,z.versi===5); pv=fmt(s.p); qv=fmt(s.q); }
-  if(rv){ const kE=(z.versi===5&&it.kunci===4)||(z.versi===4&&it.kunci===3); if(kE) wob=true; else { const x=z.smp[0]; ang=tilt(x.p,x.q,z.versi===5); pv=pv||fmt(x.p); qv=qv||fmt(x.q); } }
-  let h='<p class="gq">'+esc(z.info)+'</p>';
+  if(rv){ const kE=(z.versi===5&&it.kunci===4)||(z.versi===4&&it.kunci===3); if(kE) wob=true; else { const x=z.smp[0]; ang=tilt(x.p,x.q,z.versi===5); if(!multi){ pv=fmt(x.p); qv=fmt(x.q); } } }
+  let h='<p class="gq c">'+esc(z.info)+'</p>';
   h+='<div class="scale'+(wob?' wob':'')+'"><div class="beam" style="--a:'+ang+'deg"><span class="pan l" style="--a:'+ang+'deg"><span class="cup"><small>P</small><b>'+mx(z.P)+'</b>'+(pv?'<em>= '+pv+'</em>':'')+'</span></span><span class="pan r" style="--a:'+ang+'deg"><span class="cup"><small>Q</small><b>'+mx(z.Q)+'</b>'+(qv?'<em>= '+qv+'</em>':'')+'</span></span></div><span class="post"></span><span class="foot"></span></div>';
-  if(multi) h+='<div class="tests"><span class="cap">Uji nilai</span>'+z.smp.map((x,i)=>'<button class="chip'+(t===i?' on':'')+'" data-action="gx" data-v="'+i+'"'+(rv?' disabled':'')+'>'+esc(x.lab)+'</button>').join('')+'</div>';
   const L=z.versi===5?PQS5:PQS4;
   h+='<div class="zones">'+L.map((o,i)=>{ let c='zone'; if(rv&&i===it.kunci) c+=' good'; else if(rv&&K.pick===i) c+=' wrong'; return '<button class="'+c+(i===L.length-1?' wide':'')+'" data-action="klpick" data-v="'+i+'"'+(rv?' disabled':'')+'>'+o+'</button>'; }).join('')+'</div>';
   if(z.versi===4) h+='<p class="sm">Q bisa nol atau negatif, jadi pilihannya 4 opsi.</p>';
@@ -1136,13 +1182,13 @@ function gvCukup(it,K,rv){ const z=it.ck, c=K.st.ck||[], step=c.length===2&&!c[0
   h+='<div class="ckst">'+z.s.map((s,i)=>'<div class="ckc'+(!rv&&(step===i||step===2)?' lit':'')+(c[i]===true?' yes':c[i]===false?' no':'')+'"><b>'+z.lab[i]+'</b><span>'+esc(s)+'</span>'+(c[i]!=null?'<i>'+(c[i]?'cukup':'tidak cukup')+'</i>':'')+'</div>').join('')+'</div>';
   if(!rv){ const qs=['Pernyataan '+z.lab[0]+' SAJA, cukup untuk menjawab?','Pernyataan '+z.lab[1]+' SAJA, cukup untuk menjawab?','Kalau '+z.lab[0]+' dan '+z.lab[1]+' digabung, cukup?'];
     h+='<div class="flow"><div class="fsteps">'+[0,1,2].map(i=>'<span class="'+(i<step?'done':i===step?'cur':'')+(i===2&&c.length===2&&(c[0]||c[1])?' skip':'')+'">'+(i+1)+'</span>').join('<i></i>')+'</div><p><b>'+qs[step]+'</b></p><div class="row2"><button class="btn" data-action="gx" data-v="n">Tidak cukup</button><button class="btn pri" data-action="gx" data-v="y">Cukup</button></div></div>'; }
-  else { const L=z.pu?CK_PU:CK_PK; h+='<p class="sm">Alurmu menghasilkan opsi <b>'+LTR[K.pick]+'</b>: '+esc(L[K.pick])+'</p>'; }
+  else { const L=z.pu?CK_PU:CK_PK; h+='<div class="ckres"><span class="cap">Jawabanmu</span><b>'+LTR[K.pick]+'.</b> '+esc(L[K.pick])+'</div>'; }
   return h; }
 function gxCukup(it,K,v){ const c=K.st.ck=K.st.ck||[]; c.push(v==='y'); if(c.length===2&&(c[0]||c[1])) return kilatCheck(ckIdx(c)); if(c.length===3) return kilatCheck(ckIdx(c)); }
 
 /* ---------- Paling Mendekati ---------- */
 function gvDekat(it,K,rv){ const z=it.est, o=z.o, step=o[1]-o[0], pos=v=>Math.max(3,Math.min(97,10+(v-o[0])/step*20));
-  let h='<p class="gq">Tanpa menghitung tuntas, bilangan mana yang paling dekat?</p><div class="expr">'+mx(z.e)+'</div>';
+  let h='<p class="gq c">Tanpa menghitung tuntas, bilangan mana yang paling dekat?</p><div class="expr">'+mx(z.e)+'</div>';
   h+='<div class="nline"><span class="track"></span>'+o.map((v,i)=>{ let c='flag'; if(rv&&i===it.kunci) c+=' good'; else if(rv&&K.pick===i) c+=' wrong'; return '<button class="'+c+'" style="left:'+(10+i*20)+'%" data-action="klpick" data-v="'+i+'"'+(rv?' disabled':'')+'><b>'+fmt(v)+'</b><i></i></button>'; }).join('')+
     (rv?'<span class="truev" style="left:'+pos(z.v)+'%"><b>'+fmt(Math.round(z.v*100)/100)+'</b></span>':'')+'</div>';
   return h; }
@@ -1336,12 +1382,13 @@ function viewKilat(){
   const it=K.items[K.i], n=K.items.length, rv=!!K.fb;
   let h='<header class="top run"><button class="btn sm" data-action="klstop">‹ Selesai</button><span class="grow mid">'+klLbl(K)+'</span><span class="cd" id="kt">'+(K.limit?K.limit+' dtk':'0 dtk')+'</span></header>'+bar(pct(K.i,n));
   const gv=K.game&&GV[K.game];
+  if(gv) h+='<div class="gstage">';
   h+='<div class="card kl'+(it.html||gv?' wide':'')+(K.game?' gm g-'+K.game:'')+(K.fb?(K.fb.ok?' good':' wrong'):'')+'"><span class="sm">Soal '+(K.i+1)+' dari '+n+(it.jenis&&it.jenis!=='maju'?' · '+(it.jenis==='balik'?'dibalik arah':'estimasi'):'')+'</span>'+(gv?gv(it,K,rv):it.html?'<div class="klh">'+it.html+'</div>':'<p class="klq'+(it.opsi?' sm2':'')+'">'+mx(it.perintah)+'</p>');
   if(it.opsi&&!gv){ h+='<div class="klo">'+it.opsi.map((o,i)=>{ let c='opt'; if(rv&&i===it.kunci) c+=' good'; else if(rv&&K.pick===i) c+=' wrong'; return '<button class="'+c+'" data-action="klpick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+LTR[i]+'</span><span class="grow">'+mx(o)+'</span></button>'; }).join('')+'</div>'; }
   if(K.fb) h+='<p class="kunci">'+(K.fb.ok?'Benar':(K.fb.timeout?'Waktu habis. ':'')+'Kunci: '+mx(klKey(it)))+'</p>'+(K.fb.ok?'':'<ol class="steps">'+it.langkah.map(s=>'<li>'+mx(s)+'</li>').join('')+'</ol>')+'<button class="btn pri block" data-action="klnext" id="pbtn">Lanjut</button>';
   else if(gv&&it.kp) h+=keypad(K,it);
   else if(!it.opsi&&!gv) h+='<div class="isi"><input id="klans" inputmode="decimal" autocomplete="off" placeholder="jawaban" value="'+esc(K.ans)+'"><button class="btn" data-action="klneg" aria-label="Ganti tanda">±</button></div><button class="btn pri block" data-action="klcheck" id="pbtn"'+(isNaN(parseNum(K.ans))?' disabled':'')+'>Periksa</button>';
-  return h+'</div>';
+  return h+'</div>'+(gv?'</div>':'');
 }
 
 function render(){
