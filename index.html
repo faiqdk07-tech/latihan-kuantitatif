@@ -808,6 +808,15 @@ button.mh:active{transform:translateY(2px)}
 .mline.ch .mbox2 .g1{width:30px;height:30px;left:8px;bottom:8px}.mline.ch .mbox2 .g2{width:20px;height:20px;left:34px;bottom:28px}
 .mline.ch .mtok{min-width:46px;font-size:20px}
 .mline.ch .belt2{min-width:10px}
+/* ===== ruang soal & kotak cerita ===== */
+.card.q{padding:24px 20px 20px}
+.q .ask{margin:6px 0 16px;line-height:1.5}
+.q>p:not(.ask):not(.sm){line-height:1.6}
+.cerita{background:#fffaf0;border:1.5px solid #ecdcb0;border-left:4px solid #e2b64a;border-radius:10px;padding:13px 15px;margin:0 0 16px;font-size:15.5px;line-height:1.65;color:var(--text)}
+.cerita p{margin:0 0 8px}.cerita p:last-child{margin:0}
+.stim{border-left:4px solid #e2b64a;padding:16px 18px}
+.gstage .cerita{text-align:left;margin:0 0 12px}
+html[data-theme="dark"] .cerita{background:#35322b;border-color:#5b5040;border-left-color:#c9a043}
 </style>
 </head>
 <body>
@@ -1964,7 +1973,7 @@ function gvPQ(it,K,rv){ const z=it.pqv, C=it.coret, cp=K.st.cp||[], cq=K.st.cq||
   const chips=(arr,side,cut)=>arr.map((x,i)=>{ const sel=K.st['s'+side]===i, gone=cut.includes(i);
     return (i?'<span class="tx">×</span>':'')+'<button class="fac'+(gone?' cut':'')+(sel?' sel':'')+(K.st.miss&&sel?' miss':'')+'" data-action="gx" data-v="'+side+i+'"'+(gone||rv?' disabled':'')+'>'+mx(x.t)+'</button>'; }).join('');
   const val=s=>rv&&z.smp.length===1?'<em>= '+fmt(s==='p'?z.smp[0].p:z.smp[0].q)+'</em>':'';
-  let h=!z.info||/^Perhatikan/.test(z.info)?'':'<p class="pqinfo">'+esc(z.info)+'</p>';
+  let h=!z.info||/^Perhatikan/.test(z.info)?'':(z.txt?'<div class="cerita">'+esc(z.info)+'</div>':'<p class="pqinfo">'+esc(z.info)+'</p>');
   h+='<div class="ner'+(wob?' wob':'')+(rv?' go':'')+'" style="--d:'+d+'"><svg viewBox="0 0 300 200" aria-hidden="true">'+
     '<rect x="110" y="182" width="80" height="12" rx="6" class="base"/><rect x="146" y="40" width="8" height="144" rx="4" class="post"/>'+
     '<g class="arm" style="--ang:'+(-ang)+'deg"><rect x="66" y="36" width="168" height="9" rx="4.5" class="beam2"/><circle cx="150" cy="40" r="7" class="piv"/></g>'+
@@ -1982,7 +1991,7 @@ function gxPQ(it,K,v){ const side=v[0], i=+v.slice(1), C=it.coret; K.st.miss=fal
 
 /* ---------- Cukup Nggak?: Beli Petunjuk ---------- */
 function gvCukup(it,K,rv){ const z=it.ck, op=K.st.open||[], spent=K.st.spent||0, left=CK_KOIN-spent, L=it.opsi;
-  let h='<div class="ckhead"><span></span><span class="coins" aria-label="Koin '+left+'">'+[0,1,2].map(i=>'<i class="'+(i<left?'on':'')+'"></i>').join('')+'<b>'+left+' koin</b></span></div><p class="ask ckq">'+esc(z.q)+'</p>';
+  let h='<div class="ckhead"><span></span><span class="coins" aria-label="Koin '+left+'">'+[0,1,2].map(i=>'<i class="'+(i<left?'on':'')+'"></i>').join('')+'<b>'+left+' koin</b></span></div>'+(()=>{ const [c,t]=pisahTanya(z.q); return (c?'<div class="cerita">'+esc(c)+'</div>':'')+'<p class="ask ckq">'+esc(t)+'</p>'; })();
   h+='<div class="ckst">'+z.s.map((s,i)=>{ const o=op.includes(i)||rv;
     return o?'<div class="ckc open"><b>'+z.lab[i]+'</b><span>'+esc(s)+'</span></div>':'<button class="ckc lock" data-action="gx" data-v="o'+i+'"'+(left?'':' disabled')+'><b>'+z.lab[i]+'</b><span class="lk">Buka · 1 koin</span></button>'; }).join('')+'</div>';
   if(K.st.tip||rv) h+='<div class="cktip"><span class="cap">Petunjuk</span>'+esc(z.tip)+'</div>';
@@ -2161,6 +2170,10 @@ function viewPengaturan(){ let h='<button type="button" class="chip" data-action
 function optBtn(i,label,R,k,rv){ const q=R.items[k].q, a=R.A[k]; let cls='opt'; if(a.c===i) cls+=' sel'; if(rv){ if(i===q.kunci) cls+=' good'; else if(a.c===i) cls+=' wrong'; }
   const why=rv&&q.alasan&&q.alasan[i]&&i!==q.kunci&&!/^kunci\.?$/i.test(q.alasan[i])?'<span class="why">'+mx(q.alasan[i])+'</span>':'';
   return '<button class="'+cls+'" data-action="pick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+'ABCDE'[i]+'</span><span class="grow">'+txt(label)+why+'</span></button>'; }
+/* teks soal dianggap cerita bila berupa kalimat (bukan sekadar persamaan) */
+const isCerita=a=>{ const t=(a||[]).join(' '); return t.length>=40&&/[A-Za-z]{3,} [A-Za-z]{3,} [A-Za-z]{3,}/.test(t); };
+/* pisahkan kalimat tanya terakhir dari cerita di depannya */
+function pisahTanya(t){ const m=String(t).match(/^(.*[.!])\s+([^.!]*\?)$/); return m?[m[1],m[2]]:[null,t]; }
 function viewRun(){
   const R=V.run, k=R.cur, n=R.items.length, it=R.items[k], q=it.q, a=R.A[k], rv=a.done&&R.cek==='langsung', left=timeLeft(R);
   const g=q.stim?(it.set.stimulus||[]).find(x=>x.id===q.stim):null;
@@ -2168,7 +2181,8 @@ function viewRun(){
   h+='<div class="dots">'+R.items.map((x,i)=>'<button data-action="ke" data-v="'+i+'" class="'+(i===k?'cur ':'')+(R.A[i].done&&R.cek==='langsung'?(R.A[i].ok?'ok':'no'):(R.A[i].done||isAns(x.q,R.A[i])?'ans':''))+'">'+(i+1)+'</button>').join('')+'</div>';
   h+='<div class="qhd">'+badge(q.sub)+'</div>';
   if(g) h+='<div class="card stim">'+(g.judul?'<b>'+esc(g.judul)+'</b>':'')+g.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(g.tabel)+'</div>';
-  h+='<div class="card q">'+q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>';
+  const tk=(q.teks||[]).map(p=>'<p>'+txt(p)+'</p>').join('');
+  h+='<div class="card q">'+(isCerita(q.teks)?'<div class="cerita">'+tk+'</div>':tk)+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>';
   if(a.prev) h+='<p class="sm">Soal ini sudah dijawab sebelumnya ('+(a.ok?'benar':'salah')+').</p>';
   else if(q.tipe==='pg') h+=q.opsi.map((o,i)=>optBtn(i,o,R,k,rv)).join('');
   else if(q.tipe==='pq') h+='<div class="pq"><div><span class="sm">P</span>'+txt(q.p)+'</div><div><span class="sm">Q</span>'+txt(q.q)+'</div></div>'+pqList(q).map((o,i)=>optBtn(i,o,R,k,rv)).join('');
