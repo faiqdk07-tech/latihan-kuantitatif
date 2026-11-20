@@ -11,6 +11,10 @@ Aplikasi ini pemutar dan pencatat. Soalnya dibuat Claude dari prompt yang disusu
 - **Soal salah.** Bisa diulang, dan ada prompt tiga varian (konteks diganti, arah tanya dibalik, satu syarat ditambah).
 - **Simulasi waktu resmi.** PU 10 soal 10 menit, PK 20 soal 20 menit, PM 20 soal 42,5 menit.
 
+- **Jadwal ikut Progres Harian.** Jadwal materi baru mulai 23 November 2026 (BIL-01). Sebelum itu soal hanya memakai unit jadwal lama sebagai ulasan. Penundaan di Progres Harian ikut menggeser jadwal; salinan jadwal lama yang tanggalnya lebih awal diabaikan.
+- **Batas waktu baca.** Prompt memuat batas panjang bacaan, banyak langkah per level, dan angka ramah hitung; tempelan yang terlalu panjang diberi peringatan.
+- **Stok dan riwayat bentuk.** Set bisa disiapkan sampai enam hari ke depan, satu tempelan boleh berisi beberapa blok json, ada prompt stok dua hari, dan riwayat bentuk 30 hari bisa diunduh sebagai JSON untuk pengetahuan proyek Claude.
+
 Cara pakai harian: buka Set soal, salin prompt, jalankan di Claude, tempel hasilnya, lalu kerjakan.
 
 Semua data tersimpan di peramban (localStorage). Satu file `index.html`, tanpa proses build.
