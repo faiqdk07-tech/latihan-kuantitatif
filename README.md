@@ -11,6 +11,10 @@ Aplikasi ini pemutar dan pencatat. Soalnya dibuat Claude dari prompt yang disusu
 - **Soal salah.** Bisa diulang, dan ada prompt tiga varian (konteks diganti, arah tanya dibalik, satu syarat ditambah).
 - **Simulasi waktu resmi.** PU 10 soal 10 menit, PK 20 soal 20 menit, PM 20 soal 42,5 menit.
 
+- **Jadwal ikut Progres Harian.** Jadwal materi diulang dari sesi 1 mulai 23 Nov 2026 (BIL-01). Data jadwal versi lama dari Progres Harian diabaikan supaya materi tidak meloncat.
+- **Wadah bentuk harian (`bentuk-harian.json`).** Urutan bentuk per tanggal (stimulus, arah tanya, arsip, tuas, konteks, bentuk mini game) dan tiga tema cerita per hari. Bentuk diputar tanpa pengulangan sampai semua terpakai, dan tidak bergantung pada riwayat satu peramban. Buat ulang dengan `node alat/buat-bentuk-harian.js`.
+- **Hitung tanpa kalkulator.** Angka di Hitung cepat dan mini game dibatasi supaya bisa dihitung di kepala. Prompt mewajibkan angka ramah hitung, paling banyak 3 langkah untuk PU/PK, dan pembahasan paling banyak 3 butir.
+
 Cara pakai harian: buka Set soal, salin prompt, jalankan di Claude, tempel hasilnya, lalu kerjakan.
 
-Semua data tersimpan di peramban (localStorage). Satu file `index.html`, tanpa proses build.
+Semua data tersimpan di peramban (localStorage). Aplikasinya satu file `index.html` tanpa proses build, ditambah `bentuk-harian.json` sebagai wadah bentuk.
