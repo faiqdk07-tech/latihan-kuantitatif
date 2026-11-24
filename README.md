@@ -15,6 +15,8 @@ Aplikasi ini pemutar dan pencatat. Soalnya dibuat Claude dari prompt yang disusu
 - **Batas waktu baca.** Prompt memuat batas panjang bacaan, banyak langkah per level, dan angka ramah hitung; tempelan yang terlalu panjang diberi peringatan.
 - **Stok dan riwayat bentuk.** Set bisa disiapkan sampai enam hari ke depan, satu tempelan boleh berisi beberapa blok json, ada prompt stok dua hari, dan riwayat bentuk 30 hari bisa diunduh sebagai JSON untuk pengetahuan proyek Claude.
 
+- **Paket mini game mingguan.** Bank kata Timbangan P–Q (cerita harga), Cukup Nggak?, dan Mesin Fungsi (cerita) diganti tiap minggu (Senin–Minggu). Halaman Game → "kelola" (`#mingguan`): salin prompt, jalankan di Claude, tempel JSON. Angka tetap dibuat aplikasi. Mulai Jumat muncul pengingat bila paket minggu depan belum ada; tanpa paket minggu ini game memakai bank bawaan. Status ditulis ke kunci `paketMingguan:latihan-kuantitatif` untuk Progres Harian.
+
 Cara pakai harian: buka Set soal, salin prompt, jalankan di Claude, tempel hasilnya, lalu kerjakan.
 
 Semua data tersimpan di peramban (localStorage). Satu file `index.html`, tanpa proses build.

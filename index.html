@@ -133,6 +133,8 @@ details summary::-webkit-details-marker{display:none}
 .ta:focus,.isi input:focus{box-shadow:0 0 0 3px var(--yellow)}
 .msg{border-radius:10px;padding:9px 11px;margin-top:10px;font-size:13px;border:1.5px dashed}
 .msg ul{margin:4px 0;padding-left:18px}
+.wkline{margin:-2px 2px 12px}.wkline a{color:inherit;font-weight:700}
+.card.note.wk.late{border-color:var(--red)}
 .msg.bad{background:var(--bad-s);color:#a3302c;border-color:var(--red)}.msg.ok{background:var(--ok-s);color:#1f7a47;border-color:var(--green)}
 .snip{font-size:13.5px;margin:8px 0 0}
 .srow{display:flex;gap:12px;align-items:center;padding:9px 0;border-top:2px dashed var(--edge)}
@@ -1634,7 +1636,7 @@ const PQT={
     return {info:'x bulat, 1 ≤ x ≤ '+hi+'.',P:f[0],Q:f[1],smp:xs.map(x=>({p:f[2](x),q:f[3](x),lab:'x = '+x})),st:null}; },
   syarat:()=>{ const S=RN.int(8,16); const xs=[]; for(let x=Math.floor(S/2)+1;x<S;x++) xs.push(x); const k=RN.pick([1,1,2]);
     return {info:'x, y bulat positif, x + y = '+S+', x > y.',P:'x',Q:k===1?'y':'2y',smp:xs.map(x=>({p:x,q:k*(S-x),lab:'x = '+x+', y = '+(S-x)})),st:null,edge:'Coba x terkecil dan terbesar yang mungkin.'}; },
-  cerita:()=>{ const n=RN.pick([['pensil','buku'],['roti','susu'],['kelereng','layangan'],['apel','jeruk'],['spidol','map']]);
+  cerita:()=>{ const n=RN.pick(PQ_BARANG);
     const u1=RN.int(1,4)*1000, u2=RN.int(2,6)*1000, n1=RN.int(2,3), n2=2, k1=RN.int(2,5), k2=RN.int(1,3);
     return {info:n1+' '+n[0]+' Rp'+fmt(n1*u1)+'. '+n2+' '+n[1]+' Rp'+fmt(n2*u2)+'.',P:'Harga '+k1+' '+n[0],Q:'Harga '+k2+' '+n[1],txt:1,smp:[{p:k1*u1,q:k2*u2}],
       st:['1 '+n[0]+' = Rp'+fmt(u1)+', jadi P = Rp'+fmt(k1*u1),'1 '+n[1]+' = Rp'+fmt(u2)+', jadi Q = Rp'+fmt(k2*u2)]}; }
@@ -1689,7 +1691,9 @@ function pqCoretItem(){
 /* ---------- Game 2: Cukup Nggak? ----------
    Beli Petunjuk: tiap ronde 3 koin. Membuka satu pernyataan atau satu petunjuk = 1 koin. Koin sisa saat jawaban benar = +5 poin per koin. */
 const CK_KOIN=3;
+const PQ_BARANG=[['pensil','buku'],['roti','susu'],['kelereng','layangan'],['apel','jeruk'],['spidol','map']];
 const NAMA=['Ani','Budi','Cici','Dodi','Eka','Fajar','Gita','Hadi','Indah','Joko'];
+const CK_KEG=['berenang'], CK_BELI=[{pembeli:'Bu Rini',barang:'baju',lain:'celana'}];
 const CKV={};
 CKV.urutan=()=>{ const [a,b,c]=RN.shuf(NAMA).slice(0,3), sf=RN.pick(['tinggi','berat','tua']), inv={tinggi:'pendek',berat:'ringan',tua:'muda'}[sf];
     const set=RN.pick([
@@ -1723,14 +1727,14 @@ CKV.umur=()=>{ const [a,b]=RN.shuf(NAMA).slice(0,2), d=RN.int(4,9), B=RN.int(8,1
     ['Umur '+a+' sekarang '+A+' tahun.','Lima tahun lalu umur '+a+' '+(A-5)+' tahun.',3,'Masing-masing langsung memberi umur '+a+' sekarang, '+A+' tahun.'],
     ['Umur '+a+' dua kali umur '+b+'.','Umur '+b+' setengah umur '+a+'.',4,'Kedua pernyataan sama isinya dan tidak memuat angka, jadi umur tidak dapat ditentukan.']]);
   return {q:'Berapa umur '+a+' sekarang?',s:[set[0],set[1]],k:set[2],w:set[3],tip:'Tulis tiap pernyataan sebagai persamaan. Satu persamaan dengan dua umur yang belum diketahui belum cukup.'}; };
-CKV.diskon=()=>{ const P=RN.pick([80,120,150,200,240,300])*1000, p=RN.pick([10,20,25]), hem=P*p/100, pay=P-hem, R=x=>'Rp'+fmt(x);
+CKV.diskon=()=>{ const BB=RN.pick(CK_BELI), BR=BB.barang, BP=BB.pembeli; const P=RN.pick([80,120,150,200,240,300])*1000, p=RN.pick([10,20,25]), hem=P*p/100, pay=P-hem, R=x=>'Rp'+fmt(x);
   const set=RN.pick([
-    ['Harga awal baju '+R(P)+'.','Toko memberi diskon '+p+'% untuk baju itu.',2,'Gabungan: '+R(P)+' − '+p+'% × '+R(P)+' = '+R(pay)+'. Masing-masing saja tidak cukup.'],
-    ['Karena diskon '+p+'%, Bu Rini hemat '+R(hem)+'.','Harga awal baju lebih dari Rp50.000.',0,'Pernyataan pertama: harga awal = '+R(hem)+' ÷ '+p+'% = '+R(P)+', jadi bayar '+R(pay)+'. Pernyataan kedua hanya batas bawah.'],
-    ['Bu Rini hemat '+R(hem)+'.','Diskonnya '+p+'% dari harga awal.',2,'Gabungan: harga awal = '+R(hem)+' ÷ '+p+'% = '+R(P)+', jadi bayar '+R(pay)+'.'],
+    ['Harga awal '+BR+' '+R(P)+'.','Toko memberi diskon '+p+'% untuk '+BR+' itu.',2,'Gabungan: '+R(P)+' − '+p+'% × '+R(P)+' = '+R(pay)+'. Masing-masing saja tidak cukup.'],
+    ['Karena diskon '+p+'%, '+BP+' hemat '+R(hem)+'.','Harga awal '+BR+' lebih dari Rp50.000.',0,'Pernyataan pertama: harga awal = '+R(hem)+' ÷ '+p+'% = '+R(P)+', jadi bayar '+R(pay)+'. Pernyataan kedua hanya batas bawah.'],
+    [BP+' hemat '+R(hem)+'.','Diskonnya '+p+'% dari harga awal.',2,'Gabungan: harga awal = '+R(hem)+' ÷ '+p+'% = '+R(P)+', jadi bayar '+R(pay)+'.'],
     ['Ia membayar '+(100-p)+'% dari harga awal '+R(P)+'.','Ia hemat '+R(hem)+' dari harga awal '+R(P)+'.',3,'Masing-masing cukup: '+(100-p)+'% × '+R(P)+' = '+R(pay)+', atau '+R(P)+' − '+R(hem)+' = '+R(pay)+'.'],
     ['Diskonnya '+p+'%.','Ia membayar dengan uang Rp500.000.',4,'Harga awal tidak diketahui, jadi besar bayarnya tidak dapat dihitung.']]);
-  return {q:'Bu Rini membeli sebuah baju yang sedang diskon. Berapa rupiah yang ia bayar?',s:[set[0],set[1]],k:set[2],w:set[3],tip:'Untuk menghitung harga bayar perlu harga awal dan besar diskon (dalam persen atau rupiah).'}; };
+  return {q:BP+' membeli sebuah '+BR+' yang sedang diskon. Berapa rupiah yang ia bayar?',s:[set[0],set[1]],k:set[2],w:set[3],tip:'Untuk menghitung harga bayar perlu harga awal dan besar diskon (dalam persen atau rupiah).'}; };
 CKV.rata=()=>{ let M,D,S3; do{ M=RN.int(65,85); D=M+RN.int(-8,8); S3=4*M-D; }while(S3%3);
   const set=RN.pick([
     ['Rata-rata nilai Ani, Budi, Cici, dan Dodi adalah '+M+'.','Jumlah nilai Ani, Budi, dan Cici adalah '+S3+'.',2,'Gabungan: nilai Dodi = 4 × '+M+' − '+S3+' = '+D+'.'],
@@ -1738,21 +1742,21 @@ CKV.rata=()=>{ let M,D,S3; do{ M=RN.int(65,85); D=M+RN.int(-8,8); S3=4*M-D; }whi
     ['Nilai Dodi lebih tinggi daripada rata-rata keempatnya.','Rata-rata nilai keempatnya '+M+'.',4,'Hanya diketahui nilai Dodi di atas '+M+'; nilainya tetap tidak dapat dipastikan.'],
     ['Jumlah nilai keempatnya '+(4*M)+' dan jumlah nilai tiga lainnya '+S3+'.','Rata-rata nilai keempatnya '+M+'.',0,'Pernyataan pertama: '+(4*M)+' − '+S3+' = '+D+'. Pernyataan kedua tidak menyebut tiga nilai lainnya.']]);
   return {q:'Ani, Budi, Cici, dan Dodi mengikuti ulangan. Berapa nilai Dodi?',s:[set[0],set[1]],k:set[2],w:set[3],tip:'Rata-rata × banyak data = jumlah. Nilai Dodi = jumlah empat nilai − jumlah tiga nilai lain.'}; };
-CKV.jadwal=()=>{ const [a,b]=RN.shuf(NAMA).slice(0,2); let p,q; do{ p=RN.int(3,8); q=RN.int(3,9); }while(p===q||q%p===0||p%q===0); const K=lcm(p,q);
+CKV.jadwal=()=>{ const KG=RN.pick(CK_KEG); const [a,b]=RN.shuf(NAMA).slice(0,2); let p,q; do{ p=RN.int(3,8); q=RN.int(3,9); }while(p===q||q%p===0||p%q===0); const K=lcm(p,q);
   const set=RN.pick([
-    [a+' berenang setiap '+p+' hari.',b+' berenang setiap '+q+' hari.',2,'Gabungan: KPK('+p+', '+q+') = '+K+', jadi '+K+' hari lagi. Masing-masing saja hanya memberi satu jadwal.'],
-    [a+' berenang setiap '+p+' hari dan '+b+' setiap '+q+' hari.',b+' sudah rutin berenang sejak tahun lalu.',0,'Pernyataan pertama memuat kedua jadwal: KPK('+p+', '+q+') = '+K+'. Pernyataan kedua tidak relevan.'],
-    [a+' berenang setiap '+p+' hari.',b+' berenang lebih jarang daripada '+a+'.',4,'Jadwal '+b+' tidak diketahui pasti, jadi KPK tidak dapat dihitung.'],
+    [a+' '+KG+' setiap '+p+' hari.',b+' '+KG+' setiap '+q+' hari.',2,'Gabungan: KPK('+p+', '+q+') = '+K+', jadi '+K+' hari lagi. Masing-masing saja hanya memberi satu jadwal.'],
+    [a+' '+KG+' setiap '+p+' hari dan '+b+' setiap '+q+' hari.',b+' sudah rutin '+KG+' sejak tahun lalu.',0,'Pernyataan pertama memuat kedua jadwal: KPK('+p+', '+q+') = '+K+'. Pernyataan kedua tidak relevan.'],
+    [a+' '+KG+' setiap '+p+' hari.',b+' '+KG+' lebih jarang daripada '+a+'.',4,'Jadwal '+b+' tidak diketahui pasti, jadi KPK tidak dapat dihitung.'],
     [a+' setiap '+p+' hari dan '+b+' setiap '+q+' hari.','Jadwal keduanya bertemu lagi setiap '+K+' hari.',3,'Pernyataan pertama memberi KPK = '+K+'; pernyataan kedua langsung menyebut '+K+' hari.']]);
-  return {q:a+' dan '+b+' berenang bersama hari ini. Setelah berapa hari mereka berenang bersama lagi?',s:[set[0],set[1]],k:set[2],w:set[3],tip:'Hari bersama lagi = KPK kedua jadwal. Pastikan kedua periodenya diketahui.'}; };
+  return {q:a+' dan '+b+' '+KG+' bersama hari ini. Setelah berapa hari mereka '+KG+' bersama lagi?',s:[set[0],set[1]],k:set[2],w:set[3],tip:'Hari bersama lagi = KPK kedua jadwal. Pastikan kedua periodenya diketahui.'}; };
 /* bentuk baru: format dibalik, satu pernyataan diberikan, pilih informasi tambahan yang membuatnya cukup (opsi[0] = kunci) */
 CKV.tambah=()=>{ const T=[()=>{ const [a,b,c]=RN.shuf(NAMA).slice(0,3), sf=RN.pick(['tinggi','berat','tua']), inv={tinggi:'pendek',berat:'ringan',tua:'muda'}[sf];
       return {q:'Siapa yang paling '+sf+' di antara '+a+', '+b+', dan '+c+'?',s:a+' lebih '+sf+' daripada '+b+'.',opsi:[RN.pick([c+' lebih '+inv+' daripada '+b+'.',b+' lebih '+sf+' daripada '+c+'.']),c+' lebih '+sf+' daripada '+b+'.',b+' paling '+inv+' di antara mereka bertiga.',c+' bukan yang paling '+inv+'.',b+' lebih '+inv+' daripada '+a+'.'],
         w:'Kunci membuat urutan '+a+' > '+b+' > '+c+', jadi '+a+' paling '+sf+'. Opsi lain tidak membandingkan '+a+' dengan '+c+' atau hanya mengulang pernyataan pertama.',tip:'Yang belum terbandingkan adalah '+a+' dan '+c+'. Cari informasi yang menempatkan '+c+' di bawah '+a+'.'}; },
     ()=>({q:'n bilangan bulat. Apakah n genap?',s:'n habis dibagi 3.',opsi:[RN.pick(['n + 1 bilangan ganjil.','n − 3 bilangan ganjil.','n habis dibagi 6.'])].concat(RN.shuf(['n lebih dari 10.','n habis dibagi 9.','2n bilangan genap.','n bukan bilangan prima.','n kurang dari 50.']).slice(0,4)),
         w:'Kelipatan 3 bisa genap (6) atau ganjil (9). Kunci memastikan n genap; opsi lain tetap dipenuhi bilangan genap maupun ganjil.',tip:'Uji tiap opsi dengan n = 6 dan n = 9 (keduanya kelipatan 3).'})];
-  if(has('BIL-13')) T.push(()=>{ const P=RN.pick([120,150,200,240])*1000, p=RN.pick([10,20,25]);
-    return {q:'Bu Rini membeli sebuah baju yang sedang diskon. Berapa rupiah yang ia bayar?',s:'Harga awal baju Rp'+fmt(P)+'.',opsi:[RN.pick(['Diskonnya '+p+'%.','Ia hemat Rp'+fmt(P*p/100)+'.']),'Ia membayar dengan uang Rp500.000.','Diskon berlaku untuk semua baju di toko itu.','Harga celana di toko itu Rp'+fmt(P/2)+'.','Diskon berlaku sampai akhir bulan.'],
+  if(has('BIL-13')) T.push(()=>{ const P=RN.pick([120,150,200,240])*1000, p=RN.pick([10,20,25]), BB=RN.pick(CK_BELI), BR=BB.barang, BP=BB.pembeli;
+    return {q:BP+' membeli sebuah '+BR+' yang sedang diskon. Berapa rupiah yang ia bayar?',s:'Harga awal '+BR+' Rp'+fmt(P)+'.',opsi:[RN.pick(['Diskonnya '+p+'%.','Ia hemat Rp'+fmt(P*p/100)+'.']),'Ia membayar dengan uang Rp500.000.','Diskon berlaku untuk semua '+BR+' di toko itu.','Harga '+BB.lain+' di toko itu Rp'+fmt(P/2)+'.','Diskon berlaku sampai akhir bulan.'],
       w:'Harga bayar = harga awal − diskon. Hanya kunci yang memberi besar diskon.',tip:'Harga awal sudah ada. Yang masih kurang adalah besar potongannya.'}; });
   return Object.assign(RN.pick(T)(),{alt:1}); };
 function ckItem(i,vid){
@@ -1861,6 +1865,88 @@ const MV={
 };
 function mesinItem(i,vid){ const f=MV[vid]||MV[RN.pick(['maju','mundur'])]; return f(); }
 
+/* ---------- Paket mini game mingguan ----------
+   Bank kata Timbangan P–Q (cerita harga), Cukup Nggak?, dan Mesin Fungsi (cerita) diganti tiap minggu (Senin–Minggu)
+   lewat prompt → JSON. Angka tetap dibuat app. Tanpa paket minggu ini, game memakai bank bawaan.
+   Status ditulis ke kunci bersama "paketMingguan:latihan-kuantitatif" untuk pengingat di Progres Harian. */
+const WK_SHARE='paketMingguan:latihan-kuantitatif';
+const WK_BANK={barang:()=>PQ_BARANG,nama:()=>NAMA,kegiatan:()=>CK_KEG,belanja:()=>CK_BELI,mesin:()=>MCTX};
+const WK_MIN={barang:5,nama:8,kegiatan:3,belanja:3,mesin:4};
+const WK_GAME=['Timbangan P–Q (cerita harga)','Cukup Nggak?','Mesin Fungsi (cerita)'];
+let WK_BASE=null, WK_ON='';
+function wkMon(k){ const d=fromYmd(k); d.setDate(d.getDate()-(d.getDay()+6)%7); return ymd(d); }
+function wkAdd(k,n){ return ymd(addDays(fromYmd(k),n)); }
+function wkInfo(){ const t=ymd(new Date()), cur=wkMon(t), nxt=wkAdd(cur,7), dow=(fromYmd(t).getDay()+6)%7, W=S.wk||{};
+  const has=k=>!!W[k], status=!has(cur)?'telat':has(nxt)?'siap':dow>=4?'segera':'aman';
+  return {t,cur,nxt,akhir:wkAdd(cur,6),status,target:has(cur)?nxt:cur,has}; }
+function wkApply(){ const I=wkInfo(), key=I.cur+'|'+Object.keys(S.wk||{}).join(); if(key===WK_ON) return; WK_ON=key;
+  if(!WK_BASE){ WK_BASE={}; for(const k in WK_BANK) WK_BASE[k]=JSON.parse(JSON.stringify(WK_BANK[k]())); }
+  const p=(S.wk||{})[I.cur];
+  for(const k in WK_BANK){ const B=WK_BANK[k](), src=p&&Array.isArray(p.isi[k])&&p.isi[k].length?p.isi[k]:WK_BASE[k]; B.splice(0,B.length,...JSON.parse(JSON.stringify(src))); }
+  let ch=false; for(const k in (S.wk||{})) if(k<wkAdd(I.cur,-14)){ delete S.wk[k]; ch=true; } if(ch) save();
+  try{ localStorage.setItem(WK_SHARE,JSON.stringify({app:'latihan-kuantitatif',nama:'Latihan Kuantitatif',minggu:Object.keys(S.wk||{}).sort(),diperbarui:I.t})); }catch(e){} }
+function wkBanner(where){ const I=wkInfo();
+  if(I.status==='siap'||I.status==='aman'){ if(where!=='game') return '';
+    return '<p class="sm wkline">Paket mini game minggu ini terpasang · '+(I.status==='siap'?'stok minggu depan siap':'ganti paling lambat '+tgl(I.akhir,true))+' · <a href="#mingguan">kelola</a></p>'; }
+  const telat=I.status==='telat';
+  return '<div class="card note wk'+(telat?' late':'')+'"><div class="grow"><b>'+(telat?'Paket mini game terlambat':'Saatnya ganti paket mini game')+'</b><span class="sm">'+
+    (telat?'Paket minggu ini ('+tgl(I.cur)+'–'+tgl(I.akhir)+') belum ada, jadi mini game memakai soal bawaan.':'Paket minggu depan (mulai '+tgl(I.nxt,true)+') belum ada. Siapkan paling lambat '+tgl(I.akhir,true)+'.')+
+    '</span></div><a class="btn pri" href="#mingguan">Buat paket</a></div>'; }
+function wkUsed(){ const o={barang:[],kegiatan:[],belanja:[],mesin:[]}; Object.keys(S.wk||{}).sort().slice(-2).forEach(k=>{ const p=S.wk[k].isi;
+  o.barang.push(...p.barang.map(x=>x.join(' & '))); o.kegiatan.push(...p.kegiatan); o.belanja.push(...p.belanja.map(x=>x.barang)); o.mesin.push(...p.mesin.map(x=>x.c)); }); return o; }
+function wkPrompt(target){ const U=wkUsed(), L=[];
+  L.push('PAKET MINI GAME MINGGUAN · Latihan Kuantitatif · minggu '+tgl(target,true)+' sampai '+tgl(wkAdd(target,6),true));
+  L.push('','Tugas: tulis bank kata baru untuk mini game kuantitatif UTBK-SNBT 2027. Hanya kata dan konteks; semua angka dibuat aplikasi. Konteks kehidupan sehari-hari di Indonesia, beragam, tanpa merek atau tokoh terkenal.');
+  L.push('','Balas HANYA dengan satu objek JSON (boleh di dalam blok ```json). Bentuknya:');
+  L.push('{"versi":1,"jenis":"mini-mingguan","minggu":"'+target+'",');
+  L.push(' "barang":[ 6 pasang ["benda 1","benda 2"] ],');
+  L.push(' "nama":[ 10 nama panggilan berbeda ],');
+  L.push(' "kegiatan":[ 4 kegiatan rutin ],');
+  L.push(' "belanja":[ 4 {"pembeli","barang","lain"} ],');
+  L.push(' "mesin":[ 5 {"c","i","o","iu","ou"} ] }');
+  L.push('','Aturan per bagian:');
+  L.push('- barang: benda murah yang dibeli satuan (harga Rp1.000–Rp6.000 per buah), huruf kecil, bentuk tunggal. Terbaca wajar: "3 pensil Rp6.000. 2 buku Rp8.000." dan "Harga 4 pensil".');
+  L.push('- nama: satu kata, nama Indonesia yang umum, semua berbeda huruf depannya bila bisa.');
+  L.push('- kegiatan: huruf kecil, terbaca wajar dalam "Ani <kegiatan> setiap 4 hari.", "Ani dan Budi <kegiatan> bersama hari ini." dan "Budi sudah rutin <kegiatan> sejak tahun lalu." (contoh: "berenang", "bermain bulu tangkis").');
+  L.push('- belanja: "pembeli" orang dewasa dengan sapaan ("Bu Rini", "Pak Dodi"); "barang" benda yang lazim didiskon (Rp80.000–Rp300.000), huruf kecil, terbaca wajar dalam "membeli sebuah <barang> yang sedang diskon"; "lain" benda lain di toko yang sama.');
+  L.push('- mesin: hubungan yang naik tetap tiap satuan. "c" judul singkat (contoh: "Tarif ojek online"), "i" nama input dengan satuan ("jarak (km)"), "o" nama output dengan satuan ("tarif (ribu rupiah)"), "iu" satuan input ("km"), "ou" satuan output ("ribu rupiah"). Output harus masuk akal naik 2–4 satuan untuk tiap satuan input, dengan nilai awal 3–8.');
+  L.push('- Jangan ada angka, kunci jawaban, atau kalimat lain di luar JSON.');
+  const av=[['barang','barang'],['kegiatan','kegiatan'],['belanja','barang belanja'],['mesin','konteks mesin']].filter(([k])=>U[k].length);
+  if(av.length){ L.push('','Sudah dipakai 2 minggu terakhir, jangan diulang:'); av.forEach(([k,n])=>L.push('- '+n+': '+U[k].join('; '))); }
+  return L.join('\n'); }
+function wkParse(t){ const a=t.indexOf('{'), b=t.lastIndexOf('}'); if(a<0||b<a) throw new Error('Tidak menemukan blok JSON.'); return JSON.parse(t.slice(a,b+1)); }
+function wkValidate(o){ const E=[], str=x=>typeof x==='string'&&x.trim().length>0, arr=Array.isArray;
+  if(!o||typeof o!=='object') return ['Bukan objek JSON.'];
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(o.minggu||'')||wkMon(o.minggu)!==o.minggu) E.push('"minggu" harus tanggal hari Senin (YYYY-MM-DD).');
+  for(const k in WK_MIN) if(!arr(o[k])||o[k].length<WK_MIN[k]) E.push('"'+k+'" minimal '+WK_MIN[k]+' butir.');
+  if(E.length) return E;
+  o.barang.forEach((b,i)=>{ if(!arr(b)||b.length!==2||!b.every(str)||b[0].trim()===b[1].trim()) E.push('barang '+(i+1)+': harus 2 benda berbeda.'); });
+  if(new Set(o.nama.map(n=>String(n).trim())).size!==o.nama.length||!o.nama.every(n=>str(n)&&!/\s/.test(n.trim()))) E.push('nama: satu kata, tidak boleh kembar.');
+  o.kegiatan.forEach((k,i)=>{ if(!str(k)) E.push('kegiatan '+(i+1)+': kosong.'); });
+  o.belanja.forEach((b,i)=>{ if(!b||!['pembeli','barang','lain'].every(f=>str(b[f]))) E.push('belanja '+(i+1)+': pembeli, barang, lain wajib terisi.'); });
+  o.mesin.forEach((m,i)=>{ if(!m||!['c','i','o','iu','ou'].every(f=>str(m[f]))) E.push('mesin '+(i+1)+': c, i, o, iu, ou wajib terisi.'); });
+  const all=JSON.stringify([o.barang,o.kegiatan,o.belanja,o.mesin]); if(/\d/.test(all.replace(/\b(?:RT|RW)\s?\d+/g,''))) E.push('Bank kata tidak boleh memuat angka (angka dibuat aplikasi).');
+  return E; }
+function wkClean(o){ const t=s=>String(s).trim().replace(/\s+/g,' ').replace(/[.]$/,''), lo=s=>{ s=t(s); return s[0].toLowerCase()+s.slice(1); };
+  return {barang:o.barang.map(b=>b.map(lo)),nama:o.nama.map(t),kegiatan:o.kegiatan.map(lo),belanja:o.belanja.map(b=>({pembeli:t(b.pembeli),barang:lo(b.barang),lain:lo(b.lain)})),
+    mesin:o.mesin.map(m=>({c:t(m.c),i:t(m.i),o:t(m.o),iu:t(m.iu),ou:t(m.ou),a:[2,4],b:[3,8]}))}; }
+function wkSave(){ const Z=V.wkres={}; let o; try{ o=wkParse($('#wkjson').value); }catch(e){ Z.err=['JSON tidak terbaca: '+e.message]; return render(); }
+  const E=wkValidate(o); if(E.length){ Z.err=E; Z.paste=$('#wkjson').value; return render(); }
+  const I=wkInfo(); if(o.minggu<I.cur){ Z.err=['Minggu '+o.minggu+' sudah lewat. Salin prompt baru.']; return render(); }
+  S.wk=S.wk||{}; const ada=!!S.wk[o.minggu]; S.wk[o.minggu]={dibuat:I.t,isi:wkClean(o)}; save(); WK_ON=''; wkApply();
+  Z.ok='Paket minggu '+tgl(o.minggu)+' '+(ada?'diganti.':'tersimpan.'); render(); }
+function viewMingguan(){ const I=wkInfo(), W=S.wk||{}, ks=Object.keys(W).filter(k=>k>=I.cur).sort(), Z=V.wkres||{};
+  let h='<a class="chip" href="#game" style="margin:0 0 12px;display:inline-flex">‹ Mini game</a>'+wkBanner('page');
+  h+='<h2>Jadwal ganti</h2><div class="card"><p class="sm">Satu paket berlaku Senin–Minggu untuk '+WK_GAME.join(', ')+'. Ganti paling lambat hari Minggu; mulai Jumat aplikasi mengingatkan bila paket minggu depan belum ada.</p>'+
+    '<div class="list"><div class="row"><div class="grow"><b>Minggu ini</b><span class="sm">'+tgl(I.cur)+'–'+tgl(I.akhir)+'</span></div><span class="prg">'+(I.has(I.cur)?'terpasang':'bank bawaan')+'</span></div>'+
+    '<div class="row"><div class="grow"><b>Minggu depan</b><span class="sm">mulai '+tgl(I.nxt,true)+'</span></div><span class="prg">'+(I.has(I.nxt)?'siap':'belum ada')+'</span></div></div></div>';
+  h+='<h2>1 · Salin prompt</h2><div class="card"><p class="sm">Untuk minggu '+tgl(I.target)+'–'+tgl(wkAdd(I.target,6))+'. Jalankan di proyek Claude latihan kuantitatif.</p><div class="btns"><button class="btn pri grow" data-action="wkcopy" data-v="'+I.target+'">Salin prompt mingguan</button>'+
+    (I.target!==I.cur?'<button class="btn" data-action="wkcopy" data-v="'+I.cur+'">Ganti minggu ini</button>':'')+'</div></div>';
+  h+='<h2>2 · Tempel JSON</h2><div class="card"><textarea class="ta" id="wkjson" rows="5" placeholder=\'{"versi":1,"jenis":"mini-mingguan","minggu":"'+I.target+'", … }\'>'+esc(Z.paste||'')+'</textarea><div class="btns"><button class="btn pri grow" data-action="wksave">Cek & simpan</button></div>'+
+    (Z.err?'<div class="msg bad"><b>'+Z.err.length+' masalah</b><ul>'+Z.err.slice(0,8).map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul></div>':'')+(Z.ok?'<div class="msg ok">'+esc(Z.ok)+'</div>':'')+'</div>';
+  if(ks.length) h+='<h2>Tersimpan</h2><div class="card list">'+ks.map(k=>'<div class="row"><span class="num">'+fromYmd(k).getDate()+'</span><div class="grow"><b>Minggu '+tgl(k)+'</b><span class="sm">'+W[k].isi.barang.length+' pasang barang · '+W[k].isi.kegiatan.length+' kegiatan · '+W[k].isi.mesin.length+' konteks mesin</span></div><button class="btn sm" data-action="wkdel" data-v="'+k+'">Hapus</button></div>').join('')+'</div>';
+  return h; }
+
 /* ---------- Rotasi bentuk mini game ----------
    Tiap game punya daftar bentuk (lama/geser/baru). Tiap hari dipilih sampai 4 bentuk: satu lama, satu geser, satu baru,
    sisanya mengikuti tahap PK. Bentuk yang paling lama tidak muncul didahulukan, jadi yang kemarin dipakai menunggu giliran. */
@@ -1915,7 +2001,7 @@ function viewIntro(K){ const g=GMAP[K.game];
   return h+'</div></div>'; }
 function gameStat(id){ const l=(S.game[id]||[]); const w=l.filter(x=>x.ts>Date.now()-7*DAY); return {n:l.length,n7:w.length,p7:pct(w.filter(x=>x.ok).length,w.length)}; }
 function viewGame(){
-  let h='<div class="grid2">';
+  let h=wkBanner('game')+'<div class="grid2">';
   GAMES.forEach(g=>{ const op=gameOpen(g), st=gameStat(g.id);
     h+='<button class="tile'+(g.yk?' yk':'')+(op?'':' off')+'" style="--c:'+g.c+'" data-action="game" data-v="'+g.id+'"'+(op?'':' disabled')+'><span class="st"><i></i><i></i></span><span class="st r"><i></i></span><span class="ic">'+svgI(g.ic)+'</span><b>'+esc(g.nama)+'</b><span class="tiny">'+esc(g.ket)+'</span><span class="best">'+(op?(g.vary?gameBentuk(g.id).length+' bentuk hari ini':'')+(S.gbest[g.id]?' · '+'★'.repeat(S.gbest[g.id].bintang)+' '+S.gbest[g.id].skor+' poin':''):'Terbuka setelah '+esc(g.need.join(' / ')))+'</span></button>'; });
   return h+'</div>';
@@ -2122,7 +2208,7 @@ function hero(r){ const k=ymd(new Date()), t=tasksOn(new Date()), all=t.every(x=
 
 }[r];
   return H?'<div class="hero '+H[2]+'"><div class="bubble">'+esc(H[1])+'</div><span class="mw">'+mascot(H[0])+'</span></div>':''; }
-function route(){ const h=(location.hash||'').slice(1); return h==='main'||h==='pengaturan'||NAV.some(n=>n[0]===h)?h:'beranda'; }
+function route(){ const h=(location.hash||'').slice(1); return h==='main'||h==='pengaturan'||h==='mingguan'||NAV.some(n=>n[0]===h)?h:'beranda'; }
 function go(h){ if(location.hash==='#'+h) render(); else location.hash='#'+h; window.scrollTo(0,0); }
 function badge(sub){ return '<span class="bd bd-'+SUB[sub].tone+'">'+sub+'</span>'; }
 function jbadge(j){ return '<span class="bd bd-'+j+'">'+JN[j]+'</span>'; }
@@ -2140,7 +2226,7 @@ function viewBeranda(){
   const now=new Date(), k=ymd(now), t=tasksOn(now), fokus=fokusUnits(now), r=resepHarian(k), ss=loadSesi();
   let h='';
   if(ss&&!V.run) h+='<div class="card note"><div class="grow"><b>'+esc(ss.label)+'</b><span class="sm">Belum selesai, '+ss.A.filter(a=>a.done).length+' dari '+ss.qids.length+' soal</span></div><button class="btn pri" data-action="resume">Lanjutkan</button></div>';
-  h+=menaraCard();
+  h+=menaraCard()+wkBanner('beranda');
   h+='<h2>Tugas hari ini <span class="cnt">'+t.filter(x=>x.done).length+'/'+t.length+'</span></h2><div class="card list">';
   t.forEach((x,i)=>{ h+='<div class="row'+(x.done?' done':'')+'"><span class="num">'+(x.done?'✓':i+1)+'</span><div class="grow"><b>'+esc(x.t)+'</b>'+bar(pct(x.cur,x.n),x.done?'ok':'')+'</div><span class="prg">'+x.cur+'/'+x.n+'</span><button class="btn'+(x.done?'':' pri')+'" data-action="'+x.act+'"'+(x.v?' data-v="'+esc(x.v)+'"':'')+(x.off?' disabled':'')+'>'+(x.done&&x.id!=='salah'?'Lagi':x.btn)+'</button></div>'; });
   h+='</div>';
@@ -2297,9 +2383,10 @@ function viewKilat(){
 }
 
 function render(){
+  wkApply();
   let r=route(), h, full=false;
   if(r==='main'){ if(V.run){ h=viewRun(); full=true; } else if(V.kl){ h=viewKilat(); full=true; } else if(V.hasil){ h=viewHasil(); full=true; } else { r='beranda'; } }
-  if(!h) h=r==='game'?viewGame():r==='soal'?viewSoal():r==='salah'?viewSalah():r==='progres'?viewProgres():r==='pengaturan'?viewPengaturan():viewBeranda();
+  if(!h) h=r==='game'?viewGame():r==='soal'?viewSoal():r==='salah'?viewSalah():r==='progres'?viewProgres():r==='pengaturan'?viewPengaturan():r==='mingguan'?viewMingguan():viewBeranda();
   $('#view').innerHTML=(full?'':appbar()+(hero(r)||'<div class="gap0"></div>'))+h; $('#nav').hidden=full;
   document.body.classList.remove('cbt'); /* semua halaman memakai tema lego */
   document.querySelectorAll('#view .card').forEach(c=>{ if(c.tagName!=='DETAILS') c.insertAdjacentHTML('afterbegin',STUDS); });
@@ -2316,6 +2403,9 @@ function act(a,v){
   const R=V.run, K=V.kl, Z=V.soal;
   if(a!=='reset') V.prog.reset=false;
   if(a==='kilat') startKilat();
+  else if(a==='wkcopy') copyText(wkPrompt(v),'Prompt mingguan disalin. Jalankan di Claude, lalu tempel JSON-nya di sini.');
+  else if(a==='wksave') wkSave();
+  else if(a==='wkdel'){ if(S.wk){ delete S.wk[v]; save(); WK_ON=''; V.wkres=null; render(); } }
   else if(a==='gosoal'){ Z.tab='harian'; Z.tgl=ymd(new Date()); Z.res=null; go('soal'); }
   else if(a==='gosim'){ Z.tab=v; Z.res=null; go('soal'); }
   else if(a==='mulai'){ const st=S.sets.find(x=>x.id===v); if(st) startSet(st); }
