@@ -24,3 +24,6 @@ Aplikasi ini pemutar dan pencatat. Soalnya dibuat Claude dari prompt yang disusu
 Cara pakai harian: buka Set soal, salin prompt, jalankan di Claude, tempel hasilnya, lalu kerjakan.
 
 Semua data tersimpan di peramban (localStorage). Satu file `index.html`, tanpa proses build.
+
+- **Penyimpanan aman.** Setiap kali menyimpan, aplikasi membaca dulu isi penyimpanan lalu menggabungkannya, jadi tab atau jendela lama tidak bisa menimpa jawaban yang lebih baru. Penghapusan yang disengaja dicatat supaya tidak muncul lagi. Kegagalan menyimpan (misalnya penyimpanan penuh) selalu diberi tahu, dan layar skor menampilkan "Tersimpan ✓" setelah memastikan semua jawaban tercatat. Sesi yang belum selesai tidak hangus lewat tengah malam.
+- **Pengaturan → Data.** Menunjukkan tempat data tersimpan (Layar Utama atau browser, yang tidak saling terlihat), *Diagnosis data* (hanya membaca: isi tiap key dan tombol Salin), dan *Pulihkan dari cadangan* (menempel "Cadangan data" untuk digabung, tanpa menghapus apa pun).
