@@ -114,7 +114,7 @@ p{margin:0 0 8px}
 /* label */
 .bd{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;white-space:nowrap;flex:none;color:#fff;--c:var(--gray);background:var(--c);border:2px solid color-mix(in srgb,var(--c) 60%,#1f2a4d)}
 .bd-mint{--c:var(--green)}.bd-blue{--c:var(--blue)}.bd-coral{--c:var(--red)}
-.bd-lama{--c:var(--gray);color:var(--ink)}.bd-geser{--c:var(--yellow);color:var(--ink)}.bd-baru,.bd-varian{--c:var(--purple)}
+.bd-lama{--c:var(--gray);color:var(--ink)}.bd-geser{--c:var(--yellow);color:var(--ink)}.bd-baru,.bd-varian{--c:var(--purple)}.bd-migrasi{--c:var(--blue)}
 .chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:8px 0}
 .chips b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:16px;margin-right:8px}
 .chip{font:600 12.5px "Rubik",sans-serif;padding:5px 10px;border-radius:7px;border:2px solid var(--line);background:var(--plate);box-shadow:0 2px 0 var(--sh);cursor:pointer;color:var(--text)}
@@ -1193,7 +1193,21 @@ const pqList=q=>q.versi===4?PQ4:q.versi===5?PQ5:PQ_OLD;
 const optLines=L=>L.map((o,i)=>'ABCDE'[i]+'. '+o).join(' ');
 const ckList=q=>q.sub==='PU'?CK_PU:CK_PK;
 const ckLab=q=>q.sub==='PU'?['(i)','(ii)']:['(1)','(2)'];
-const JN={lama:'Bentuk lama',geser:'Digeser',baru:'Bentuk baru',varian:'Varian'};
+const JN={lama:'Bentuk lama',geser:'Digeser',baru:'Bentuk baru',migrasi:'Migrasi',varian:'Varian'};
+/* R0: jenis boleh ditulis dengan kode kesiapan-2027 (L, G, B, M) atau kata (lama, geser, baru, migrasi).
+   G = satu atau dua unsur diubah; B = bentuk yang belum ada di lampiran Brief; M = bentuk subtes lain dipindah ke sini. */
+const JENIS_ALIAS={l:'lama',lama:'lama',g:'geser',geser:'geser',digeser:'geser',b:'baru',baru:'baru',m:'migrasi',migrasi:'migrasi',varian:'varian'};
+/* Format jawaban (kesiapan-2027, dinamai J1–J7 supaya tidak tertukar dengan PK-F1–F5 di Brief). */
+const JFMT={J1:'pilihan ganda lima opsi',J2:'tabel benar/salah',J3:'isian angka',J4:'satu stimulus untuk 3–4 soal',J5:'pilih semua yang benar',J6:'menjodohkan',J7:'mengurutkan'};
+function bacaJenis(v,mode){ const t=String(v==null?'':v).trim().toLowerCase(), j=JENIS_ALIAS[t];
+  if(j) return {jenis:j};
+  if(mode==='varian') return {jenis:'varian'};
+  return {jenis:'geser',warn:t?'jenis "'+String(v).trim()+'" tidak dikenal; dicatat sebagai "geser". Pakai L, G, B, M atau lama, geser, baru, migrasi.':'jenis kosong; dicatat sebagai "geser".'}; }
+function bacaFormat(v,tipe){ const asal=tipe==='bs'?'J2':tipe==='isian'?'J3':'J1', t=String(v==null?'':v).trim();
+  if(!t) return {format:asal};
+  const m=t.toUpperCase().match(/\bJ\s*([1-7])\b/); if(m) return {format:'J'+m[1]};
+  if(/\bF\s*[1-7]\b/i.test(t)) return {format:asal,warn:'format "'+t+'" memakai kode F; pakai J1–J7 (F1–F5 adalah kode PK di Brief). Dicatat sebagai '+asal+'.'};
+  return {format:asal,warn:'format "'+t+'" tidak dikenal; dicatat sebagai '+asal+'.'}; }
 
 /* ---------- Simpanan ---------- */
 const $=s=>document.querySelector(s);
@@ -1430,7 +1444,7 @@ function fmtJson(mode,tg,sub,adaPM){
   '      {"no": 4, "sub": "PM", "stim": "g1", "kemampuan": "PM-B", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "isian", "perintah": "…", "kunci": "12,5", "langkah": ["…"], "jebakan": "…"},\n'+
   '      {"no": 5, "sub": "PM", "stim": "g1", "kemampuan": "PM-C", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "bs", "perintah": "Tentukan apakah setiap pernyataan berikut BENAR atau SALAH.", "pernyataan": [{"teks": "…", "benar": true}, {"teks": "…", "benar": false}, {"teks": "…", "benar": true}], "langkah": ["satu langkah per pernyataan"], "jebakan": "…"}\n'+
   '    ]\n  }\n}\n'+
-  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja. Q harus selalu positif untuk semua nilai yang mungkin. Opsinya baku UTBK 2026 dan sudah ada di aplikasi, persis: '+optLines(PQ5)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal.';
+  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja. Q harus selalu positif untuk semua nilai yang mungkin. Opsinya baku UTBK 2026 dan sudah ada di aplikasi, persis: '+optLines(PQ5)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal. "jenis" diisi lama, geser, baru, atau migrasi (boleh juga L, G, B, M). "format" boleh diisi kode format jawaban J1–J7 (J1 PG lima opsi, J2 tabel benar/salah, J3 isian angka, J4 satu stimulus untuk 3–4 soal, J5 pilih semua yang benar, J6 menjodohkan, J7 mengurutkan); bila format yang dimaksud belum bisa ditampilkan aplikasi, tulis soalnya dalam tipe yang setara dan isi "format" dengan kode aslinya, misalnya "J5 (ditulis sebagai J2)".';
 }
 function tahapNote(r){ const subs=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)); return ' Tahapku: '+subs.map(x=>x+' '+TAHAP[r.tahap[x]].nama).join(', ')+'.'+(subs.some(x=>r.tahap[x]===1)?' Pada subtes bertahap Fondasi, soal GESER hanya mengubah bentuk, bukan kerumitan hitungannya.':''); }
 function promptSet(r){
@@ -1494,9 +1508,11 @@ function parseSet(raw){
   const stim=(Array.isArray(st.stimulus)?st.stimulus:[]).map(g=>({id:String(g.id||''),judul:String(g.judul||''),teks:[].concat(g.teks||[]).map(String),tabel:Array.isArray(g.tabel)&&g.tabel.length?g.tabel.map(r=>[].concat(r).map(String)):null})).filter(g=>g.id);
   const L='ABCDE';
   const soal=st.soal.map((x,i)=>{ const no=i+1, E=t=>err.push('Soal '+no+': '+t);
-    const q={no,sub:SUB[x.sub]?x.sub:(SUB[st.subtes]?st.subtes:null),kem:KEM[x.kemampuan]?x.kemampuan:'',jenis:JN[x.jenis]?x.jenis:(mode==='varian'?'varian':'geser'),bl:String(x.bentuk_lama||'').trim(),diubah:String(x.diubah||'').trim(),unit:String(x.unit||'').trim(),lvl:['L','M','H'].includes(x.level)?x.level:'M',sidik:String(x.sidik||'').trim().slice(0,120),
+    const q={no,sub:SUB[x.sub]?x.sub:(SUB[st.subtes]?st.subtes:null),kem:KEM[x.kemampuan]?x.kemampuan:'',jenis:bacaJenis(x.jenis,mode).jenis,bl:String(x.bentuk_lama||'').trim(),diubah:String(x.diubah||'').trim(),unit:String(x.unit||'').trim(),lvl:['L','M','H'].includes(x.level)?x.level:'M',sidik:String(x.sidik||'').trim().slice(0,120),
       stim:x.stim?String(x.stim):null,teks:[].concat(x.teks||[]).map(String).filter(Boolean),tabel:Array.isArray(x.tabel)&&x.tabel.length?x.tabel.map(r=>[].concat(r).map(String)):null,
       tipe:x.tipe,perintah:String(x.perintah||'').trim(),langkah:[].concat(x.langkah||[]).map(String).filter(Boolean),jebakan:String(x.jebakan||'').trim()};
+    const bj=bacaJenis(x.jenis,mode); if(bj.warn) warn.push('Soal '+no+': '+bj.warn);
+    const bf=bacaFormat(x.format,q.tipe); q.format=bf.format; if(bf.warn) warn.push('Soal '+no+': '+bf.warn);
     if(!q.sub) E('"sub" harus PU, PK, atau PM.');
     if(!q.kem) warn.push('Soal '+no+': kode kemampuan tidak dikenali, rekap per kemampuan melewatinya.');
     if(!q.perintah) E('"perintah" kosong.');
@@ -1687,7 +1703,7 @@ function isAns(q,a){ return q.tipe==='isian'?!isNaN(parseNum(a.is)):q.tipe==='bs
 function grade(q,a){ if(q.tipe==='isian') return Math.abs(parseNum(a.is)-q.kunciNum)<1e-9; if(q.tipe==='bs') return q.bs.every((r,i)=>a.bs[i]===r.benar); return a.c===q.kunci; }
 function tick(R){ if(!R||R.fin) return; const now=Date.now(); if(!R.A[R.cur].done) R.T[R.cur]+=Math.min(now-R.t0,10*60000); R.t0=now; }
 function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a); if(R.cek==='langsung') setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70);
-  S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
+  S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,fmt:q.format||'',lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
   if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid];
   if(R.mode==='eb'){ const r=ebReview(q,a.ok,a); if(r) R.eb[q.qid]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
 function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; SFX.play('selesai'); const ok=save(); R.simpan=cekTersimpan(R);
@@ -2485,7 +2501,7 @@ function statRow(label,st,target,extra){ return '<div class="srow"><div class="g
 function viewProgres(){
   const h0=first(), wk=h0.filter(x=>x.ts>Date.now()-7*DAY), a7=stat(wk);
   let h='<p class="intro">7 hari terakhir: <b>'+a7.n+' soal</b>, benar <b>'+(a7.n?a7.p+'%':'–')+'</b></p>';
-  h+='<h2>Kesiapan bentuk baru</h2><div class="card"><p class="sm">Bila angka "bentuk baru" jauh di bawah "bentuk lama", kamu masih bergantung pada hafalan templat.</p>'+['lama','geser','baru'].map(j=>statRow(jbadge(j),stat(h0.filter(x=>x.jenis===j)))).join('')+'</div>';
+  h+='<h2>Kesiapan bentuk baru</h2><div class="card"><p class="sm">Bila angka "bentuk baru" jauh di bawah "bentuk lama", kamu masih bergantung pada hafalan templat.</p>'+['lama','geser','baru','migrasi'].map(j=>statRow(jbadge(j),stat(h0.filter(x=>x.jenis===j)))).join('')+'</div>';
   h+='<h2>Per subtes</h2><div class="card">'+Object.keys(SUB).map(s=>statRow(badge(s)+' '+SUB[s].nama,stat(h0.filter(x=>x.sub===s)),SUB[s].dtk)).join('')+'</div>';
   h+='<h2>Per kemampuan</h2><div class="card">'+Object.keys(KEM).map(k=>statRow('<span class="code">'+k+'</span>',stat(h0.filter(x=>x.kem===k)),SUB[k.slice(0,2)].dtk,esc(KEM[k]))).join('')+'</div>';
   const us=[...new Set(h0.map(x=>x.unit))].filter(u=>UMAP[u]).map(u=>({u,s:stat(h0.filter(x=>x.unit===u))})).sort((a,b)=>a.s.p-b.s.p);
@@ -2600,7 +2616,7 @@ function viewHasil(){
   const sv=R.simpan;
   if(sv) h+=sv.ok?'<div class="msg ok simpan"><b>Tersimpan ✓</b> '+sv.n+' dari '+sv.tot+' jawaban tercatat di perangkat ini.</div>'
     :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button></div>';
-  const js=['lama','geser','baru','varian'].map(j=>({j,l:R.items.map((it,i)=>({it,a:R.A[i]})).filter(x=>x.it.q.jenis===j)})).filter(x=>x.l.length);
+  const js=['lama','geser','baru','migrasi','varian'].map(j=>({j,l:R.items.map((it,i)=>({it,a:R.A[i]})).filter(x=>x.it.q.jenis===j)})).filter(x=>x.l.length);
   if(js.length>1) h+='<div class="card">'+js.map(x=>'<div class="srow"><div class="grow">'+jbadge(x.j)+bar(pct(x.l.filter(y=>y.a.ok).length,x.l.length))+'</div><div class="sv"><b>'+x.l.filter(y=>y.a.ok).length+'/'+x.l.length+'</b></div></div>').join('')+'</div>';
   h+='<div class="fhead"><h2>Pembahasan</h2><button class="btn sm" data-action="foldall">Buka/tutup semua</button></div>'+R.items.map((it,i)=>{ const q=it.q, a=R.A[i], slow=R.T[i]>SUB[q.sub].dtk*1500;
     return '<details class="card rev fold '+(a.ok?'good':'wrong')+'"><summary><span class="num">'+(i+1)+'</span>'+badge(q.sub)+'<span class="grow snip1">'+esc(q.perintah.slice(0,70))+'</span><span class="sm">'+(a.ok?'benar':'salah')+' · '+Math.round(R.T[i]/1000)+' dtk'+(slow?' (lambat)':'')+'</span>'+CHEVI+'</summary>'+
