@@ -822,6 +822,35 @@ button.mh:active{transform:translateY(2px)}
 .stim{border-left:4px solid #e2b64a;padding:16px 18px}
 .gstage .cerita{text-align:left;margin:0 0 12px}
 html[data-theme="dark"] .cerita{background:#35322b;border-color:#5b5040;border-left-color:#c9a043}
+/* Error Book */
+.ebsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.ebsum.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ebsum>div{text-align:center;border:2px solid color-mix(in srgb,var(--c) 60%,#1f2a4d);background:color-mix(in srgb,var(--c) 14%,var(--plate));border-radius:9px;box-shadow:0 3px 0 color-mix(in srgb,var(--c) 30%,transparent);padding:7px 2px 6px}
+.ebsum b{display:block;font:400 22px/1.1 "Lilita One","Rubik",sans-serif;color:var(--text)}
+.ebsum .sm{font-size:11px;line-height:1.25;margin-top:2px}
+.ebnote{margin:10px 0 0}
+.lead.ebhint{margin:-8px 4px 22px}
+.ebdots{display:inline-flex;gap:3px;align-items:center;flex:none}.ebdots i{width:9px;height:9px;border-radius:3px;border:1.5px solid var(--line);background:var(--plate)}.ebdots i.on{background:var(--green);border-color:color-mix(in srgb,var(--green) 60%,#1f2a4d)}
+.ebtag{font:700 11px/16px "Rubik",sans-serif;padding:0 7px;border-radius:6px;background:var(--bad-s);color:#a3302c;border:1.5px solid var(--red);white-space:nowrap}
+.ebtag.s{background:var(--acc-s);color:var(--blue);border-color:var(--blue)}
+.ebhd{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.ebhd .sm{display:inline}
+.ebwhen{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);white-space:nowrap}.ebwhen b{font-weight:600}.ebwhen.due b{color:var(--red);font-weight:700}
+.ebitem{padding:13px 0;border-top:2px dashed var(--edge)}.ebseg+.ebitem{border-top:0;padding-top:4px}
+.ebseg{margin:2px 0 10px}
+.ebrule{margin:8px 0 0;padding:7px 10px;border-left:4px solid var(--yellow);background:#fff8dc;border-radius:0 8px 8px 0;font-size:13.5px;color:#3b3a2c}
+.ebcmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 10px}
+.ebcmp>div{border-radius:9px;padding:7px 10px;border:2px solid}.ebcmp b{display:block;font-size:14px;margin:2px 0}
+.ebcmp .x{background:var(--bad-s);border-color:var(--red)}.ebcmp .k{background:var(--ok-s);border-color:var(--green)}
+.ebstep{margin:16px 0 8px;padding-top:14px;border-top:2px dashed var(--edge)}.ebstep>b{display:block;font:400 16px "Lilita One","Rubik",sans-serif;letter-spacing:.2px;margin-bottom:2px}
+.ebsb{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+.ebfix{background:var(--acc-s);border:1.5px solid color-mix(in srgb,var(--blue) 35%,transparent);border-radius:8px;padding:8px 10px;margin:8px 0 0;color:var(--text)}
+.ebstim{background:var(--base);border-radius:9px;padding:8px 10px;margin-bottom:8px;font-size:13.5px}
+.card.eb .ta{width:100%;box-sizing:border-box;margin-top:6px}
+.ebinpb{margin-top:12px;padding-top:10px;border-top:2px dashed var(--soft)}.ebst{margin:6px 0 0;font-weight:700;color:var(--text)}
+.card.ebnew{background:#fff6d6}.card.ebnew .st i{background:#fff6d6}.ebnt{display:block;font:400 17px "Lilita One","Rubik",sans-serif;margin-bottom:2px}
+html[data-theme="dark"] .ebrule{background:#3d3824;color:#f3ecd0}
+html[data-theme="dark"] .ebcmp .x{color:#ffd9d6}html[data-theme="dark"] .ebcmp .k{color:#d4f5df}
+html[data-theme="dark"] .card.ebnew,html[data-theme="dark"] .card.ebnew .st i{background:#3d3824}
+html[data-theme="dark"] .ebtag{color:#ffd9d6}html[data-theme="dark"] .ebtag.s{color:#cfe0ff}
 </style>
 </head>
 <body>
@@ -1169,8 +1198,8 @@ const $=s=>document.querySelector(s);
 const KEY='latihan-kuantitatif.v2', SKEY=KEY+'.sesi', DAY=86400000;
 const HUB='https://faiqdk07-tech.github.io/progres-harian/#hari-ini';
 const UMAP={}; UNITS.concat(OLD).forEach(u=>UMAP[u.id]=u);
-function fresh(){ return {v:2,sets:[],hist:[],kil:[],game:{},gbest:{},resep:{},lunas:{},cek:'langsung',semua:false}; }
-let S; try{ S=Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||'null')||{}); }catch(_){ S=fresh(); }
+function fresh(){ return {v:2,sets:[],hist:[],kil:[],game:{},gbest:{},resep:{},lunas:{},eb:{},ebv:1,cek:'langsung',semua:false}; }
+let S; try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); S=Object.assign(fresh(),o||{}); if(o&&!o.ebv) S.ebv=0; }catch(_){ S=fresh(); }
 Object.keys(S.resep).forEach(k=>{ if(S.resep[k].v!==3) delete S.resep[k]; });
 function save(){
   if(S.hist.length>6000) S.hist=S.hist.slice(-6000);
@@ -1189,6 +1218,7 @@ function hapusHariIni(){ const k=ymd(new Date());
   S.hist=S.hist.filter(x=>dk(x.ts)!==k); S.kil=S.kil.filter(x=>dk(x.ts)!==k);
   Object.keys(S.game||{}).forEach(g=>{ S.game[g]=S.game[g].filter(x=>dk(x.ts)!==k); });
   Object.keys(S.lunas||{}).forEach(q=>{ if(dk(S.lunas[q])===k) delete S.lunas[q]; });
+  Object.keys(S.eb||{}).forEach(q=>{ const e=S.eb[q]; if(dk(e.t)===k&&!e.log.length) delete S.eb[q]; else e.log=e.log.filter(x=>dk(x.ts)!==k); });
   V.run=null; V.kl=null; V.hasil=null; clearSesi(); save(); }
 
 /* ---------- Utilitas ---------- */
@@ -1453,28 +1483,149 @@ function parseMany(raw){ return splitBlocks(raw).map(parseSet); }
 function addSet(st){
   const old=S.sets.find(x=>x.id===st.id);
   if(old){ if(S.hist.some(h=>h.sid===old.id)){ st.id=st.id+'-'+Date.now().toString(36).slice(-4); st.label+=' (tambahan)'; st.soal.forEach(q=>{ q.qid=st.id+'#'+q.no; }); } else S.sets=S.sets.filter(x=>x!==old); }
-  S.sets.push(st); if(S.sets.length>80) S.sets=S.sets.slice(-80); save();
+  S.sets.push(st); if(S.sets.length>80){ const keep=ebSetIds(); let cut=S.sets.length-80; S.sets=S.sets.filter(x=>{ if(cut>0&&!keep.has(x.id)){ cut--; return false; } return true; }); } save();
 }
 function setProg(st){ const done=new Set(S.hist.filter(h=>h.sid===st.id&&!h.rep).map(h=>h.qid)); return {n:st.soal.length,a:done.size}; }
 function findQ(qid){ const sid=qid.split('#')[0], st=S.sets.find(x=>x.id===sid); if(!st) return null; const q=st.soal.find(x=>x.qid===qid); return q?{q,set:st}:null; }
+/* ---------- Error Book ----------
+   Soal salah masuk otomatis. Supaya tidak sekadar daftar:
+   1) diagnosis: pilih penyebab + tulis aturan "kalau …, aku …" (refleksi dengan kata sendiri);
+   2) ulang berjarak tanpa kunci: 1 → 3 → 7 → 14 hari (kotak Leitner), tidak bisa diulang di hari yang sama;
+   3) lulus setelah 4 kali benar berjarak; salah lagi = kembali ke kotak 1 dan diagnosis diperbarui;
+   4) pola: penyebab dan kemampuan yang paling sering muncul menjadi fokus latihan. */
+const EB_SEBAB=[
+ ['konsep','Konsep belum kuasai','Rumus atau sifatnya belum paham/hafal.','Baca ulang materi unitnya, lalu kerjakan 3 varian dari soal ini.'],
+ ['baca','Salah tangkap soal','Yang ditanya, satuan, atau syarat terlewat.','Sebelum menghitung, tulis ulang yang ditanya dengan kata sendiri dan lingkari syaratnya.'],
+ ['strategi','Langkah buntu/salah','Paham materinya, tapi salah memilih jalan.','Tulis rencana 1-2-3 dulu: besaran apa yang dicari lebih dulu?'],
+ ['hitung','Salah hitung','Caranya benar, angkanya meleset.','Cek dengan estimasi kasar atau substitusi balik sebelum memilih.'],
+ ['jebakan','Terkecoh opsi','Memilih hasil langkah antara atau arah terbalik.','Setelah dapat angka, baca lagi kalimat tanyanya sebelum memilih opsi.'],
+ ['waktu','Terburu-buru','Tergesa atau kehabisan waktu.','Pakai batas waktu per soal; lewat batas, tandai lalu lompati dulu.'],
+ ['tebak','Menebak','Tidak tahu harus mulai dari mana.','Pelajari pembahasan sambil menutup langkah berikutnya, lalu jelaskan ulang dengan kata sendiri.']];
+const EBS=Object.fromEntries(EB_SEBAB.map(x=>[x[0],x[1]]));
+const EB_INT=[1,3,7,14];
+const EB_MAX=10;
+function ebToday(){ return ymd(new Date()); }
+function ebPlus(n){ return ymd(addDays(new Date(),n)); }
+function ebList(){ return Object.values(S.eb||{}); }
+function ebAktif(){ return ebList().filter(e=>!e.lulus); }
+function ebPerlu(){ return ebAktif().filter(e=>e.perlu).sort((a,b)=>b.t-a.t); }
+function ebDue(){ const k=ebToday(); return ebAktif().filter(e=>!e.perlu&&e.due<=k&&findQ(e.qid)).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:a.box-b.box); }
+function ebJw(q,a){ if(q.tipe==='isian') return a.is?String(a.is):'kosong'; if(q.tipe==='bs') return a.bs.map((x,i)=>(i+1)+' '+(x===null?'–':x?'B':'S')).join(' · ');
+  if(a.c==null) return 'kosong'; const L=q.tipe==='pq'?pqList(q):q.tipe==='cukup'?ckList(q):q.opsi; return 'ABCDE'[a.c]+'. '+(L&&L[a.c]!=null?L[a.c]:''); }
+/* soal salah di set biasa/simulasi → masuk (atau dibuka lagi) */
+function ebAdd(q,a,ms){ if(!S.eb) S.eb={}; const e=S.eb[q.qid], now=Date.now();
+  if(e){ e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); e.ms=ms; if(e.lulus){ e.lulus=0; e.box=0; e.perlu=true; e.ulang=1; } e.due=ebPlus(1); return e; }
+  return S.eb[q.qid]={qid:q.qid,sub:q.sub,kem:q.kem||'',unit:q.unit||'',t:now,jw:ebJw(q,a),ms:ms||0,kosong:isAns(q,a)?0:1,sebab:'',aturan:'',box:0,due:ebPlus(1),log:[],lulus:0,perlu:true,salah:1}; }
+function ebReview(q,ok,a){ const e=S.eb&&S.eb[q.qid]; if(!e) return null; const now=Date.now(), b0=e.box; e.log.push({ts:now,ok:ok?1:0,box:b0});
+  if(ok){ e.box=b0+1; if(e.box>=EB_INT.length){ e.lulus=now; e.due=''; } else e.due=ebPlus(EB_INT[e.box]); }
+  else { e.box=0; e.due=ebPlus(1); e.perlu=true; e.ulang=1; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); }
+  return {b0,box:e.box,lulus:!!e.lulus,ok}; }
+/* aturan yang terlalu umum ("lebih teliti") tidak membantu; minta yang menyebut kapan dan apa yang dilakukan */
+function ebKabur(t){ t=String(t||'').trim().toLowerCase(); if(t.length<12) return 'Aturan terlalu pendek. Tulis kapan berlaku dan apa yang akan kamu lakukan.';
+  if(t.length<45&&/(teliti|hati-hati|hati hati|fokus|cermat|konsentrasi|belajar lagi|lebih rajin|jangan ceroboh)/.test(t)&&!/(kalau|jika|bila|saat|sebelum|setelah|ketika)/.test(t)) return 'Aturan ini masih umum. Tambahkan pemicunya: "Kalau/Saat …, aku …".';
+  return ''; }
+function ebDiag(qid){ const e=S.eb[qid], st=V.eb, sb=st.sel[qid]||e.sebab, at=(st.txt[qid]!=null?st.txt[qid]:e.aturan).trim();
+  if(!sb){ st.err[qid]='Pilih dulu penyebab utamanya.'; render(); return; }
+  const w=ebKabur(at); if(at.length<12){ st.err[qid]=w; render(); return; }
+  if(w&&st.warn[qid]!==at){ st.err[qid]=w+' Tekan Simpan lagi bila tetap ingin memakai aturan ini.'; st.warn[qid]=at; render(); return; }
+  const baru=e.perlu; e.sebab=sb; e.aturan=at; e.perlu=false; if(baru){ e.dt=Date.now(); if(!e.due||e.due<=ebToday()) e.due=ebPlus(1); } delete e.ulang;
+  delete st.sel[qid]; delete st.txt[qid]; delete st.err[qid]; delete st.warn[qid]; if(st.edit===qid) st.edit=null; save(); render(); toast('Tersimpan. Diulang '+ebKapan(e.due)+'.'); }
+function ebKapan(d){ const k=ebToday(); if(!d) return '-'; if(d<=k) return 'hari ini'; const n=Math.round((fromYmd(d)-fromYmd(k))/DAY); return n===1?'besok':n+' hari lagi'; }
+function ebDots(e){ return '<span class="ebdots" aria-label="Kotak '+Math.min(e.box,4)+' dari 4">'+EB_INT.map((_,i)=>'<i class="'+(i<e.box||e.lulus?'on':'')+'"></i>').join('')+'</span>'; }
+function ebStartUlang(){ const L=ebDue(); if(!L.length){ toast('Belum ada soal yang jatuh tempo.'); return; }
+  /* diselang-seling antarsubtes supaya tidak menebak dari urutan */
+  const pick=RN.shuf(L.slice(0,EB_MAX)).map(e=>findQ(e.qid)).filter(Boolean);
+  V.run=newRun({sid:'eb',label:'Ulang Error Book',mode:'eb',items:pick,cek:'langsung',limit:null,rep:true}); V.run.eb={}; V.hasil=null; persist(); go('main'); }
+function ebTask(){ const k=ebToday(), L=ebList(), done=L.reduce((n,e)=>n+e.log.filter(x=>dk(x.ts)===k).length+(e.dt&&dk(e.dt)===k?1:0),0), p=ebPerlu().length, d=ebDue().length, rem=p+Math.min(d,EB_MAX);
+  return {id:'salah',t:'Error Book',d:p||d?[p?p+' perlu diagnosis':'',d?d+' jatuh tempo':''].filter(Boolean).join(' · '):'Tidak ada yang menunggu hari ini',cur:rem?done:Math.max(done,1),n:Math.max(1,done+rem),act:p?'goeb':'ebulang',btn:p?'Diagnosis':'Ulang',off:!rem}; }
+function ebBadge(){ return ebPerlu().length+ebDue().length; }
+function ebSetIds(){ const s=new Set(); ebAktif().forEach(e=>s.add(e.qid.split('#')[0])); return s; }
+function ebInit(){ if(!S.eb) S.eb={}; if(S.ebv) return; S.ebv=1;
+  /* data lama: soal salah yang belum ditandai paham dipindah ke Error Book, menunggu diagnosis */
+  salahList().forEach(it=>{ const q=it.q, h=S.hist.filter(x=>x.qid===q.qid), last=h[h.length-1]; if(S.eb[q.qid]) return;
+    S.eb[q.qid]={qid:q.qid,sub:q.sub,kem:q.kem||'',unit:q.unit||'',t:last?last.ts:Date.now(),jw:'',ms:last?last.ms:0,kosong:last?last.ks:0,sebab:'',aturan:'',box:0,due:ebToday(),log:[],lulus:0,perlu:true,salah:h.filter(x=>!x.ok).length||1}; }); }
+function ebPola(hari){ const t0=Date.now()-hari*DAY, L=ebList().filter(e=>e.sebab&&(e.t>=t0||e.log.some(x=>x.ts>=t0&&!x.ok))), n=L.length;
+  const by={}; L.forEach(e=>{ by[e.sebab]=(by[e.sebab]||0)+(e.salah||1); }); const tot=Object.values(by).reduce((s,x)=>s+x,0);
+  const sb=EB_SEBAB.map(x=>({id:x[0],n:by[x[0]]||0})).filter(x=>x.n).sort((a,b)=>b.n-a.n);
+  const km={}; ebList().filter(e=>e.t>=t0||e.log.some(x=>x.ts>=t0&&!x.ok)).forEach(e=>{ const k=e.kem||e.sub; km[k]=(km[k]||0)+(e.salah||1); });
+  const kem=Object.entries(km).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  return {n,tot,sb,kem}; }
+function ebPrompt(){ const L=ebList().filter(e=>e.sebab).sort((a,b)=>(b.salah||1)-(a.salah||1)).slice(0,30);
+  return 'Ini catatan Error Book latihan kuantitatif UTBK-ku (PU kuantitatif, PK, PM). Bantu aku menemukan pola dan memperbaiki cara belajarku. Jawab ringkas dalam bahasa Indonesia.\n\n'+
+  'FORMAT BARIS: subtes | kemampuan | unit | penyebab | aturan yang kutulis | berapa kali salah | kotak ulang (0–4)\n'+
+  L.map(e=>{ const it=findQ(e.qid); return '- '+e.sub+' | '+(e.kem||'-')+(KEM[e.kem]?' ('+KEM[e.kem]+')':'')+' | '+uname(e.unit)+' | '+(EBS[e.sebab]||'-')+' | '+(e.aturan||'-')+' | '+(e.salah||1)+'x | '+(e.lulus?'lulus':e.box)+(it?'\n  soal: '+it.q.perintah.slice(0,160):''); }).join('\n')+
+  '\n\nTUGAS\n1. Sebutkan 3 pola kesalahan paling penting (gabungkan yang mirip), urut dari yang paling merugikan skor.\n2. Nilai aturanku: mana yang kabur atau tidak bisa dipakai saat ujian? Tulis ulang menjadi "Kalau …, aku …" yang spesifik.\n3. Untuk tiap pola, beri satu kebiasaan cek ≤10 detik yang bisa kupakai saat mengerjakan.\n4. Unit atau kemampuan mana yang perlu kupelajari ulang lebih dulu, dan kenapa.'; }
+function ebSoal(it,e){ const q=it.q, g=q.stim?(it.set.stimulus||[]).find(x=>x.id===q.stim):null;
+  const key=q.tipe==='pg'?'ABCDE'[q.kunci]+'. '+q.opsi[q.kunci]:q.tipe==='pq'?pqList(q)[q.kunci]:q.tipe==='cukup'?ckList(q)[q.kunci]:q.tipe==='bs'?q.bs.map((b,i)=>(i+1)+' '+(b.benar?'B':'S')).join(' · '):fmt(q.kunciNum);
+  return (g?'<div class="ebstim">'+(g.judul?'<b>'+esc(g.judul)+'</b>':'')+g.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(g.tabel)+'</div>':'')+
+    (q.teks||[]).map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>'+
+    (q.tipe==='pg'?'<ul class="ol">'+q.opsi.map((o,j)=>'<li><b>'+'ABCDE'[j]+'.</b> '+mx(o)+'</li>').join('')+'</ul>':q.tipe==='pq'?'<p>P: '+txt(q.p)+'<br>Q: '+txt(q.q)+'</p>':q.tipe==='cukup'?'<p>'+ckLab(q)[0]+' '+txt(q.pern[0])+'<br>'+ckLab(q)[1]+' '+txt(q.pern[1])+'</p>':q.tipe==='bs'?'<ul class="ol">'+q.bs.map((b,i)=>'<li>'+(i+1)+'. '+mx(b.teks)+'</li>').join('')+'</ul>':'')+
+    '<div class="ebcmp"><div class="x"><span class="sm">Jawabanmu</span><b>'+(e.jw?mx(e.jw):'(tidak tercatat)')+'</b>'+(e.ms?'<span class="sm">'+Math.round(e.ms/1000)+' dtk · target '+SUB[q.sub].dtk+' dtk</span>':'')+'</div><div class="k"><span class="sm">Kunci</span><b>'+mx(key)+'</b></div></div>'+
+    (q.tipe==='pg'&&q.alasan&&e.jw&&'ABCDE'.indexOf(e.jw[0])>=0&&q.alasan['ABCDE'.indexOf(e.jw[0])]&&'ABCDE'.indexOf(e.jw[0])!==q.kunci?'<p class="sm"><b>Kenapa opsimu menjebak:</b> '+mx(q.alasan['ABCDE'.indexOf(e.jw[0])])+'</p>':'')+
+    (q.jebakan?'<p class="sm"><b>Jebakan:</b> '+mx(q.jebakan)+'</p>':'')+
+    (q.langkah&&q.langkah.length?'<details class="more"><summary>Pembahasan langkah '+CHEVI+'</summary><ol class="steps">'+q.langkah.map(x=>'<li>'+mx(x)+'</li>').join('')+'</ol></details>':''); }
+function ebSaran(e){ const it=findQ(e.qid); if(!it) return ''; const q=it.q;
+  if(e.ms&&e.ms>SUB[q.sub].dtk*1500) return 'waktu';
+  if(e.kosong) return 'tebak';
+  if(q.tipe==='pg'&&q.alasan&&e.jw&&'ABCDE'.indexOf(e.jw[0])>=0&&q.alasan['ABCDE'.indexOf(e.jw[0])]) return 'jebakan';
+  return ''; }
+function ebKartuDiag(e){ const it=findQ(e.qid), st=V.eb, sb=st.sel[e.qid]||e.sebab, at=st.txt[e.qid]!=null?st.txt[e.qid]:e.aturan, sr=ebSaran(e);
+  if(!it) return '<div class="card eb"><p class="sm">Soal ini tidak tersedia lagi (set sudah terhapus).</p><div class="btns"><button class="btn" data-action="ebhapus" data-v="'+esc(e.qid)+'">Hapus dari Error Book</button></div></div>';
+  const q=it.q, f=EB_SEBAB.find(x=>x[0]===sb);
+  return '<div class="card eb" id="eb-'+esc(e.qid)+'"><div class="chips">'+badge(q.sub)+(q.kem?'<span class="code">'+esc(q.kem)+'</span>':'')+'<span class="sm">'+esc(uname(q.unit))+'</span>'+(e.ulang?'<span class="ebtag">salah lagi</span>':'')+((e.salah||1)>1?'<span class="sm">salah '+e.salah+'×</span>':'')+'</div>'+
+    ebSoal(it,e)+
+    '<div class="ebstep"><b>1 · Kenapa salah?</b><span class="sm">Pilih penyebab utama, jujur saja. Ini yang menentukan cara memperbaikinya.'+(sr?' Dari catatan: kemungkinan <b>'+esc(EBS[sr])+'</b>.':'')+'</span></div>'+
+    '<div class="ebsb">'+EB_SEBAB.map(x=>'<button class="chip'+(sb===x[0]?' on':'')+'" data-action="ebsebab" data-v="'+esc(e.qid)+'|'+x[0]+'" title="'+esc(x[2])+'">'+esc(x[1])+'</button>').join('')+'</div>'+
+    (f?'<p class="sm ebfix"><b>'+esc(f[1])+':</b> '+esc(f[2])+' <b>Perbaikan:</b> '+esc(f[3])+'</p>':'')+
+    '<div class="ebstep"><b>2 · Aturan untukku</b><span class="sm">Satu kalimat yang akan kamu ingat saat bertemu soal mirip. Pakai kata sendiri.</span></div>'+
+    '<textarea class="ta" rows="2" data-eb="'+esc(e.qid)+'" placeholder="Kalau …, aku … (bukan …)">'+esc(at)+'</textarea>'+
+    (e.ulang&&e.aturan?'<p class="sm">Aturan lama belum cukup menolongmu. Perbaiki atau ganti.</p>':'')+
+    (st.err[e.qid]?'<div class="msg bad">'+esc(st.err[e.qid])+'</div>':'')+
+    '<div class="btns"><button class="btn pri grow" data-action="ebsimpan" data-v="'+esc(e.qid)+'">Simpan diagnosis</button><button class="btn" data-action="varian" data-v="'+esc(e.qid)+'">Prompt 3 varian</button>'+(st.edit===e.qid?'<button class="btn" data-action="ebbatal" data-v="'+esc(e.qid)+'">Batal</button>':'')+'</div>'+
+    '<div class="btns"><button class="btn sm danger" data-action="ebhapus" data-v="'+esc(e.qid)+'">Soal/kuncinya keliru, hapus</button></div></div>'; }
+function viewSalah(){
+  const st=V.eb, P=ebPerlu(), D=ebDue(), A=ebAktif(), J=A.filter(e=>!e.perlu&&!D.includes(e)), Lu=ebList().filter(e=>e.lulus).sort((a,b)=>b.lulus-a.lulus), po=ebPola(30);
+  let h='<p class="intro">Setiap soal yang salah masuk ke sini. <b>Diagnosis</b> penyebabnya dan tulis aturan untuk dirimu, <b>ulang</b> tanpa melihat kunci pada hari berikutnya, lalu <b>lulus</b> setelah benar 4 kali berjarak (1, 3, 7, 14 hari). Salah lagi berarti kembali ke kotak 1.</p>';
+  const nx=A.filter(e=>e.due&&!e.perlu).sort((a,b)=>a.due<b.due?-1:1)[0];
+  h+='<h2>Status</h2><div class="card"><div class="ebsum">'+[['Diagnosis',P.length,'red'],['Jatuh tempo',D.length,'blue'],['Terjadwal',J.length,'orange'],['Lulus',Lu.length,'green']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+
+    (D.length?'<button class="btn pri block" data-action="ebulang">Ulang '+Math.min(D.length,EB_MAX)+' soal jatuh tempo</button>'+(D.length>EB_MAX?'<p class="sm ebnote">Paling banyak '+EB_MAX+' per putaran supaya tetap fokus. Sisanya bisa diulang setelah ini.</p>':'')
+    :P.length?'<p class="sm ebnote">Diagnosis dulu soal di bawah. Soalnya mulai diulang besok.</p>'
+    :A.length?'<p class="sm ebnote">Tidak ada yang perlu dikerjakan sekarang. Ulangan berikutnya '+(nx?ebKapan(nx.due):'-')+'. Mengulang lebih cepat tidak membantu ingatan jangka panjang.</p>':'')+'</div>';
+  if(po.n>=3){ const t=po.sb[0], f=EB_SEBAB.find(x=>x[0]===t.id);
+    h+='<h2>Pola 30 hari</h2><div class="card"><p class="sm">Penyebab terbanyak: <b>'+esc(f[1])+'</b> ('+pct(t.n,po.tot)+'% dari kesalahan yang sudah didiagnosis).</p><p class="ebfix sm"><b>Fokus minggu ini:</b> '+esc(f[3])+'</p>'+
+      po.sb.map(x=>'<div class="srow"><div class="grow"><span class="lb">'+esc(EBS[x.id])+'</span>'+bar(pct(x.n,po.tot),x===t?'bad':'')+'</div><div class="sv"><b>'+x.n+'</b></div></div>').join('')+
+      (po.kem.length?'<p class="sm" style="margin-top:10px">Paling sering salah: '+po.kem.map(([k,n])=>'<span class="code">'+esc(k)+'</span> '+esc(KEM[k]||'')+' ('+n+'×)').join(' · ')+'</p>':'')+
+      '<div class="btns"><button class="btn" data-action="ebprompt">Salin prompt analisis pola untuk Claude</button></div></div>'; }
+  else if(ebList().length) h+='<p class="lead ebhint">Pola penyebab muncul setelah minimal 3 soal didiagnosis.</p>';
+  if(P.length) h+=P.slice(0,st.n).map((e,i)=>'<h2>Diagnosis '+(i+1)+' dari '+P.length+'</h2>'+ebKartuDiag(e)).join('')+(P.length>st.n?'<div class="btns"><button class="btn" data-action="ebmore">Tampilkan '+Math.min(5,P.length-st.n)+' lagi</button></div>':'');
+  const subs=['semua','PU','PK','PM'], fl=e=>st.f==='semua'||e.sub===st.f, list=D.concat(J).filter(fl).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:0);
+  if(D.length+J.length){ h+='<h2>Jadwal ulang ('+(D.length+J.length)+')</h2><div class="card"><div class="seg ebseg">'+subs.map(x=>'<button class="'+(st.f===x?'on':'')+'" data-action="ebf" data-v="'+x+'">'+(x==='semua'?'Semua':x)+'</button>').join('')+'</div>';
+    h+=list.length?list.map(e=>{ if(st.edit===e.qid) return '</div><h2>Ubah diagnosis</h2>'+ebKartuDiag(e)+'<div class="card">'; const it=findQ(e.qid), due=D.includes(e);
+      return '<div class="ebitem"><div class="ebhd">'+badge(e.sub)+(e.kem?'<span class="code">'+esc(e.kem)+'</span>':'')+'<span class="ebtag s">'+esc(EBS[e.sebab]||'-')+'</span><span class="ebwhen'+(due?' due':'')+'">'+ebDots(e)+'<b>'+(due?'jatuh tempo':esc(ebKapan(e.due)))+'</b></span></div>'+
+      (it?'<p class="snip">'+mx(it.q.perintah.slice(0,140))+(it.q.perintah.length>140?'…':'')+'</p>':'<p class="sm">Soal tidak tersedia lagi.</p>')+
+      '<p class="ebrule">'+esc(e.aturan)+'</p><div class="btns"><button class="btn sm" data-action="ebedit" data-v="'+esc(e.qid)+'">Ubah diagnosis</button>'+(e.box>=2&&it?'<button class="btn sm" data-action="varian" data-v="'+esc(e.qid)+'">Uji di bentuk lain (3 varian)</button>':'')+'</div></div>'; }).join(''):'<p class="sm ebnote">Tidak ada untuk '+esc(st.f)+'.</p>';
+    h+='</div>'; }
+  if(Lu.length) h+='<details class="card fold"><summary><span class="grow"><b>Lulus ('+Lu.length+')</b> <span class="sm">benar 4 kali berjarak</span></span>'+CHEVI+'</summary>'+Lu.slice(0,30).map(e=>'<div class="row"><div class="grow">'+badge(e.sub)+' <span class="code">'+esc(e.kem||'-')+'</span><p class="ebrule">'+esc(e.aturan||'-')+'</p></div><span class="sm">'+esc(tgl(dk(e.lulus)))+'</span></div>').join('')+'</details>';
+  if(!ebList().length) h+='<h2>Masih kosong</h2><div class="card"><p class="sm">Error Book masih kosong. Soal yang salah di Set soal dan Simulasi otomatis masuk ke sini.</p></div>';
+  return h; }
+
 function salahList(){ const lastBy={}; S.hist.forEach(h=>{ lastBy[h.qid]=h; }); return Object.values(lastBy).filter(h=>!h.ok&&!S.lunas[h.qid]).map(h=>findQ(h.qid)).filter(Boolean).reverse(); }
 
 /* ---------- Tugas harian ---------- */
 function harianSet(k){ return S.sets.filter(s=>s.mode==='harian'&&s.tgl===k).sort((a,b)=>a.ts-b.ts)[0]||null; }
 function tasksOn(date){ const k=ymd(date);
   const kil=S.kil.filter(x=>dk(x.ts)===k).length, st=harianSet(k), pr=st?setProg(st):{n:16,a:0};
-  const redo=S.hist.filter(h=>h.rep&&dk(h.ts)===k).length+Object.values(S.lunas).filter(t=>dk(t)===k).length, pend=salahList().length;
   return [
     {id:'kilat',t:'Hitung cepat',d:'20 soal, bentuk berganti tiap hari',cur:Math.min(kil,20),n:20,act:'kilat',btn:'Mulai'},
     {id:'set',t:'Set hari ini',d:st?pr.n+' soal: PU, PK, dan PM dengan bentuk yang diputar':'Belum ada set. Salin prompt, jalankan di Claude, tempel hasilnya.',cur:pr.a,n:pr.n,act:st?'mulai':'gosoal',v:st?st.id:'',btn:st?(pr.a?'Lanjut':'Mulai'):'Siapkan'},
-    {id:'salah',t:'Ulang soal salah',d:pend?pend+' soal menunggu diulang':'Tidak ada soal salah yang menunggu',cur:pend?Math.min(redo,3):3,n:3,act:'ulang',btn:'Ulang',off:!pend}
+    ebTask()
   ].map(x=>Object.assign(x,{done:x.cur>=x.n}));
 }
 function dayFull(d){ const k=ymd(d), st=harianSet(k); return !!st&&setProg(st).a>=st.soal.length&&S.kil.filter(x=>dk(x.ts)===k).length>=20; }
 function streak(){ let n=0, d=new Date(); d.setHours(0,0,0,0); if(!dayFull(d)) d=addDays(d,-1); while(n<400&&dayFull(d)){ n++; d=addDays(d,-1); } return n; }
 
 /* ---------- Sesi soal ---------- */
-const V={run:null,kl:null,hasil:null,soal:{tab:'harian',tgl:null,paste:'',res:null},prog:{}};
+const V={run:null,kl:null,hasil:null,soal:{tab:'harian',tgl:null,paste:'',res:null},prog:{},eb:{sel:{},txt:{},err:{},warn:{},f:'semua',n:5,edit:null,del:null}};
 function newRun(o){ o.A=o.items.map(it=>({c:null,is:'',bs:it.q.tipe==='bs'?it.q.bs.map(()=>null):null,done:false,ok:false})); o.T=o.items.map(()=>0); o.cur=0; o.t0=Date.now(); o.started=Date.now(); return o; }
 function startSet(st,again){ const pr=setProg(st); const items=st.soal.map(q=>({q,set:st}));
   const R=newRun({sid:st.id,label:st.label,mode:st.mode,items,cek:st.mode==='sim'?'akhir':S.cek,limit:st.mode==='sim'?SUB[st.sub].simMs:null,rep:pr.a>=pr.n||!!again});
@@ -1486,11 +1637,12 @@ function grade(q,a){ if(q.tipe==='isian') return Math.abs(parseNum(a.is)-q.kunci
 function tick(R){ if(!R||R.fin) return; const now=Date.now(); if(!R.A[R.cur].done) R.T[R.cur]+=Math.min(now-R.t0,10*60000); R.t0=now; }
 function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a); if(R.cek==='langsung') setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70);
   S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
-  if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid]; }
+  if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid];
+  if(R.mode==='eb'){ const r=ebReview(q,a.ok,a); if(r) R.eb[q.qid]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
 function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; SFX.play('selesai'); save(); clearSesi(); V.hasil=R; V.run=null; render(); window.scrollTo(0,0); }
 function timeLeft(R){ return R.limit?R.started+R.limit-Date.now():null; }
 function persist(){ try{ const R=V.run; if(!R||R.fin){ localStorage.removeItem(SKEY); return; }
-  localStorage.setItem(SKEY,JSON.stringify({day:ymd(new Date()),sid:R.sid,label:R.label,mode:R.mode,qids:R.items.map(it=>it.q.qid),A:R.A,T:R.T,cur:R.cur,cek:R.cek,limit:R.limit,started:R.started,rep:R.rep})); }catch(e){} }
+  localStorage.setItem(SKEY,JSON.stringify({day:ymd(new Date()),sid:R.sid,label:R.label,mode:R.mode,qids:R.items.map(it=>it.q.qid),A:R.A,T:R.T,cur:R.cur,cek:R.cek,limit:R.limit,started:R.started,rep:R.rep,eb:R.eb,ebNew:R.ebNew})); }catch(e){} }
 function clearSesi(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
 function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null'); if(!o||o.day!==ymd(new Date())) return null; const items=o.qids.map(findQ); if(items.some(x=>!x)) return null;
   if(o.limit&&o.started+o.limit<Date.now()) return null; return Object.assign(o,{items,t0:Date.now()}); }catch(e){ return null; } }
@@ -2192,7 +2344,7 @@ function sceneHTML(){
 
 const NAV=[['beranda','Hari ini','var(--yellow)','<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'],
  ['soal','Set soal','var(--red)','<path d="M8 4h8M9 2h6v4H9z"/><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 11h6M9 15h4"/>'],
- ['salah','Salah','var(--blue)','<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'],
+ ['salah','Error Book','var(--blue)','<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'],
  ['game','Game','var(--green)','<rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="17.8" cy="14" r=".8"/>'],
  ['progres','Progres','var(--orange)','<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>']];
 const SUBC={PU:'var(--green)',PK:'var(--blue)',PM:'var(--red)'};
@@ -2205,6 +2357,7 @@ function appbar(){
 function hero(r){ const k=ymd(new Date()), t=tasksOn(new Date()), all=t.every(x=>x.done), fk=fokusUnits(new Date()).map(uname).join(', ');
   const H={beranda:all?['trophy','Tugas hari ini beres. Sampai besok, ya!','R']:['wave','Fokus hari ini: '+fokusUnits(new Date()).join(' · ')+(fokusUnits(new Date()).every(u=>UMAP[u]&&UMAP[u].old)?' (ulasan)':''),'R'],
     game:['jump','Main sebentar, otak tetap jalan. Pilih satu!','L'],
+    salah:ebPerlu().length?['wave','Salah itu data. Cari tahu kenapa, lalu tulis aturannya.','R']:ebDue().length?['wave','Ada soal lama yang jatuh tempo. Coba tanpa melihat kunci!','R']:null,
 
 }[r];
   return H?'<div class="hero '+H[2]+'"><div class="bubble">'+esc(H[1])+'</div><span class="mw">'+mascot(H[0])+'</span></div>':''; }
@@ -2267,15 +2420,6 @@ function viewSoal(){
   return h;
 }
 
-function viewSalah(){
-  const L=salahList();
-  let h='<p class="intro">Ulang sampai benar, lalu minta tiga varian supaya kemampuannya teruji di bentuk lain.</p>';
-  if(!L.length) return h+'<div class="card"><p class="sm">Tidak ada soal salah yang menunggu.</p></div>';
-  h+='<div class="btns"><button class="btn pri" data-action="ulang">Ulang '+Math.min(L.length,10)+' soal</button></div>';
-  h+=L.slice(0,40).map(it=>{ const q=it.q; return '<div class="card"><div class="chips">'+badge(q.sub)+jbadge(q.jenis)+(q.kem?'<span class="code">'+esc(q.kem)+'</span>':'')+'<span class="sm">'+esc(uname(q.unit))+'</span></div><p class="snip">'+mx(q.perintah.slice(0,180))+(q.perintah.length>180?'…':'')+'</p><div class="btns"><button class="btn" data-action="ulang1" data-v="'+q.qid+'">Ulang</button><button class="btn" data-action="varian" data-v="'+q.qid+'">Salin prompt 3 varian</button><button class="btn" data-action="paham" data-v="'+q.qid+'">Sudah paham</button></div></div>'; }).join('');
-  return h;
-}
-
 function statRow(label,st,target,extra){ return '<div class="srow"><div class="grow"><span class="lb">'+label+'</span>'+(extra?'<span class="sm">'+extra+'</span>':'')+bar(st.n?st.p:0,st.n&&st.p>=80?'ok':st.n&&st.p<60?'bad':'')+'</div><div class="sv"><b>'+(st.n?st.p+'%':'–')+'</b><span class="sm">'+st.n+' soal'+(st.n&&st.t?' · '+Math.round(st.t)+' dtk'+(target?'/'+target:''):'')+'</span></div></div>'; }
 function viewProgres(){
   const h0=first(), wk=h0.filter(x=>x.ts>Date.now()-7*DAY), a7=stat(wk);
@@ -2326,6 +2470,9 @@ function viewRun(){
   else h+='<div class="isi"><input id="isian" inputmode="decimal" autocomplete="off" placeholder="jawaban angka" value="'+esc(a.is)+'"'+(rv?' disabled':'')+'><span class="sm">Desimal pakai koma, tanpa satuan.</span></div>';
   h+='</div>';
   if(rv||a.prev) h+=pembahasan(q,a);
+  if(R.mode==='eb'&&rv){ const e=S.eb[q.qid], r=R.eb&&R.eb[q.qid]; if(e){ const k=h.lastIndexOf('</div>');
+    h=h.slice(0,k)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b></span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar 4 kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</p>'+
+    (e.aturan?'<p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya.</p>')+'</div>'+h.slice(k); } }
   const last=k===n-1, allDone=R.A.every(x=>x.done);
   h+='<div class="btns foot">'+(k>0?'<button class="btn" data-action="prev">Sebelumnya</button>':'');
   if(R.cek==='langsung') h+=a.done?'<button class="btn pri grow" data-action="'+(last&&allDone?'selesai':'next')+'" id="pbtn">'+(last?(allDone?'Lihat hasil':'Ke soal yang belum'):'Lanjut')+'</button>':'<button class="btn pri grow" data-action="periksa" id="pbtn"'+(isAns(q,a)?'':' disabled')+'>Periksa</button>';
@@ -2352,7 +2499,11 @@ function viewHasil(){
     q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>'+
     (q.tipe==='pg'?'<ul class="ol">'+q.opsi.map((o,j)=>'<li class="'+(j===q.kunci?'k':a.c===j?'x':'')+'"><b>'+'ABCDE'[j]+'.</b> '+mx(o)+(q.alasan&&q.alasan[j]&&j!==q.kunci?'<span class="why">'+mx(q.alasan[j])+'</span>':'')+'</li>').join('')+'</ul>':q.tipe==='pq'?'<p>P: '+txt(q.p)+'<br>Q: '+txt(q.q)+'</p>':q.tipe==='cukup'?'<p>'+ckLab(q)[0]+' '+txt(q.pern[0])+'<br>'+ckLab(q)[1]+' '+txt(q.pern[1])+'</p>':q.tipe==='bs'?'<ul class="ol">'+q.bs.map(b=>'<li>'+mx(b.teks)+' <b>('+(b.benar?'Benar':'Salah')+')</b></li>').join('')+'</ul>':'<p class="sm">Jawabanmu: '+esc(a.is||'kosong')+'</p>')+
     pembahasan(q,a)+'</details>'; }).join('');
-  h+='<div class="btns foot"><a class="btn pri grow" href="#beranda">Selesai</a>'+(R.A.some(a=>!a.ok)?'<a class="btn" href="#salah">Lihat soal salah</a>':'')+'</div>';
+  if(R.mode==='eb'){ const rs=Object.values(R.eb||{}), up=rs.filter(r=>r.ok&&!r.lulus).length, lu=rs.filter(r=>r.lulus).length, dn=rs.filter(r=>!r.ok).length;
+    h=h.replace('<div class="fhead">','<div class="card has-lbl"><span class="lbl bl">Error Book</span><div class="ebsum c3">'+[['Naik kotak',up,'blue'],['Lulus',lu,'green'],['Mulai lagi',dn,'red']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+(dn?'<p class="sm ebnote">'+dn+' soal salah lagi. Perbarui diagnosisnya selagi masih ingat apa yang membuatmu keliru.</p>':'')+'</div><div class="fhead">'); }
+  const nb=Object.keys(R.ebNew||{}).length+(R.mode==='eb'?Object.values(R.eb||{}).filter(r=>!r.ok).length:0);
+  if(nb&&R.mode!=='eb') h=h.replace('<div class="fhead">','<div class="card ebnew has-lbl"><span class="lbl">Error Book</span><b class="ebnt">'+nb+' soal masuk Error Book</b><p class="sm">Diagnosis sekarang selagi kamu masih ingat jalan pikirmu tadi: pilih penyebab dan tulis satu aturan. Soalnya diulang mulai besok.</p><a class="btn pri block" href="#salah">Diagnosis sekarang</a></div><div class="fhead">');
+  h+='<div class="btns foot"><a class="btn pri grow" href="#beranda">Selesai</a>'+(nb?'<a class="btn" href="#salah">Buka Error Book</a>':'')+'</div>';
   return h;
 }
 function hearts(n){ return [0,1,2].map(i=>'<i class="hrt'+(i<n?'':' off')+'">♥</i>').join(''); }
@@ -2393,7 +2544,7 @@ function render(){
   const LC=['','g','bl','o']; let li=0;
   document.querySelectorAll('#view > h2').forEach(t=>{ const n=t.nextElementSibling; if(!n||n.tagName!=='DIV'||!n.classList.contains('card')||n.classList.contains('score')) return;
     const l=document.createElement('span'); l.className='lbl '+LC[li++%4]; l.innerHTML=t.innerHTML; n.insertBefore(l,n.querySelector(':scope > :not(.st)')); n.classList.add('has-lbl'); t.remove(); });
-  const ns=salahList().length;
+  const ns=ebBadge();
   $('#nav').innerHTML=NAV.map(x=>'<a href="#'+x[0]+'" class="'+(r===x[0]?'on ':'')+(x[0]==='beranda'?'yk':'')+'" style="--c:'+x[2]+'">'+svgI(x[3])+'<span>'+x[1]+'</span>'+(x[0]==='salah'&&ns?'<i>'+ns+'</i>':'')+'</a>').join('');
   const f=$('#klans')||(V.run&&!V.run.A[V.run.cur].done?$('#isian'):null); if(f&&!('ontouchstart' in window)) f.focus();
 }
@@ -2410,10 +2561,18 @@ function act(a,v){
   else if(a==='gosim'){ Z.tab=v; Z.res=null; go('soal'); }
   else if(a==='mulai'){ const st=S.sets.find(x=>x.id===v); if(st) startSet(st); }
   else if(a==='resume'){ const o=loadSesi(); if(o){ V.run=o; V.hasil=null; go('main'); } }
-  else if(a==='ulang') startUlang(salahList());
+  else if(a==='ulang'||a==='ebulang') ebStartUlang();
+  else if(a==='goeb') go('salah');
+  else if(a==='ebsebab'){ const [q,sb]=v.split('|'); V.eb.sel[q]=sb; delete V.eb.err[q]; render(); }
+  else if(a==='ebsimpan') ebDiag(v);
+  else if(a==='ebedit'){ V.eb.edit=v; render(); const el=document.getElementById('eb-'+v); if(el) el.scrollIntoView({block:'start'}); }
+  else if(a==='ebbatal'){ V.eb.edit=null; delete V.eb.sel[v]; delete V.eb.txt[v]; delete V.eb.err[v]; render(); }
+  else if(a==='ebhapus'){ if(V.eb.del===v){ delete S.eb[v]; V.eb.del=null; save(); render(); toast('Dihapus dari Error Book.'); } else { V.eb.del=v; toast('Tekan sekali lagi untuk menghapus.'); } }
+  else if(a==='ebf'){ V.eb.f=v; render(); }
+  else if(a==='ebmore'){ V.eb.n+=5; render(); }
+  else if(a==='ebprompt') copyText(ebPrompt(),'Prompt analisis disalin. Jalankan di Claude.');
   else if(a==='ulang1'){ const it=findQ(v); if(it) startUlang([it]); }
   else if(a==='varian'){ const it=findQ(v); if(it) copyText(promptVarian(it.q,it.set),'Prompt varian disalin. Tempel hasilnya di Set soal.'); }
-  else if(a==='paham'){ S.lunas[v]=Date.now(); save(); render(); }
   else if(a==='tab'){ Z.tab=v; Z.res=null; render(); }
   else if(a==='tgl'){ Z.tgl=v; render(); }
   else if(a==='copy'){ copyText($('#promptbox').value,'Prompt disalin. Jalankan di Claude.'); }
@@ -2466,7 +2625,8 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-action]')
 document.addEventListener('input',e=>{ const t=e.target;
   if(t.id==='isian'&&V.run){ V.run.A[V.run.cur].is=t.value; const p=$('#pbtn'); if(p&&V.run.cek==='langsung') p.disabled=isNaN(parseNum(t.value)); persist(); }
   else if(t.id==='klans'&&V.kl){ V.kl.ans=t.value; const p=$('#pbtn'); if(p) p.disabled=isNaN(parseNum(t.value)); }
-  else if(t.id==='paste') V.soal.paste=t.value; });
+  else if(t.id==='paste') V.soal.paste=t.value;
+  else if(t.dataset&&t.dataset.eb){ V.eb.txt[t.dataset.eb]=t.value; } });
 document.addEventListener('keydown',e=>{ if(V.kl&&!V.kl.fb&&route()==='main'&&document.querySelector('.kpad')&&e.target.tagName!=='INPUT'){ if(/^[0-9]$/.test(e.key)){ kpPress(e.key); return; } if(e.key==='Backspace'){ kpPress('⌫'); return; } if(e.key==='-'){ kpPress('±'); return; } }
   if(e.key!=='Enter'||e.target.tagName==='TEXTAREA') return; const p=$('#pbtn'); if(p&&!p.disabled&&route()==='main'){ e.preventDefault(); p.click(); } });
 window.addEventListener('hashchange',()=>{ if(route()!=='main'){ if(V.run){ tick(V.run); persist(); V.run=null; } V.kl=null; V.hasil=null; } render(); });
@@ -2478,7 +2638,7 @@ setInterval(()=>{ const R=V.run, K=V.kl;
   if(K&&!K.done&&!K.fb&&!K.intro&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.t0)/1000; if(K.limit){ if(s>=K.limit){ kilatCheck(null,true); return; } const rem=Math.ceil(K.limit-s); if(rem<=5&&K._tk!==K.i+':'+rem){ K._tk=K.i+':'+rem; SFX.play('detik',rem); } if(el){ el.textContent=Math.ceil(K.limit-s)+' dtk'; el.classList.toggle('late',K.limit-s<5); } } else if(el){ el.textContent=Math.round(s)+' dtk'; el.classList.toggle('late',s>20); } }
 },500);
 if(typeof module!=='undefined'&&module.exports) module.exports={get V(){return V;},PQT,BV,pqGame,gameBentuk,GVAR,MV,CKV,viewKilat,beginGame,kilatCheck,act,startGame,kilatMix,GAMES,pqItem,ckItem,kisiItem,barisanItem,estimItem,mesinItem,balikItem,tahapInfo,poolUnits,oldUnits,openUnits,fokusUnits,kilatGens,tahap,S,buildResep,resepHarian,resepSim,promptSet,promptVarian,parseSet,addSet,tasksOn,kilatSet,PLAN,findQ,salahList,viewBeranda,viewSoal,viewSalah,viewProgres};
-else { applyTema(); $('#scene').innerHTML=sceneHTML(); save(); render(); }
+else { applyTema(); $('#scene').innerHTML=sceneHTML(); ebInit(); save(); render(); }
 </script>
 <!-- Maskot Bloki: teleport ke app lain (pintasan sama seperti sebelumnya) -->
 <style>
