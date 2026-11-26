@@ -136,6 +136,8 @@ details summary::-webkit-details-marker{display:none}
 .wkline{margin:-2px 2px 12px}.wkline a{color:inherit;font-weight:700}
 .card.note.wk.late{border-color:var(--red)}
 .msg.bad{background:var(--bad-s);color:#a3302c;border-color:var(--red)}.msg.ok{background:var(--ok-s);color:#1f7a47;border-color:var(--green)}
+.diagpre{margin:0;white-space:pre-wrap;word-break:break-word;font:11.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);max-height:60vh;overflow:auto}
+.msg.simpan{margin:0 0 12px}
 .snip{font-size:13.5px;margin:8px 0 0}
 .srow{display:flex;gap:12px;align-items:center;padding:9px 0;border-top:2px dashed var(--edge)}
 .card>.srow:first-of-type{border-top:0}
@@ -1199,13 +1201,61 @@ const KEY='latihan-kuantitatif.v2', SKEY=KEY+'.sesi', DAY=86400000;
 const HUB='https://faiqdk07-tech.github.io/progres-harian/#hari-ini';
 const UMAP={}; UNITS.concat(OLD).forEach(u=>UMAP[u.id]=u);
 function fresh(){ return {v:2,sets:[],hist:[],kil:[],game:{},gbest:{},resep:{},lunas:{},eb:{},ebv:1,cek:'langsung',semua:false}; }
-let S; try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); S=Object.assign(fresh(),o||{}); if(o&&!o.ebv) S.ebv=0; }catch(_){ S=fresh(); }
+let S, LOAD_ERR=''; try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); S=Object.assign(fresh(),o||{}); if(o&&!o.ebv) S.ebv=0; }catch(e){ S=fresh(); LOAD_ERR=(e&&e.message)||'tidak terbaca'; }
 Object.keys(S.resep).forEach(k=>{ if(S.resep[k].v!==3) delete S.resep[k]; });
+/* ---------- Penyimpanan aman (R0a, 26 Nov 2026) ----------
+   Dulu save() menulis seluruh isi memori tab ke penyimpanan. Tab/app yang dibuka lebih awal (isi memorinya lama)
+   bisa menimpa jawaban yang baru disimpan tab lain. Sekarang save() lebih dulu membaca isi penyimpanan dan
+   MENGGABUNGKANNYA: catatan jawaban (hist, kil, game) tidak pernah hilang karena digabung, bukan ditimpa.
+   Penghapusan yang disengaja (hapus set, hapus soal Error Book, hapus progres hari ini, hapus semua data)
+   dicatat di S.tomb supaya tidak "hidup lagi" saat digabung. S.saved = waktu penyimpanan terakhir. */
+let SAVE={ok:null,t:0,msg:''}, SAVE_WARN=0;
+function emptyTomb(){ return {sets:{},eb:{},hari:{},reset:0,clear:0}; }
+function tombOf(t){ t=t||{}; return {sets:t.sets||{},eb:t.eb||{},hari:t.hari||{},reset:t.reset||0,clear:t.clear||0}; }
+function mergeTomb(a,b){ const A=tombOf(a), B=tombOf(b), clear=Math.max(A.clear,B.clear);
+  const mx=(x,y)=>{ const r={}; [x,y].forEach(m=>{ for(const k in m) if(m[k]>clear) r[k]=Math.max(r[k]||0,m[k]); }); return r; };
+  const reset=Math.max(A.reset,B.reset); return {sets:mx(A.sets,B.sets),eb:mx(A.eb,B.eb),hari:mx(A.hari,B.hari),reset:reset>clear?reset:0,clear}; }
+function ebAct(e){ let m=Math.max(e.mt||0,e.t||0,e.dt||0,e.lulus||0); (e.log||[]).forEach(x=>{ if(x.ts>m) m=x.ts; }); return m; }
+/* Gabungkan dua salinan data. A menang untuk pengaturan dan isian biasa; catatan jawaban dari keduanya disatukan. */
+function mergeS(A,B){
+  if(!B||typeof B!=='object') return A; if(!A||typeof A!=='object') return B;
+  const T=mergeTomb(A.tomb,B.tomb), aOld=(A.saved||0)<T.reset, bOld=(B.saved||0)<T.reset;
+  if(bOld&&!aOld) return Object.assign(A,{tomb:T});   /* B dibuat sebelum "hapus semua data": abaikan */
+  if(aOld&&!bOld) return Object.assign(B,{tomb:T});
+  const R=Object.assign(fresh(),B,A); R.tomb=T;
+  const keep=x=>{ const d=T.hari[dk(x.ts)]; return !(d&&x.ts<d); };
+  const uni=(a,b,key)=>{ const m=new Map(); (b||[]).forEach(x=>{ if(x&&x.ts) m.set(key(x),x); }); (a||[]).forEach(x=>{ if(x&&x.ts) m.set(key(x),x); }); return [...m.values()].filter(keep).sort((x,y)=>x.ts-y.ts); };
+  R.hist=uni(A.hist,B.hist,h=>h.qid+'|'+h.ts);
+  R.kil=uni(A.kil,B.kil,h=>(h.k||'')+'|'+h.ts+'|'+h.ms);
+  R.game={}; new Set(Object.keys(A.game||{}).concat(Object.keys(B.game||{}))).forEach(g=>{ R.game[g]=uni((A.game||{})[g],(B.game||{})[g],h=>h.ts+'|'+h.ms+'|'+h.ok); });
+  R.gbest=Object.assign({},B.gbest||{},A.gbest||{});
+  Object.keys(B.gbest||{}).forEach(g=>{ const a=(A.gbest||{})[g], b=B.gbest[g]; if(a&&b) R.gbest[g]={skor:Math.max(a.skor||0,b.skor||0),bintang:Math.max(a.bintang||0,b.bintang||0),main:Math.max(a.main||0,b.main||0)}; });
+  const sm=new Map(); (B.sets||[]).forEach(s=>{ if(s&&s.id) sm.set(s.id,s); }); (A.sets||[]).forEach(s=>{ if(s&&s.id) sm.set(s.id,s); });
+  R.sets=[...sm.values()].filter(s=>!(T.sets[s.id]&&(s.ts||0)<T.sets[s.id])).sort((x,y)=>(x.ts||0)-(y.ts||0));
+  R.eb={}; new Set(Object.keys(A.eb||{}).concat(Object.keys(B.eb||{}))).forEach(q=>{ const a=(A.eb||{})[q], b=(B.eb||{})[q], e=!a?b:!b?a:(ebAct(b)>ebAct(a)?b:a);
+    if(!e||(T.eb[q]&&ebAct(e)<T.eb[q])) return; e.log=(e.log||[]).filter(keep); const d=T.hari[dk(e.t)]; if(d&&e.t<d&&!e.log.length) return; R.eb[q]=e; });
+  return R; }
+function diskS(){ try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); return o&&typeof o==='object'?o:null; }catch(e){ return null; } }
+function gagalSimpan(msg){ SAVE={ok:false,t:Date.now(),msg};
+  if(Date.now()-SAVE_WARN>15000){ SAVE_WARN=Date.now(); try{ toast('Gagal menyimpan ke perangkat ini. Jawaban terbaru belum tercatat. Buka Pengaturan → Diagnosis data.'); }catch(_){} } return false; }
 function save(){
+  let raw=null; try{ raw=localStorage.getItem(KEY); }catch(e){}
+  if(raw!=null){ let d=null; try{ d=JSON.parse(raw); }catch(e){}
+    /* data tersimpan tidak bisa dibaca: jangan ditimpa, supaya masih bisa diselamatkan */
+    if(!d||typeof d!=='object') return gagalSimpan('data tersimpan tidak terbaca'+(LOAD_ERR?' ('+LOAD_ERR+')':'')+', jadi tidak ditimpa');
+    S=mergeS(S,d); }
   if(S.hist.length>6000) S.hist=S.hist.slice(-6000);
   if(S.kil.length>4000) S.kil=S.kil.slice(-4000); Object.keys(S.game||{}).forEach(k=>{ if(S.game[k].length>600) S.game[k]=S.game[k].slice(-600); });
-  try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem('lk.ringkas',JSON.stringify(ringkas())); }catch(e){}
+  S.saved=Date.now();
+  const tulis=JSON.stringify(S);
+  try{ localStorage.setItem(KEY,tulis); if(localStorage.getItem(KEY)!==tulis) return gagalSimpan('isi yang terbaca kembali tidak sama'), false; SAVE={ok:true,t:S.saved,msg:''}; }
+  catch(e){ gagalSimpan(((e&&e.name)||'Error')+(e&&e.message?': '+e.message:'')); }
+  try{ localStorage.setItem('lk.ringkas',JSON.stringify(ringkas())); }catch(e){}
+  return SAVE.ok;
 }
+/* Tab lain (atau app ini sendiri yang dibuka lagi) menyimpan data baru: ambil dan gabungkan sebelum kamu bertindak. */
+function syncDisk(){ const d=diskS(); if(!d||(d.saved||0)===(S.saved||0)) return false; S=mergeS(d,S); if(!V.run&&!V.kl&&typeof render==='function') render(); return true; }
+function lokasi(){ let st=false; try{ st=window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches; }catch(e){} return st?'Aplikasi Layar Utama (penyimpanannya terpisah dari browser)':'Browser (Safari/Chrome)'; }
 function ringkas(){ const t=tasksOn(new Date()), k=ymd(new Date()), h=S.hist.filter(x=>dk(x.ts)===k), q=S.kil.filter(x=>dk(x.ts)===k);
   return {app:'latihan-kuantitatif',tanggal:k,tugas_selesai:t.filter(x=>x.done).length,tugas_total:t.length,soal:h.length+q.length,benar:h.filter(x=>x.ok).length+q.filter(x=>x.ok).length,beruntun:streak(),diperbarui:Date.now()}; }
 
@@ -1214,7 +1264,8 @@ function cfgK(){ return {terang:S.tema!=='gelap', gerak:S.gerak==null?OSGERAK():
 function applyTema(){ try{ const c=cfgK(), h=document.documentElement; h.setAttribute('data-theme',c.terang?'light':'dark'); h.style.colorScheme=c.terang?'light':'dark';
   if(S.gerak==null) h.removeAttribute('data-anim'); else h.setAttribute('data-anim',S.gerak?'on':'off');
   const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',c.terang?'#dcecff':'#1c2332'); }catch(_){} }
-function hapusHariIni(){ const k=ymd(new Date());
+function tandaHapus(jenis,id){ S.tomb=tombOf(S.tomb); if(jenis==='reset') S.tomb.reset=Date.now(); else S.tomb[jenis][id]=Date.now(); }
+function hapusHariIni(){ const k=ymd(new Date()); tandaHapus('hari',k);
   S.hist=S.hist.filter(x=>dk(x.ts)!==k); S.kil=S.kil.filter(x=>dk(x.ts)!==k);
   Object.keys(S.game||{}).forEach(g=>{ S.game[g]=S.game[g].filter(x=>dk(x.ts)!==k); });
   Object.keys(S.lunas||{}).forEach(q=>{ if(dk(S.lunas[q])===k) delete S.lunas[q]; });
@@ -1514,9 +1565,9 @@ function ebJw(q,a){ if(q.tipe==='isian') return a.is?String(a.is):'kosong'; if(q
   if(a.c==null) return 'kosong'; const L=q.tipe==='pq'?pqList(q):q.tipe==='cukup'?ckList(q):q.opsi; return 'ABCDE'[a.c]+'. '+(L&&L[a.c]!=null?L[a.c]:''); }
 /* soal salah di set biasa/simulasi → masuk (atau dibuka lagi) */
 function ebAdd(q,a,ms){ if(!S.eb) S.eb={}; const e=S.eb[q.qid], now=Date.now();
-  if(e){ e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); e.ms=ms; if(e.lulus){ e.lulus=0; e.box=0; e.perlu=true; e.ulang=1; } e.due=ebPlus(1); return e; }
+  if(e){ e.mt=now; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); e.ms=ms; if(e.lulus){ e.lulus=0; e.box=0; e.perlu=true; e.ulang=1; } e.due=ebPlus(1); return e; }
   return S.eb[q.qid]={qid:q.qid,sub:q.sub,kem:q.kem||'',unit:q.unit||'',t:now,jw:ebJw(q,a),ms:ms||0,kosong:isAns(q,a)?0:1,sebab:'',aturan:'',box:0,due:ebPlus(1),log:[],lulus:0,perlu:true,salah:1}; }
-function ebReview(q,ok,a){ const e=S.eb&&S.eb[q.qid]; if(!e) return null; const now=Date.now(), b0=e.box; e.log.push({ts:now,ok:ok?1:0,box:b0});
+function ebReview(q,ok,a){ const e=S.eb&&S.eb[q.qid]; if(!e) return null; const now=Date.now(), b0=e.box; e.mt=now; e.log.push({ts:now,ok:ok?1:0,box:b0});
   if(ok){ e.box=b0+1; if(e.box>=EB_INT.length){ e.lulus=now; e.due=''; } else e.due=ebPlus(EB_INT[e.box]); }
   else { e.box=0; e.due=ebPlus(1); e.perlu=true; e.ulang=1; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); }
   return {b0,box:e.box,lulus:!!e.lulus,ok}; }
@@ -1528,7 +1579,7 @@ function ebDiag(qid){ const e=S.eb[qid], st=V.eb, sb=st.sel[qid]||e.sebab, at=(s
   if(!sb){ st.err[qid]='Pilih dulu penyebab utamanya.'; render(); return; }
   const w=ebKabur(at); if(at.length<12){ st.err[qid]=w; render(); return; }
   if(w&&st.warn[qid]!==at){ st.err[qid]=w+' Tekan Simpan lagi bila tetap ingin memakai aturan ini.'; st.warn[qid]=at; render(); return; }
-  const baru=e.perlu; e.sebab=sb; e.aturan=at; e.perlu=false; if(baru){ e.dt=Date.now(); if(!e.due||e.due<=ebToday()) e.due=ebPlus(1); } delete e.ulang;
+  const baru=e.perlu; e.mt=Date.now(); e.sebab=sb; e.aturan=at; e.perlu=false; if(baru){ e.dt=Date.now(); if(!e.due||e.due<=ebToday()) e.due=ebPlus(1); } delete e.ulang;
   delete st.sel[qid]; delete st.txt[qid]; delete st.err[qid]; delete st.warn[qid]; if(st.edit===qid) st.edit=null; save(); render(); toast('Tersimpan. Diulang '+ebKapan(e.due)+'.'); }
 function ebKapan(d){ const k=ebToday(); if(!d) return '-'; if(d<=k) return 'hari ini'; const n=Math.round((fromYmd(d)-fromYmd(k))/DAY); return n===1?'besok':n+' hari lagi'; }
 function ebDots(e){ return '<span class="ebdots" aria-label="Kotak '+Math.min(e.box,4)+' dari 4">'+EB_INT.map((_,i)=>'<i class="'+(i<e.box||e.lulus?'on':'')+'"></i>').join('')+'</span>'; }
@@ -1639,13 +1690,22 @@ function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done)
   S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
   if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid];
   if(R.mode==='eb'){ const r=ebReview(q,a.ok,a); if(r) R.eb[q.qid]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
-function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; SFX.play('selesai'); save(); clearSesi(); V.hasil=R; V.run=null; render(); window.scrollTo(0,0); }
+function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; SFX.play('selesai'); const ok=save(); R.simpan=cekTersimpan(R);
+  /* sesi baru dibuang bila jawabannya benar-benar sudah ada di penyimpanan */
+  if(ok&&R.simpan.ok) clearSesi(); V.hasil=R; V.run=null; render(); window.scrollTo(0,0); }
+/* Baca ulang penyimpanan: apakah setiap jawaban di putaran ini tercatat? */
+function cekTersimpan(R){ try{ const d=diskS(), H=(d&&d.hist)||[], s=R.started||0;
+  const ada=R.items.filter((it,i)=>H.some(h=>h.qid===it.q.qid&&(R.A[i].prev||h.ts>=s))).length;
+  return {n:ada,tot:R.items.length,ok:ada===R.items.length}; }catch(e){ return {n:0,tot:R.items.length,ok:false}; } }
 function timeLeft(R){ return R.limit?R.started+R.limit-Date.now():null; }
-function persist(){ try{ const R=V.run; if(!R||R.fin){ localStorage.removeItem(SKEY); return; }
-  localStorage.setItem(SKEY,JSON.stringify({day:ymd(new Date()),sid:R.sid,label:R.label,mode:R.mode,qids:R.items.map(it=>it.q.qid),A:R.A,T:R.T,cur:R.cur,cek:R.cek,limit:R.limit,started:R.started,rep:R.rep,eb:R.eb,ebNew:R.ebNew})); }catch(e){} }
+function persist(){ try{ const R=V.run; if(!R||R.fin){ if(!R||(R.simpan&&R.simpan.ok)) localStorage.removeItem(SKEY); return; }
+  R.day=R.day||ymd(new Date()); localStorage.setItem(SKEY,JSON.stringify({day:R.day,sid:R.sid,label:R.label,mode:R.mode,qids:R.items.map(it=>it.q.qid),A:R.A,T:R.T,cur:R.cur,cek:R.cek,limit:R.limit,started:R.started,rep:R.rep,eb:R.eb,ebNew:R.ebNew})); }catch(e){ gagalSimpan('sesi belum selesai tidak tersimpan ('+((e&&e.name)||'Error')+')'); } }
 function clearSesi(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
-function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null'); if(!o||o.day!==ymd(new Date())) return null; const items=o.qids.map(findQ); if(items.some(x=>!x)) return null;
-  if(o.limit&&o.started+o.limit<Date.now()) return null; return Object.assign(o,{items,t0:Date.now()}); }catch(e){ return null; } }
+/* Sesi yang belum selesai TIDAK hangus lewat tengah malam (R0a): jawaban "periksa di akhir" baru tercatat saat
+   Selesai, jadi sesi disimpan sampai kamu melanjutkan atau menyelesaikannya. Simulasi yang waktunya sudah habis
+   langsung diselesaikan saat dilanjutkan, sehingga jawaban yang sudah diisi tetap tercatat. */
+function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null'); if(!o||!Array.isArray(o.qids)) return null; const items=o.qids.map(findQ); if(items.some(x=>!x)) return null;
+  return Object.assign(o,{items,t0:Date.now(),habis:!!(o.limit&&o.started+o.limit<Date.now())}); }catch(e){ return null; } }
 
 /* ---------- Hitung cepat ---------- */
 function kilatGens(){ const pool=eqUnits(); const ok=g=>pool.has(g.unit)||(V13[g.unit]?V13[g.unit][0]:[]).some(p=>pool.has(p)); let gs=GENS.filter(ok); if(!gs.length) gs=GENS.filter(g=>g.unit==='MD-02'); return gs; }
@@ -2378,7 +2438,8 @@ function menaraCard(){ const q=menaraSeq(ymd(new Date())), b=q.filter(x=>x.ok).l
 function viewBeranda(){
   const now=new Date(), k=ymd(now), t=tasksOn(now), fokus=fokusUnits(now), r=resepHarian(k), ss=loadSesi();
   let h='';
-  if(ss&&!V.run) h+='<div class="card note"><div class="grow"><b>'+esc(ss.label)+'</b><span class="sm">Belum selesai, '+ss.A.filter(a=>a.done).length+' dari '+ss.qids.length+' soal</span></div><button class="btn pri" data-action="resume">Lanjutkan</button></div>';
+  if(ss&&!V.run){ const nj=ss.items.filter((it,i)=>ss.A[i]&&(ss.A[i].done||isAns(it.q,ss.A[i]))).length;
+    h+='<div class="card note"><div class="grow"><b>'+esc(ss.label)+'</b><span class="sm">Belum selesai'+(ss.day&&ss.day!==k?' sejak '+esc(tgl(ss.day)):'')+', '+nj+' dari '+ss.qids.length+' soal sudah dijawab'+(ss.habis?'. Waktu simulasi habis; ketuk untuk menyimpan hasilnya.':'. Jawabanmu aman sampai diselesaikan.')+'</span></div><button class="btn pri" data-action="resume">'+(ss.habis?'Simpan hasil':'Lanjutkan')+'</button></div>'; }
   h+=menaraCard()+wkBanner('beranda');
   h+='<h2>Tugas hari ini <span class="cnt">'+t.filter(x=>x.done).length+'/'+t.length+'</span></h2><div class="card list">';
   t.forEach((x,i)=>{ h+='<div class="row'+(x.done?' done':'')+'"><span class="num">'+(x.done?'✓':i+1)+'</span><div class="grow"><b>'+esc(x.t)+'</b>'+bar(pct(x.cur,x.n),x.done?'ok':'')+'</div><span class="prg">'+x.cur+'/'+x.n+'</span><button class="btn'+(x.done?'':' pri')+'" data-action="'+x.act+'"'+(x.v?' data-v="'+esc(x.v)+'"':'')+(x.off?' disabled':'')+'>'+(x.done&&x.id!=='salah'?'Lagi':x.btn)+'</button></div>'; });
@@ -2444,8 +2505,52 @@ function viewPengaturan(){ let h='<button type="button" class="chip" data-action
   sw(SFX.on(),'suara','Efek suara')+sw(SFX.musikOn(),'musik','Musik latar')+sw(S.cek==='langsung','cek','Periksa langsung tiap soal')+sw(!!S.semua,'semua','Buka semua materi')+sw(S.ulas!==false,'ulas','Pakai materi jadwal lama')+
   '<div class="row"><b class="grow">Cadangan data</b><button class="btn" data-action="ekspor">Salin</button></div>'+
   '<div class="row"><b class="grow">'+(V.prog.reset?'Yakin hapus semua data?':'Hapus semua data')+'</b><button class="btn danger" data-action="reset">'+(V.prog.reset?'Ya, hapus':'Hapus')+'</button></div></div>';
+  /* R0a: lokasi penyimpanan, diagnosis (hanya membaca), dan pulihkan dari cadangan (menggabungkan) */
+  const P=V.pulih||{};
+  h+='<h2>Data</h2><div class="card list">'+
+    '<div class="row"><div class="grow"><b>Tersimpan di</b><span class="sm">'+esc(lokasi())+'. Data di Layar Utama dan di browser tidak saling terlihat.</span></div></div>'+
+    '<div class="row"><div class="grow"><b>Penyimpanan terakhir</b><span class="sm">'+(SAVE.ok===false?'GAGAL: '+esc(SAVE.msg):SAVE.t?'berhasil, '+esc(new Date(SAVE.t).toLocaleTimeString('id-ID')):'belum ada sejak halaman dibuka')+'</span></div></div>'+
+    '<div class="row"><div class="grow"><b>Diagnosis data</b><span class="sm">Hanya membaca, tidak mengubah apa pun.</span></div><button class="btn" data-action="diag">'+(V.diag?'Tutup':'Tampilkan')+'</button></div>'+
+    '<div class="row"><div class="grow"><b>Pulihkan dari cadangan</b><span class="sm">Menggabungkan, tidak menghapus apa pun.</span></div><button class="btn" data-action="pulih">'+(P.buka?'Tutup':'Buka')+'</button></div></div>';
+  if(V.diag) h+='<h2>Diagnosis data</h2><div class="card"><pre class="diagpre">'+esc(diagText())+'</pre><div class="btns"><button class="btn pri grow" data-action="diagsalin">Salin hasil diagnosis</button></div></div>';
+  if(P.buka){ h+='<h2>Pulihkan dari cadangan</h2><div class="card"><p class="sm">Tempel teks "Cadangan data" dari tempat lain (misalnya dari app Layar Utama atau dari Catatan). Jawaban, set, dan Error Book di cadangan itu digabung dengan data di sini. Tidak ada yang dihapus, dan jawaban yang sama tidak dicatat dua kali.</p>'+
+      '<textarea class="ta" id="pulihtxt" rows="5" placeholder=\'{"v":2,"sets":[…],"hist":[…], …}\'>'+esc(P.txt||'')+'</textarea><div class="btns"><button class="btn grow" data-action="pulihcek">Periksa cadangan</button></div>'+
+      (P.err?'<div class="msg bad">'+esc(P.err)+'</div>':'')+
+      (P.res?'<div class="msg"><b>Yang akan ditambahkan:</b> '+esc(P.res.ringkas)+'</div><div class="btns"><button class="btn pri grow" data-action="pulihya"'+(P.res.tambah?'':' disabled')+'>'+(P.res.tambah?'Ya, gabungkan':'Tidak ada data baru')+'</button></div>':'')+
+      (P.ok?'<div class="msg ok">'+esc(P.ok)+'</div>':'')+'</div>'; }
   return h;
 }
+/* ---------- Diagnosis data (hanya membaca) ---------- */
+const APP_KEYS=[[KEY,'data utama'],[SKEY,'sesi belum selesai'],['lk.ringkas','ringkasan untuk Progres Harian'],['paketMingguan:latihan-kuantitatif','status paket mini game'],['ph.jadwal','jadwal dari Progres Harian (hanya dibaca)'],['lk.suara','efek suara'],['lk.musik','musik'],['hubfab.pos','posisi Bloki']];
+function hitung(o){ if(!o) return '(kosong)'; const n=x=>Array.isArray(x)?x.length:x&&typeof x==='object'?Object.keys(x).length:0, g=Object.values(o.game||{}).reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0);
+  return 'sets '+n(o.sets)+' · hist '+n(o.hist)+' · kil '+n(o.kil)+' · game '+g+' · gbest '+n(o.gbest)+' · eb '+n(o.eb)+' · resep '+n(o.resep)+' · wk '+n(o.wk)+' · lunas '+n(o.lunas); }
+function perTanggal(L){ const m={}; (L||[]).forEach(x=>{ if(x&&x.ts){ const k=dk(x.ts); m[k]=(m[k]||0)+1; } }); const ks=Object.keys(m).sort(); return ks.length?ks.slice(-10).map(k=>k.slice(5)+': '+m[k]).join(', '):'-'; }
+function diagText(){ const L=[], raw=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, kb=s=>s==null?'tidak ada':'±'+(Math.round(s.length/102.4)/10)+' KB', jam=t=>t?new Date(t).toLocaleString('id-ID'):'-';
+  let d=null; try{ d=JSON.parse(raw(KEY)||'null'); }catch(e){ L.push('!! Data utama tidak bisa dibaca: '+e.message); }
+  L.push('DIAGNOSIS DATA · Latihan Kuantitatif · versi R0a','Waktu: '+jam(Date.now()),'Dibuka sebagai: '+lokasi(),'Alamat: '+location.href.split('#')[0],
+    (LOAD_ERR?'!! Saat dibuka, data utama TIDAK TERBACA: '+LOAD_ERR+'. App tidak menimpanya.\n':'')+'Penyimpanan terakhir tab ini: '+(SAVE.ok===false?'GAGAL ('+SAVE.msg+')':SAVE.t?'berhasil '+jam(SAVE.t):'belum ada'),'Perangkat: '+(navigator.userAgent||'-'),'');
+  L.push('['+KEY+'] '+kb(raw(KEY)),'  di penyimpanan : '+hitung(d),'  di memori tab  : '+hitung(S),
+    '  disimpan terakhir: '+jam(d&&d.saved),'  hist per tanggal: '+perTanggal(d&&d.hist),'  kil per tanggal : '+perTanggal(d&&d.kil),
+    '  tanda hapus: '+(d&&d.tomb?'set '+Object.keys(d.tomb.sets||{}).length+', eb '+Object.keys(d.tomb.eb||{}).length+', hari '+Object.keys(d.tomb.hari||{}).join('/')+(d.tomb.reset?', hapus semua '+jam(d.tomb.reset):''):'-'));
+  let ss=null; try{ ss=JSON.parse(raw(SKEY)||'null'); }catch(e){}
+  L.push('['+SKEY+'] '+(ss?ss.label+' · mulai '+(ss.day||'-')+' · terjawab '+(ss.A||[]).filter(a=>a&&(a.done||a.c!=null||a.is||(a.bs||[]).some(x=>x!==null))).length+'/'+(ss.qids||[]).length:'tidak ada'));
+  APP_KEYS.slice(2).forEach(([k,ket])=>{ const v=raw(k); L.push('['+k+'] '+ket+': '+(v==null?'tidak ada':v.length>220?kb(v):v)); });
+  let tot=0, lain=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i), v=localStorage.getItem(k)||''; tot+=k.length+v.length; if(!APP_KEYS.some(x=>x[0]===k)) lain.push(k+' ('+kb(v)+')'); } }catch(e){ lain.push('(tidak bisa didaftar: '+e.message+')'); }
+  L.push('','Key lain di domain ini (app lain): '+lain.length+(lain.length?': '+lain.slice(0,40).join(', '):''),'Total pemakaian penyimpanan domain: ±'+Math.round(tot/1024)+' KB');
+  return L.join('\n'); }
+/* ---------- Pulihkan dari cadangan (menggabungkan, tidak menghapus) ---------- */
+function pulihGabung(o){ const A=Object.assign({},S,{tomb:emptyTomb(),saved:1}), B=Object.assign({},JSON.parse(JSON.stringify(o)),{tomb:emptyTomb(),saved:1});
+  const R=mergeS(A,B); R.tomb=Object.assign(emptyTomb(),{clear:Date.now()}); return R; }
+function pulihCek(){ const P=V.pulih; P.err=''; P.res=null; P.ok=''; let o=null; const t=String(P.txt||''), a=t.indexOf('{'), b=t.lastIndexOf('}');
+  try{ o=JSON.parse(a>=0&&b>a?t.slice(a,b+1):t); }catch(e){ P.err='Teks belum berupa cadangan yang utuh. Salin seluruh teks "Cadangan data", dari { sampai }.'; return; }
+  if(!o||typeof o!=='object'||!(Array.isArray(o.sets)||Array.isArray(o.hist))){ P.err='Ini bukan cadangan Latihan Kuantitatif (tidak ada "sets" atau "hist").'; return; }
+  const R=pulihGabung(o), n=x=>Array.isArray(x)?x.length:Object.keys(x||{}).length, g=x=>Object.values(x||{}).reduce((s,a)=>s+a.length,0);
+  const d={hist:n(R.hist)-n(S.hist),kil:n(R.kil)-n(S.kil),game:g(R.game)-g(S.game),sets:n(R.sets)-n(S.sets),eb:n(R.eb)-n(S.eb)};
+  P.res={R,o,tambah:d.hist+d.kil+d.game+d.sets+d.eb>0,ringkas:d.hist+' jawaban set, '+d.kil+' jawaban hitung cepat, '+d.game+' jawaban mini game, '+d.sets+' set, '+d.eb+' soal Error Book.'}; }
+function pulihYa(){ const P=V.pulih; if(!P||!P.res||!P.res.tambah) return; const sebelum=S.hist.length; S=pulihGabung(P.res.o); S.saved=Date.now();
+  try{ localStorage.setItem(KEY,JSON.stringify(S)); SAVE={ok:true,t:S.saved,msg:''}; try{ localStorage.setItem('lk.ringkas',JSON.stringify(ringkas())); }catch(e){} }
+  catch(e){ SAVE={ok:false,t:Date.now(),msg:(e&&e.name)||'Error'}; P.err='Gagal menyimpan hasil gabungan: '+SAVE.msg+'. Data lama tidak berubah.'; P.res=null; return; }
+  const d=diskS(); P.ok='Selesai. Jawaban set sekarang '+((d&&d.hist)||[]).length+' (sebelumnya '+sebelum+'). Tahap dan Error Book memakai data gabungan ini.'; P.res=null; P.txt=''; }
 function optBtn(i,label,R,k,rv){ const q=R.items[k].q, a=R.A[k]; let cls='opt'; if(a.c===i) cls+=' sel'; if(rv){ if(i===q.kunci) cls+=' good'; else if(a.c===i) cls+=' wrong'; }
   const why=rv&&q.alasan&&q.alasan[i]&&i!==q.kunci&&!/^kunci\.?$/i.test(q.alasan[i])?'<span class="why">'+mx(q.alasan[i])+'</span>':'';
   return '<button class="'+cls+'" data-action="pick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+'ABCDE'[i]+'</span><span class="grow">'+txt(label)+why+'</span></button>'; }
@@ -2492,6 +2597,9 @@ function viewHasil(){
   const R=V.hasil, n=R.items.length, ok=R.A.filter(a=>a.ok).length, tot=R.T.reduce((s,x)=>s+x,0), tg=R.items.reduce((s,it)=>s+SUB[it.q.sub].dtk*1000,0);
   let h='<header class="top run"><a class="btn sm" href="#beranda">‹ Beranda</a><span class="grow mid"><span class="lbl">'+esc(R.label)+'</span></span><span class="cd" style="visibility:hidden">0</span></header>';
   h+='<div class="card score"><div><b class="big">'+ok+'/'+n+'</b><span class="sm">benar ('+pct(ok,n)+'%)</span></div><div><b class="big">'+mmss(tot)+'</b><span class="sm">waktu · target '+mmss(R.limit||tg)+'</span></div></div>';
+  const sv=R.simpan;
+  if(sv) h+=sv.ok?'<div class="msg ok simpan"><b>Tersimpan ✓</b> '+sv.n+' dari '+sv.tot+' jawaban tercatat di perangkat ini.</div>'
+    :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button></div>';
   const js=['lama','geser','baru','varian'].map(j=>({j,l:R.items.map((it,i)=>({it,a:R.A[i]})).filter(x=>x.it.q.jenis===j)})).filter(x=>x.l.length);
   if(js.length>1) h+='<div class="card">'+js.map(x=>'<div class="srow"><div class="grow">'+jbadge(x.j)+bar(pct(x.l.filter(y=>y.a.ok).length,x.l.length))+'</div><div class="sv"><b>'+x.l.filter(y=>y.a.ok).length+'/'+x.l.length+'</b></div></div>').join('')+'</div>';
   h+='<div class="fhead"><h2>Pembahasan</h2><button class="btn sm" data-action="foldall">Buka/tutup semua</button></div>'+R.items.map((it,i)=>{ const q=it.q, a=R.A[i], slow=R.T[i]>SUB[q.sub].dtk*1500;
@@ -2559,7 +2667,7 @@ function act(a,v){
   else if(a==='wkdel'){ if(S.wk){ delete S.wk[v]; save(); WK_ON=''; V.wkres=null; render(); } }
   else if(a==='gosoal'){ Z.tab='harian'; Z.tgl=ymd(new Date()); Z.res=null; go('soal'); }
   else if(a==='gosim'){ Z.tab=v; Z.res=null; go('soal'); }
-  else if(a==='mulai'){ const st=S.sets.find(x=>x.id===v); if(st) startSet(st); }
+  else if(a==='mulai'){ const ss=loadSesi(); if(ss&&ss.sid===v){ V.run=ss; V.hasil=null; go('main'); return; } const st=S.sets.find(x=>x.id===v); if(st) startSet(st); }
   else if(a==='resume'){ const o=loadSesi(); if(o){ V.run=o; V.hasil=null; go('main'); } }
   else if(a==='ulang'||a==='ebulang') ebStartUlang();
   else if(a==='goeb') go('salah');
@@ -2567,7 +2675,7 @@ function act(a,v){
   else if(a==='ebsimpan') ebDiag(v);
   else if(a==='ebedit'){ V.eb.edit=v; render(); const el=document.getElementById('eb-'+v); if(el) el.scrollIntoView({block:'start'}); }
   else if(a==='ebbatal'){ V.eb.edit=null; delete V.eb.sel[v]; delete V.eb.txt[v]; delete V.eb.err[v]; render(); }
-  else if(a==='ebhapus'){ if(V.eb.del===v){ delete S.eb[v]; V.eb.del=null; save(); render(); toast('Dihapus dari Error Book.'); } else { V.eb.del=v; toast('Tekan sekali lagi untuk menghapus.'); } }
+  else if(a==='ebhapus'){ if(V.eb.del===v){ delete S.eb[v]; tandaHapus('eb',v); V.eb.del=null; save(); render(); toast('Dihapus dari Error Book.'); } else { V.eb.del=v; toast('Tekan sekali lagi untuk menghapus.'); } }
   else if(a==='ebf'){ V.eb.f=v; render(); }
   else if(a==='ebmore'){ V.eb.n+=5; render(); }
   else if(a==='ebprompt') copyText(ebPrompt(),'Prompt analisis disalin. Jalankan di Claude.');
@@ -2587,7 +2695,7 @@ function act(a,v){
   else if(a==='prompt2'){ copyText(promptStok(Z.tgl),'Prompt 2 hari disalin. Jalankan di Claude, lalu tempel kedua blok json sekaligus.'); }
   else if(a==='riwayat'){ if(unduh('riwayat-bentuk-'+ymd(new Date())+'.json',riwayatJson())) toast('Riwayat bentuk diunduh. Unggah ke pengetahuan proyek Claude.'); else copyText(riwayatJson(),'Riwayat bentuk disalin.'); }
   else if(a==='riwayatSalin'){ copyText(riwayatJson(),'Riwayat bentuk (JSON) disalin.'); }
-  else if(a==='hapus'){ if(V._del===v){ S.sets=S.sets.filter(x=>x.id!==v); V._del=null; save(); render(); } else { V._del=v; toast('Tekan × sekali lagi untuk menghapus set ini.'); } }
+  else if(a==='hapus'){ if(V._del===v){ S.sets=S.sets.filter(x=>x.id!==v); tandaHapus('sets',v); V._del=null; save(); render(); } else { V._del=v; toast('Tekan × sekali lagi untuk menghapus set ini.'); } }
   else if(a==='suara'){ SFX.setSuara(!SFX.on()); render(); SFX.play('benar'); }
   else if(a==='musik'){ SFX.setMusik(!SFX.musikOn()); render(); }
   else if(a==='cek'){ S.cek=S.cek==='langsung'?'akhir':'langsung'; save(); render(); }
@@ -2601,8 +2709,14 @@ function act(a,v){
   else if(a==='tema'){ S.tema=S.tema==='terang'?'gelap':S.tema==='gelap'?'auto':'terang'; applyTema(); save(); render(); }
   else if(a==='ulas'){ S.ulas=S.ulas===false; save(); render(); }
   else if(a==='semua'){ S.semua=!S.semua; save(); render(); }
-  else if(a==='ekspor'){ copyText(JSON.stringify(S),'Data disalin.'); }
-  else if(a==='reset'){ if(V.prog.reset){ S=Object.assign(fresh(),{tema:S.tema,gerak:S.gerak}); V.prog.reset=false; applyTema(); clearSesi(); save(); toast('Semua data dihapus.'); } else V.prog.reset=true; render(); }
+  else if(a==='ekspor'){ syncDisk(); copyText(JSON.stringify(S),'Data disalin.'); }
+  else if(a==='cobasimpan'){ const R2=V.hasil; if(R2){ save(); R2.simpan=cekTersimpan(R2); if(R2.simpan.ok){ clearSesi(); toast('Tersimpan.'); } render(); } }
+  else if(a==='diag'){ V.diag=!V.diag; render(); }
+  else if(a==='diagsalin'){ copyText(diagText(),'Hasil diagnosis disalin. Tempel dan kirim ke chat Claude.'); }
+  else if(a==='pulih'){ V.pulih=V.pulih&&V.pulih.buka?null:{buka:true,txt:''}; render(); }
+  else if(a==='pulihcek'){ const el=$('#pulihtxt'); if(el) V.pulih.txt=el.value; pulihCek(); render(); }
+  else if(a==='pulihya'){ pulihYa(); render(); }
+  else if(a==='reset'){ if(V.prog.reset){ S=Object.assign(fresh(),{tema:S.tema,gerak:S.gerak}); tandaHapus('reset'); S.saved=S.tomb.reset; V.prog.reset=false; applyTema(); clearSesi(); save(); toast('Semua data dihapus.'); } else V.prog.reset=true; render(); }
   else if(R&&a==='pick'){ if(R.A[R.cur].done) return; R.A[R.cur].c=+v; persist(); render(); }
   else if(R&&a==='bs'){ if(R.A[R.cur].done) return; const [i,b]=v.split(':'); R.A[R.cur].bs[+i]=b==='1'; persist(); render(); }
   else if(R&&a==='periksa'){ tick(R); recordAt(R.cur); save(); persist(); render(); }
@@ -2626,6 +2740,7 @@ document.addEventListener('input',e=>{ const t=e.target;
   if(t.id==='isian'&&V.run){ V.run.A[V.run.cur].is=t.value; const p=$('#pbtn'); if(p&&V.run.cek==='langsung') p.disabled=isNaN(parseNum(t.value)); persist(); }
   else if(t.id==='klans'&&V.kl){ V.kl.ans=t.value; const p=$('#pbtn'); if(p) p.disabled=isNaN(parseNum(t.value)); }
   else if(t.id==='paste') V.soal.paste=t.value;
+  else if(t.id==='pulihtxt'&&V.pulih) V.pulih.txt=t.value;
   else if(t.dataset&&t.dataset.eb){ V.eb.txt[t.dataset.eb]=t.value; } });
 document.addEventListener('keydown',e=>{ if(V.kl&&!V.kl.fb&&route()==='main'&&document.querySelector('.kpad')&&e.target.tagName!=='INPUT'){ if(/^[0-9]$/.test(e.key)){ kpPress(e.key); return; } if(e.key==='Backspace'){ kpPress('⌫'); return; } if(e.key==='-'){ kpPress('±'); return; } }
   if(e.key!=='Enter'||e.target.tagName==='TEXTAREA') return; const p=$('#pbtn'); if(p&&!p.disabled&&route()==='main'){ e.preventDefault(); p.click(); } });
@@ -2638,7 +2753,12 @@ setInterval(()=>{ const R=V.run, K=V.kl;
   if(K&&!K.done&&!K.fb&&!K.intro&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.t0)/1000; if(K.limit){ if(s>=K.limit){ kilatCheck(null,true); return; } const rem=Math.ceil(K.limit-s); if(rem<=5&&K._tk!==K.i+':'+rem){ K._tk=K.i+':'+rem; SFX.play('detik',rem); } if(el){ el.textContent=Math.ceil(K.limit-s)+' dtk'; el.classList.toggle('late',K.limit-s<5); } } else if(el){ el.textContent=Math.round(s)+' dtk'; el.classList.toggle('late',s>20); } }
 },500);
 if(typeof module!=='undefined'&&module.exports) module.exports={get V(){return V;},PQT,BV,pqGame,gameBentuk,GVAR,MV,CKV,viewKilat,beginGame,kilatCheck,act,startGame,kilatMix,GAMES,pqItem,ckItem,kisiItem,barisanItem,estimItem,mesinItem,balikItem,tahapInfo,poolUnits,oldUnits,openUnits,fokusUnits,kilatGens,tahap,S,buildResep,resepHarian,resepSim,promptSet,promptVarian,parseSet,addSet,tasksOn,kilatSet,PLAN,findQ,salahList,viewBeranda,viewSoal,viewSalah,viewProgres};
-else { applyTema(); $('#scene').innerHTML=sceneHTML(); ebInit(); save(); render(); }
+else { applyTema(); $('#scene').innerHTML=sceneHTML(); ebInit(); save(); render();
+  /* R0a: data yang disimpan tab/app lain langsung digabung, supaya tab ini tidak menimpa dengan data lama */
+  window.addEventListener('storage',e=>{ if(e.key===KEY) syncDisk(); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) syncDisk(); });
+  window.addEventListener('pageshow',e=>{ if(e.persisted) syncDisk(); });
+  window.addEventListener('focus',()=>syncDisk()); }
 </script>
 <!-- Maskot Bloki: teleport ke app lain (pintasan sama seperti sebelumnya) -->
 <style>
