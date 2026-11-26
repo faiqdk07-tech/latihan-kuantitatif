@@ -823,28 +823,34 @@ button.mh:active{transform:translateY(2px)}
 .gstage .cerita{text-align:left;margin:0 0 12px}
 html[data-theme="dark"] .cerita{background:#35322b;border-color:#5b5040;border-left-color:#c9a043}
 /* Error Book */
-.ebsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px}
-.ebsum>div:not(.st){text-align:center;border:2px solid color-mix(in srgb,var(--c) 55%,var(--line));background:color-mix(in srgb,var(--c) 12%,var(--plate));border-radius:9px;padding:7px 2px}
-.ebsum b{display:block;font:400 22px "Lilita One","Rubik",sans-serif;color:var(--text)}
-.ebsum .sm{font-size:11px;line-height:1.2}
-.ebdots{display:inline-flex;gap:3px;align-items:center}.ebdots i{width:9px;height:9px;border-radius:3px;border:1.5px solid var(--line);background:var(--plate)}.ebdots i.on{background:var(--green);border-color:color-mix(in srgb,var(--green) 60%,#1f2a4d)}
-.ebtag{font:700 11px "Rubik",sans-serif;padding:1px 7px;border-radius:6px;background:var(--bad-s);color:#a3302c;border:1.5px solid var(--red)}
+.ebsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.ebsum.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ebsum>div{text-align:center;border:2px solid color-mix(in srgb,var(--c) 60%,#1f2a4d);background:color-mix(in srgb,var(--c) 14%,var(--plate));border-radius:9px;box-shadow:0 3px 0 color-mix(in srgb,var(--c) 30%,transparent);padding:7px 2px 6px}
+.ebsum b{display:block;font:400 22px/1.1 "Lilita One","Rubik",sans-serif;color:var(--text)}
+.ebsum .sm{font-size:11px;line-height:1.25;margin-top:2px}
+.ebnote{margin:10px 0 0}
+.lead.ebhint{margin:-8px 4px 22px}
+.ebdots{display:inline-flex;gap:3px;align-items:center;flex:none}.ebdots i{width:9px;height:9px;border-radius:3px;border:1.5px solid var(--line);background:var(--plate)}.ebdots i.on{background:var(--green);border-color:color-mix(in srgb,var(--green) 60%,#1f2a4d)}
+.ebtag{font:700 11px/16px "Rubik",sans-serif;padding:0 7px;border-radius:6px;background:var(--bad-s);color:#a3302c;border:1.5px solid var(--red);white-space:nowrap}
 .ebtag.s{background:var(--acc-s);color:var(--blue);border-color:var(--blue)}
+.ebhd{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.ebhd .sm{display:inline}
+.ebwhen{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);white-space:nowrap}.ebwhen b{font-weight:600}.ebwhen.due b{color:var(--red);font-weight:700}
+.ebitem{padding:13px 0;border-top:2px dashed var(--edge)}.ebseg+.ebitem{border-top:0;padding-top:4px}
+.ebseg{margin:2px 0 10px}
 .ebrule{margin:8px 0 0;padding:7px 10px;border-left:4px solid var(--yellow);background:#fff8dc;border-radius:0 8px 8px 0;font-size:13.5px;color:#3b3a2c}
-.ebcmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.ebcmp>div{border-radius:9px;padding:7px 10px;border:2px solid}.ebcmp b{display:block;font-size:13.5px;margin:2px 0}
+.ebcmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 10px}
+.ebcmp>div{border-radius:9px;padding:7px 10px;border:2px solid}.ebcmp b{display:block;font-size:14px;margin:2px 0}
 .ebcmp .x{background:var(--bad-s);border-color:var(--red)}.ebcmp .k{background:var(--ok-s);border-color:var(--green)}
-.ebstep{margin:16px 0 6px;padding-top:12px;border-top:2px dashed var(--soft)}.ebstep b{font:400 15px "Lilita One","Rubik",sans-serif;letter-spacing:.2px}
-.ebsb{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.ebfix{background:var(--acc-s);border-radius:8px;padding:7px 10px;margin:8px 0;color:var(--text)}
+.ebstep{margin:16px 0 8px;padding-top:14px;border-top:2px dashed var(--edge)}.ebstep>b{display:block;font:400 16px "Lilita One","Rubik",sans-serif;letter-spacing:.2px;margin-bottom:2px}
+.ebsb{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+.ebfix{background:var(--acc-s);border:1.5px solid color-mix(in srgb,var(--blue) 35%,transparent);border-radius:8px;padding:8px 10px;margin:8px 0 0;color:var(--text)}
 .ebstim{background:var(--base);border-radius:9px;padding:8px 10px;margin-bottom:8px;font-size:13.5px}
-.card.eb .ta{width:100%;box-sizing:border-box;margin-top:4px}
-.card.ebrun.good{border-color:var(--green)}.card.ebrun.wrong{border-color:var(--red)}
-.card.ebnew{background:#fff6d6}
+.card.eb .ta{width:100%;box-sizing:border-box;margin-top:6px}
+.ebinpb{margin-top:12px;padding-top:10px;border-top:2px dashed var(--soft)}.ebst{margin:6px 0 0;font-weight:700;color:var(--text)}
+.card.ebnew{background:#fff6d6}.card.ebnew .st i{background:#fff6d6}.ebnt{display:block;font:400 17px "Lilita One","Rubik",sans-serif;margin-bottom:2px}
 html[data-theme="dark"] .ebrule{background:#3d3824;color:#f3ecd0}
 html[data-theme="dark"] .ebcmp .x{color:#ffd9d6}html[data-theme="dark"] .ebcmp .k{color:#d4f5df}
-html[data-theme="dark"] .card.ebnew{background:#3d3824}
-html[data-theme="dark"] .ebtag{color:#ffd9d6}
+html[data-theme="dark"] .card.ebnew,html[data-theme="dark"] .card.ebnew .st i{background:#3d3824}
+html[data-theme="dark"] .ebtag{color:#ffd9d6}html[data-theme="dark"] .ebtag.s{color:#cfe0ff}
 </style>
 </head>
 <body>
@@ -1580,23 +1586,27 @@ function ebKartuDiag(e){ const it=findQ(e.qid), st=V.eb, sb=st.sel[e.qid]||e.seb
 function viewSalah(){
   const st=V.eb, P=ebPerlu(), D=ebDue(), A=ebAktif(), J=A.filter(e=>!e.perlu&&!D.includes(e)), Lu=ebList().filter(e=>e.lulus).sort((a,b)=>b.lulus-a.lulus), po=ebPola(30);
   let h='<p class="intro">Setiap soal yang salah masuk ke sini. <b>Diagnosis</b> penyebabnya dan tulis aturan untuk dirimu, <b>ulang</b> tanpa melihat kunci pada hari berikutnya, lalu <b>lulus</b> setelah benar 4 kali berjarak (1, 3, 7, 14 hari). Salah lagi berarti kembali ke kotak 1.</p>';
-  h+='<div class="card ebsum">'+[['Diagnosis',P.length,'red'],['Jatuh tempo',D.length,'blue'],['Terjadwal',J.length,'orange'],['Lulus',Lu.length,'green']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>';
-  if(D.length) h+='<div class="btns"><button class="btn pri grow" data-action="ebulang">Ulang '+Math.min(D.length,EB_MAX)+' soal jatuh tempo</button></div>'+(D.length>EB_MAX?'<p class="sm">Paling banyak '+EB_MAX+' per putaran supaya tetap fokus. Sisanya bisa diulang setelah ini.</p>':'');
-  else if(!P.length&&A.length){ const nx=A.filter(e=>e.due).sort((a,b)=>a.due<b.due?-1:1)[0]; h+='<div class="card"><p class="sm">Tidak ada yang perlu dikerjakan sekarang. Ulangan berikutnya '+(nx?ebKapan(nx.due):'-')+'. Mengulang lebih cepat tidak membantu ingatan jangka panjang.</p></div>'; }
+  const nx=A.filter(e=>e.due&&!e.perlu).sort((a,b)=>a.due<b.due?-1:1)[0];
+  h+='<h2>Status</h2><div class="card"><div class="ebsum">'+[['Diagnosis',P.length,'red'],['Jatuh tempo',D.length,'blue'],['Terjadwal',J.length,'orange'],['Lulus',Lu.length,'green']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+
+    (D.length?'<button class="btn pri block" data-action="ebulang">Ulang '+Math.min(D.length,EB_MAX)+' soal jatuh tempo</button>'+(D.length>EB_MAX?'<p class="sm ebnote">Paling banyak '+EB_MAX+' per putaran supaya tetap fokus. Sisanya bisa diulang setelah ini.</p>':'')
+    :P.length?'<p class="sm ebnote">Diagnosis dulu soal di bawah. Soalnya mulai diulang besok.</p>'
+    :A.length?'<p class="sm ebnote">Tidak ada yang perlu dikerjakan sekarang. Ulangan berikutnya '+(nx?ebKapan(nx.due):'-')+'. Mengulang lebih cepat tidak membantu ingatan jangka panjang.</p>':'')+'</div>';
   if(po.n>=3){ const t=po.sb[0], f=EB_SEBAB.find(x=>x[0]===t.id);
     h+='<h2>Pola 30 hari</h2><div class="card"><p class="sm">Penyebab terbanyak: <b>'+esc(f[1])+'</b> ('+pct(t.n,po.tot)+'% dari kesalahan yang sudah didiagnosis).</p><p class="ebfix sm"><b>Fokus minggu ini:</b> '+esc(f[3])+'</p>'+
       po.sb.map(x=>'<div class="srow"><div class="grow"><span class="lb">'+esc(EBS[x.id])+'</span>'+bar(pct(x.n,po.tot),x===t?'bad':'')+'</div><div class="sv"><b>'+x.n+'</b></div></div>').join('')+
       (po.kem.length?'<p class="sm" style="margin-top:10px">Paling sering salah: '+po.kem.map(([k,n])=>'<span class="code">'+esc(k)+'</span> '+esc(KEM[k]||'')+' ('+n+'×)').join(' · ')+'</p>':'')+
       '<div class="btns"><button class="btn" data-action="ebprompt">Salin prompt analisis pola untuk Claude</button></div></div>'; }
-  else if(ebList().length) h+='<p class="sm" style="margin:6px 2px 14px">Pola penyebab muncul setelah minimal 3 soal didiagnosis.</p>';
-  if(P.length) h+='<h2>Perlu diagnosis ('+P.length+')</h2>'+P.slice(0,st.n).map(ebKartuDiag).join('')+(P.length>st.n?'<div class="btns"><button class="btn" data-action="ebmore">Tampilkan '+Math.min(5,P.length-st.n)+' lagi</button></div>':'');
+  else if(ebList().length) h+='<p class="lead ebhint">Pola penyebab muncul setelah minimal 3 soal didiagnosis.</p>';
+  if(P.length) h+=P.slice(0,st.n).map((e,i)=>'<h2>Diagnosis '+(i+1)+' dari '+P.length+'</h2>'+ebKartuDiag(e)).join('')+(P.length>st.n?'<div class="btns"><button class="btn" data-action="ebmore">Tampilkan '+Math.min(5,P.length-st.n)+' lagi</button></div>':'');
   const subs=['semua','PU','PK','PM'], fl=e=>st.f==='semua'||e.sub===st.f, list=D.concat(J).filter(fl).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:0);
-  if(D.length+J.length){ h+='<h2>Jadwal ulang ('+(D.length+J.length)+')</h2><div class="seg">'+subs.map(s=>'<button class="'+(st.f===s?'on':'')+'" data-action="ebf" data-v="'+s+'">'+(s==='semua'?'Semua':s)+'</button>').join('')+'</div>';
-    h+=list.length?list.map(e=>{ if(st.edit===e.qid) return ebKartuDiag(e); const it=findQ(e.qid); return '<div class="card eb"><div class="chips">'+badge(e.sub)+(e.kem?'<span class="code">'+esc(e.kem)+'</span>':'')+'<span class="ebtag s">'+esc(EBS[e.sebab]||'-')+'</span>'+ebDots(e)+'<span class="sm grow" style="text-align:right">'+(D.includes(e)?'<b>jatuh tempo</b>':esc(ebKapan(e.due)))+'</span></div>'+
+  if(D.length+J.length){ h+='<h2>Jadwal ulang ('+(D.length+J.length)+')</h2><div class="card"><div class="seg ebseg">'+subs.map(x=>'<button class="'+(st.f===x?'on':'')+'" data-action="ebf" data-v="'+x+'">'+(x==='semua'?'Semua':x)+'</button>').join('')+'</div>';
+    h+=list.length?list.map(e=>{ if(st.edit===e.qid) return '</div><h2>Ubah diagnosis</h2>'+ebKartuDiag(e)+'<div class="card">'; const it=findQ(e.qid), due=D.includes(e);
+      return '<div class="ebitem"><div class="ebhd">'+badge(e.sub)+(e.kem?'<span class="code">'+esc(e.kem)+'</span>':'')+'<span class="ebtag s">'+esc(EBS[e.sebab]||'-')+'</span><span class="ebwhen'+(due?' due':'')+'">'+ebDots(e)+'<b>'+(due?'jatuh tempo':esc(ebKapan(e.due)))+'</b></span></div>'+
       (it?'<p class="snip">'+mx(it.q.perintah.slice(0,140))+(it.q.perintah.length>140?'…':'')+'</p>':'<p class="sm">Soal tidak tersedia lagi.</p>')+
-      '<p class="ebrule">'+esc(e.aturan)+'</p><div class="btns"><button class="btn sm" data-action="ebedit" data-v="'+esc(e.qid)+'">Ubah diagnosis</button>'+(e.box>=2&&it?'<button class="btn sm" data-action="varian" data-v="'+esc(e.qid)+'">Uji di bentuk lain (3 varian)</button>':'')+'</div></div>'; }).join(''):'<div class="card"><p class="sm">Tidak ada untuk '+esc(st.f)+'.</p></div>'; }
+      '<p class="ebrule">'+esc(e.aturan)+'</p><div class="btns"><button class="btn sm" data-action="ebedit" data-v="'+esc(e.qid)+'">Ubah diagnosis</button>'+(e.box>=2&&it?'<button class="btn sm" data-action="varian" data-v="'+esc(e.qid)+'">Uji di bentuk lain (3 varian)</button>':'')+'</div></div>'; }).join(''):'<p class="sm ebnote">Tidak ada untuk '+esc(st.f)+'.</p>';
+    h+='</div>'; }
   if(Lu.length) h+='<details class="card fold"><summary><span class="grow"><b>Lulus ('+Lu.length+')</b> <span class="sm">benar 4 kali berjarak</span></span>'+CHEVI+'</summary>'+Lu.slice(0,30).map(e=>'<div class="row"><div class="grow">'+badge(e.sub)+' <span class="code">'+esc(e.kem||'-')+'</span><p class="ebrule">'+esc(e.aturan||'-')+'</p></div><span class="sm">'+esc(tgl(dk(e.lulus)))+'</span></div>').join('')+'</details>';
-  if(!ebList().length) h+='<div class="card"><p class="sm">Error Book masih kosong. Soal yang salah di Set soal dan Simulasi otomatis masuk ke sini.</p></div>';
+  if(!ebList().length) h+='<h2>Masih kosong</h2><div class="card"><p class="sm">Error Book masih kosong. Soal yang salah di Set soal dan Simulasi otomatis masuk ke sini.</p></div>';
   return h; }
 
 function salahList(){ const lastBy={}; S.hist.forEach(h=>{ lastBy[h.qid]=h; }); return Object.values(lastBy).filter(h=>!h.ok&&!S.lunas[h.qid]).map(h=>findQ(h.qid)).filter(Boolean).reverse(); }
@@ -2460,8 +2470,9 @@ function viewRun(){
   else h+='<div class="isi"><input id="isian" inputmode="decimal" autocomplete="off" placeholder="jawaban angka" value="'+esc(a.is)+'"'+(rv?' disabled':'')+'><span class="sm">Desimal pakai koma, tanpa satuan.</span></div>';
   h+='</div>';
   if(rv||a.prev) h+=pembahasan(q,a);
-  if(R.mode==='eb'&&rv){ const e=S.eb[q.qid], r=R.eb&&R.eb[q.qid]; if(e) h+='<div class="card ebrun '+(a.ok?'good':'wrong')+'"><b>'+(r&&r.lulus?'Lulus dari Error Book!':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</b>'+
-    (e.aturan?'<p class="sm">Aturanmu:</p><p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya di Error Book.</p>')+'</div>'; }
+  if(R.mode==='eb'&&rv){ const e=S.eb[q.qid], r=R.eb&&R.eb[q.qid]; if(e){ const k=h.lastIndexOf('</div>');
+    h=h.slice(0,k)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b></span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar 4 kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</p>'+
+    (e.aturan?'<p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya.</p>')+'</div>'+h.slice(k); } }
   const last=k===n-1, allDone=R.A.every(x=>x.done);
   h+='<div class="btns foot">'+(k>0?'<button class="btn" data-action="prev">Sebelumnya</button>':'');
   if(R.cek==='langsung') h+=a.done?'<button class="btn pri grow" data-action="'+(last&&allDone?'selesai':'next')+'" id="pbtn">'+(last?(allDone?'Lihat hasil':'Ke soal yang belum'):'Lanjut')+'</button>':'<button class="btn pri grow" data-action="periksa" id="pbtn"'+(isAns(q,a)?'':' disabled')+'>Periksa</button>';
@@ -2489,9 +2500,9 @@ function viewHasil(){
     (q.tipe==='pg'?'<ul class="ol">'+q.opsi.map((o,j)=>'<li class="'+(j===q.kunci?'k':a.c===j?'x':'')+'"><b>'+'ABCDE'[j]+'.</b> '+mx(o)+(q.alasan&&q.alasan[j]&&j!==q.kunci?'<span class="why">'+mx(q.alasan[j])+'</span>':'')+'</li>').join('')+'</ul>':q.tipe==='pq'?'<p>P: '+txt(q.p)+'<br>Q: '+txt(q.q)+'</p>':q.tipe==='cukup'?'<p>'+ckLab(q)[0]+' '+txt(q.pern[0])+'<br>'+ckLab(q)[1]+' '+txt(q.pern[1])+'</p>':q.tipe==='bs'?'<ul class="ol">'+q.bs.map(b=>'<li>'+mx(b.teks)+' <b>('+(b.benar?'Benar':'Salah')+')</b></li>').join('')+'</ul>':'<p class="sm">Jawabanmu: '+esc(a.is||'kosong')+'</p>')+
     pembahasan(q,a)+'</details>'; }).join('');
   if(R.mode==='eb'){ const rs=Object.values(R.eb||{}), up=rs.filter(r=>r.ok&&!r.lulus).length, lu=rs.filter(r=>r.lulus).length, dn=rs.filter(r=>!r.ok).length;
-    h=h.replace('<div class="fhead">','<div class="card ebsum" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+[['Naik kotak',up,'blue'],['Lulus',lu,'green'],['Kembali ke awal',dn,'red']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+(dn?'<p class="sm" style="margin:0 2px 14px">'+dn+' soal salah lagi. Perbarui diagnosisnya selagi masih ingat apa yang membuatmu keliru.</p>':'')+'<div class="fhead">'); }
+    h=h.replace('<div class="fhead">','<div class="card has-lbl"><span class="lbl bl">Error Book</span><div class="ebsum c3">'+[['Naik kotak',up,'blue'],['Lulus',lu,'green'],['Mulai lagi',dn,'red']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+(dn?'<p class="sm ebnote">'+dn+' soal salah lagi. Perbarui diagnosisnya selagi masih ingat apa yang membuatmu keliru.</p>':'')+'</div><div class="fhead">'); }
   const nb=Object.keys(R.ebNew||{}).length+(R.mode==='eb'?Object.values(R.eb||{}).filter(r=>!r.ok).length:0);
-  if(nb&&R.mode!=='eb') h=h.replace('<div class="fhead">','<div class="card ebnew"><b>'+nb+' soal masuk Error Book</b><p class="sm">Diagnosis sekarang selagi kamu masih ingat jalan pikirmu tadi: pilih penyebab dan tulis satu aturan. Soalnya diulang mulai besok.</p><a class="btn pri block" href="#salah">Diagnosis sekarang</a></div><div class="fhead">');
+  if(nb&&R.mode!=='eb') h=h.replace('<div class="fhead">','<div class="card ebnew has-lbl"><span class="lbl">Error Book</span><b class="ebnt">'+nb+' soal masuk Error Book</b><p class="sm">Diagnosis sekarang selagi kamu masih ingat jalan pikirmu tadi: pilih penyebab dan tulis satu aturan. Soalnya diulang mulai besok.</p><a class="btn pri block" href="#salah">Diagnosis sekarang</a></div><div class="fhead">');
   h+='<div class="btns foot"><a class="btn pri grow" href="#beranda">Selesai</a>'+(nb?'<a class="btn" href="#salah">Buka Error Book</a>':'')+'</div>';
   return h;
 }
