@@ -1016,7 +1016,7 @@ function sfxGx(K,v){ const g=K.game;
   SFX.play('klik'); }
 /* bunyi hasil jawaban di Hitung Cepat dan mini game: tiap game punya "momen"-nya sendiri sebelum bunyi benar/salah */
 function sfxHasil(K,ok,it,habis){ const g=K.game, c=K.combo, over=K.over; let pre=70;
-  if(g==='pq'){ SFX.play('timbang',it.kunci===4); pre=620; }
+  if(g==='pq'){ SFX.play('timbang',it.kunci===PQ_TT); pre=620; }
   else if(g==='mesin'){ SFX.play('gir',1.1); pre=1000; }
   else if(g==='dekat'&&!habis){ setTimeout(()=>SFX.play('tancap'),40); pre=220; }
   setTimeout(()=>{
@@ -1229,7 +1229,8 @@ function briefLine(id,cadangan){ const b=BRIEF[id];
   if(!b) return id+' · '+(cadangan||'')+' (bukan dari tabel Brief; tidak punya pengecoh khas resmi)';
   return id+' · Stimulus: '+b.s+(b.q?' · Pertanyaan/rangkaian: '+b.q:'')+(b.c?' · Contoh bentuk: '+b.c:'')+(b.p?' · Pengecoh khas: '+b.p:''); }
 
-/* Opsi baku UTBK 2026: P vs Q selalu lima opsi (PQ5). PQ4 dan PQ_OLD hanya untuk menampilkan set lama.
+/* Opsi P vs Q: sejak R5 memakai EMPAT opsi sesuai Brief PK-F1 (PQ4: P lebih besar, Q lebih besar, sama, tidak dapat ditentukan).
+   PQ5 (lima opsi dengan "2 kali Q") dan PQ_OLD hanya untuk menampilkan set lama yang sudah tersimpan.
    Tombol game, layar soal, prompt, dan validator semuanya membaca teks dari konstanta ini. */
 const PQ5=['Kuantitas P lebih dari atau sama dengan 2 kali kuantitas Q.','Kuantitas P lebih dari kuantitas Q, tetapi kurang dari 2 kali kuantitas Q.','Kuantitas P sama dengan kuantitas Q.','Kuantitas P kurang dari kuantitas Q.','Tidak dapat ditentukan hubungan antara kuantitas P dan Q.'];
 const PQ4=['Kuantitas P lebih dari Q.','Kuantitas P kurang dari Q.','Kuantitas P sama dengan Q.','Tidak dapat ditentukan hubungan antara kuantitas P dan Q.'];
@@ -1238,6 +1239,7 @@ const PQ_ASK='Berdasarkan informasi yang diberikan, manakah hubungan antara kuan
 const CK_PK=['Pernyataan (1) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (2) SAJA tidak cukup.','Pernyataan (2) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (1) SAJA tidak cukup.','DUA pernyataan BERSAMA-SAMA cukup untuk menjawab pertanyaan, tetapi SATU pernyataan SAJA tidak cukup.','Pernyataan (1) SAJA cukup untuk menjawab pertanyaan dan pernyataan (2) SAJA cukup.','Pernyataan (1) dan pernyataan (2) tidak cukup untuk menjawab pertanyaan.'];
 const CK_PU=['Pernyataan (i) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (ii) SAJA tidak cukup.','Pernyataan (ii) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (i) SAJA tidak cukup.','DUA pernyataan BERSAMA-SAMA cukup untuk menjawab pertanyaan, tetapi SATU pernyataan SAJA tidak cukup.','SALAH SATU pernyataan SAJA cukup untuk menjawab pertanyaan.','Pernyataan (i) dan pernyataan (ii) tidak cukup untuk menjawab pertanyaan.'];
 const pqList=q=>q.versi===4?PQ4:q.versi===5?PQ5:PQ_OLD;
+const PQ_OPSI=PQ4, PQ_TT=3; /* indeks opsi "tidak dapat ditentukan" */
 const optLines=L=>L.map((o,i)=>'ABCDE'[i]+'. '+o).join(' ');
 const ckList=q=>q.sub==='PU'?CK_PU:CK_PK;
 const ckLab=q=>q.sub==='PU'?['(i)','(ii)']:['(1)','(2)'];
@@ -1492,7 +1494,7 @@ function fmtJson(mode,tg,sub,adaPM){
   '      {"no": 4, "sub": "PM", "stim": "g1", "kemampuan": "PM-B", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "isian", "perintah": "…", "kunci": "12,5", "langkah": ["…"], "jebakan": "…"},\n'+
   '      {"no": 5, "sub": "PM", "stim": "g1", "kemampuan": "PM-C", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "bs", "perintah": "Tentukan apakah setiap pernyataan berikut BENAR atau SALAH.", "pernyataan": [{"teks": "…", "benar": true}, {"teks": "…", "benar": false}, {"teks": "…", "benar": true}], "langkah": ["satu langkah per pernyataan"], "jebakan": "…"}\n'+
   '    ]\n  }\n}\n'+
-  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja. Q harus selalu positif untuk semua nilai yang mungkin. Opsinya baku UTBK 2026 dan sudah ada di aplikasi, persis: '+optLines(PQ5)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal. "jenis" diisi lama, geser, baru, atau migrasi (boleh juga L, G, B, M). "format" boleh diisi kode format jawaban J1–J7 (J1 PG lima opsi, J2 tabel benar/salah, J3 isian angka, J4 satu stimulus untuk 3–4 soal, J5 pilih semua yang benar, J6 menjodohkan, J7 mengurutkan); bila format yang dimaksud belum bisa ditampilkan aplikasi, tulis soalnya dalam tipe yang setara dan isi "format" dengan kode aslinya, misalnya "J5 (ditulis sebagai J2)".';
+  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja; kunci A–D. Opsinya empat, baku sesuai Brief PK-F1, dan sudah ada di aplikasi, persis: '+optLines(PQ4)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal. "jenis" diisi lama, geser, baru, atau migrasi (boleh juga L, G, B, M). "format" boleh diisi kode format jawaban J1–J7 (J1 PG lima opsi, J2 tabel benar/salah, J3 isian angka, J4 satu stimulus untuk 3–4 soal, J5 pilih semua yang benar, J6 menjodohkan, J7 mengurutkan); bila format yang dimaksud belum bisa ditampilkan aplikasi, tulis soalnya dalam tipe yang setara dan isi "format" dengan kode aslinya, misalnya "J5 (ditulis sebagai J2)".';
 }
 function tahapNote(r){ const subs=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)); return ' Tahapku: '+subs.map(x=>x+' '+TAHAP[r.tahap[x]].nama).join(', ')+'.'+(subs.some(x=>r.tahap[x]===1)?' Pada subtes bertahap Fondasi, soal GESER hanya mengubah bentuk, bukan kerumitan hitungannya.':''); }
 function promptSet(r){
@@ -1573,7 +1575,7 @@ function parseSet(raw){
     if(q.stim&&!stim.some(g=>g.id===q.stim)) E('stimulus "'+q.stim+'" tidak ada di daftar stimulus.');
     const k=String(x.kunci==null?'':x.kunci).trim().toUpperCase();
     if(q.tipe==='pg'){ q.opsi=[].concat(x.opsi||[]).map(String); if(q.opsi.length!==5) E('pilihan ganda harus 5 opsi.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>=q.opsi.length) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
-    else if(q.tipe==='pq'){ q.p=String(x.p||'').trim(); q.q=String(x.q||'').trim(); q.versi=5; if(String(x.versi)==='4') E('P–Q selalu memakai 5 opsi baku; hapus "versi" dan pastikan Q selalu positif.'); if(!q.p||!q.q) E('isi "p" dan "q".'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>4) E('kunci P–Q harus A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
+    else if(q.tipe==='pq'){ q.p=String(x.p||'').trim(); q.q=String(x.q||'').trim(); q.versi=4; if(!q.p||!q.q) E('isi "p" dan "q".'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>3) E('kunci P–Q harus A–D (empat opsi sesuai Brief: A P lebih besar, B Q lebih besar, C sama, D tidak dapat ditentukan). Set dari prompt lama dengan 5 opsi perlu dibuat ulang.'); q.alasan=[].concat(x.alasan||[]).map(String); }
     else if(q.tipe==='cukup'){ q.pern=[].concat(x.pernyataan||[]).map(p=>String(p).replace(/^\s*\((i{1,2}|1|2)\)\s*/,'')); if(q.pern.length!==2) E('kecukupan data butuh tepat 2 pernyataan.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
     else if(q.tipe==='bs'){ q.bs=[].concat(x.pernyataan||[]).map(p=>({teks:String(p&&p.teks||''),benar:p&&p.benar})); if(q.bs.length<3||q.bs.length>4||q.bs.some(p=>!p.teks||typeof p.benar!=='boolean')) E('benar/salah butuh 3 pernyataan dengan "teks" dan "benar": true/false.'); }
     else if(q.tipe==='isian'){ q.kunciNum=parseNum(x.kunci); if(isNaN(q.kunciNum)) E('kunci isian harus angka.'); }
@@ -1590,8 +1592,50 @@ function parseSet(raw){
   else if(mode==='sim'){ sub=soal[0].sub; id='sim'+now; label='Simulasi '+sub; if(soal.some(q=>q.sub!==sub)) warn.push('Simulasi memuat lebih dari satu subtes.'); }
   else { sub=soal[0].sub; id='var'+now; label='Varian '+sub; }
   soal.forEach(q=>{ q.qid=id+'#'+q.no; });
+  warn.push(...cekMutu(soal,stim,mode,tg));
   return {err:[],warn,set:{id,mode,tgl:tg,sub,label,asal:st.asal||null,stimulus:stim,soal,ts:now}};
 }
+/* ---------- R5: cek mutu saat menempel (hanya peringatan, tidak menolak) ----------
+   Mengikuti aturan-opsi-setara (§2 opsi setara, §6 tanpa nomor kalimat di PK/PM/PU) dan menjaga set tetap sesuai resep dan jadwal. */
+function cekMutu(soal,stim,mode,tg){ const W=[], kata=t=>String(t||'').trim().split(/\s+/).filter(Boolean).length;
+  const kalimat=o=>kata(o)>=3&&/[A-Za-z]{3,}/.test(o), kosong=a=>!a||/^\s*(…|\.\.\.|-|–)?\s*$/.test(a);
+  const timpang=L=>{ const n=L.map(kata), mx=Math.max(...n), mn=Math.min(...n); return mx-mn>=3&&(mx-mn)/mx>0.3?mn+'–'+mx+' kata':''; };
+  let nKal=0; const kunciPanjang=[], tanpaAlasan=[], tidakUrut=[], timpangOpsi=[], tidakSejajar=[], timpangBS=[], bernomor=[];
+  soal.forEach(q=>{
+    if(q.tipe==='pg'&&q.opsi&&q.opsi.length===5){
+      if(q.opsi.filter(kalimat).length>=4){ nKal++;
+        const t=timpang(q.opsi); if(t) timpangOpsi.push(q.no+' ('+t+')');
+        const n=q.opsi.map(kata), mx=Math.max(...n); if(q.kunci>=0&&n[q.kunci]===mx&&n.filter(x=>x===mx).length===1) kunciPanjang.push(q.no);
+        const kr=q.opsi.filter(o=>/\b(karena|sebab)\b/i.test(o)).length; if(kr&&kr<5) tidakSejajar.push(q.no); }
+      else { const v=q.opsi.map(o=>parseNum(String(o).replace(/%$/,''))); if(v.every(x=>!isNaN(x))&&v.some((x,i)=>i&&x<v[i-1])) tidakUrut.push(q.no); } }
+    if(['pg','pq','cukup'].includes(q.tipe)){ const A=q.alasan||[], jml=q.tipe==='pq'?4:5; let ada=false; for(let i=0;i<jml;i++){ if(i!==q.kunci&&kosong(A[i])) ada=true; } if(ada) tanpaAlasan.push(q.no); }
+    if(q.tipe==='bs'&&q.bs){ const t=timpang(q.bs.map(b=>b.teks)); if(t) timpangBS.push(q.no+' ('+t+')'); }
+    (q.teks||[]).forEach(t=>{ if((String(t).match(/(^|\s)\(\d{1,2}\)\s/g)||[]).length>=3) bernomor.push('soal '+q.no); }); });
+  (stim||[]).forEach(g=>(g.teks||[]).forEach(t=>{ if((String(t).match(/(^|\s)\(\d{1,2}\)\s/g)||[]).length>=3) bernomor.push('stimulus '+g.id); }));
+  if(timpangOpsi.length) W.push('Cek mutu · panjang opsi tidak setara (aturan: selisih terpanjang dan terpendek paling banyak 30%): soal '+timpangOpsi.join(', ')+'.');
+  const batas=Math.max(1,Math.floor(nKal/5)); if(kunciPanjang.length>batas) W.push('Cek mutu · kunci menjadi opsi terpanjang di '+kunciPanjang.length+' soal ('+kunciPanjang.join(', ')+'); batasnya '+batas+' dari '+nKal+' soal beropsi kalimat. Kunci bisa ditebak dari panjangnya.');
+  if(tidakSejajar.length) W.push('Cek mutu · struktur opsi tidak sejajar: hanya sebagian opsi memuat "karena/sebab" di soal '+tidakSejajar.join(', ')+'.');
+  if(timpangBS.length) W.push('Cek mutu · pernyataan benar/salah tidak setara panjang di soal '+timpangBS.join(', ')+'.');
+  if(tanpaAlasan.length) W.push('Cek mutu · alasan pengecoh kosong atau "…" di soal '+tanpaAlasan.join(', ')+'. Tiap pengecoh perlu nama kesalahannya.');
+  if(tidakUrut.length) W.push('Cek mutu · opsi angka belum urut naik di soal '+tidakUrut.join(', ')+'.');
+  if(bernomor.length) W.push('Cek mutu · teks memakai nomor kalimat (1), (2), (3) di '+bernomor.join(', ')+'. Nomor kalimat hanya untuk PPU/PBM; abaikan bila itu daftar pernyataan.');
+  /* sebaran huruf kunci */
+  const ks=soal.filter(q=>['pg','pq','cukup'].includes(q.tipe)&&q.kunci>=0).map(q=>({no:q.no,k:'ABCDE'[q.kunci]}));
+  for(let i=2;i<ks.length;i++) if(ks[i].k===ks[i-1].k&&ks[i].k===ks[i-2].k){ W.push('Cek mutu · tiga kunci sama berturut-turut ('+ks[i].k+') di soal '+ks[i-2].no+'–'+ks[i].no+'.'); break; }
+  if(ks.length>=5){ const c={}; ks.forEach(x=>c[x.k]=(c[x.k]||0)+1); const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0]; if(top[1]>Math.ceil(ks.length*0.4)) W.push('Cek mutu · kunci menumpuk di huruf '+top[0]+' ('+top[1]+' dari '+ks.length+' soal).'); }
+  /* kesesuaian dengan resep dan jadwal */
+  const r=mode==='harian'&&tg?S.resep[tg]:null;
+  if(r&&r.slots){ if(r.slots.length!==soal.length) W.push('Cek resep · jumlah soal '+soal.length+', padahal resep meminta '+r.slots.length+'.');
+    const beda=soal.filter(q=>{ const sl=r.slots.find(x=>x.no===q.no); return sl&&sl.jenis&&q.jenis!==sl.jenis&&!(q.jenis==='migrasi'); }).map(q=>q.no);
+    if(beda.length) W.push('Cek resep · jenis soal berbeda dari resep di soal '+beda.join(', ')+'.'); }
+  const tgl0=tg?fromYmd(tg):new Date(), kolam=poolUnits(tgl0), luar=[], asing=[];
+  soal.forEach(q=>{ if(!q.unit) return; if(!UMAP[q.unit]) asing.push(q.no+' ('+q.unit+')'); else if(!kolam.includes(q.unit)) luar.push(q.no+' ('+q.unit+')'); });
+  if(luar.length) W.push('Cek jadwal · unit belum dijadwalkan pada '+(tg||'hari ini')+': soal '+luar.join(', ')+'.');
+  if(asing.length) W.push('Cek jadwal · kode unit tidak dikenal: soal '+asing.join(', ')+'.');
+  /* kesiapan-2027: format yang belum terbukti dibatasi */
+  const j56=soal.filter(q=>q.format==='J5'||q.format==='J6').length, bJ56=Math.max(1,Math.floor(soal.length/10));
+  if(j56>bJ56) W.push('Cek format · '+j56+' soal memakai J5/J6; batasnya '+bJ56+' per set karena belum terbukti muncul di UTBK.');
+  return W; }
 /* Wadah stok: satu tempelan boleh berisi beberapa blok json (beberapa tanggal sekaligus), daftar set, atau {"sets": [...]}. */
 function splitBlocks(raw){ const t=String(raw||'').replace(/[“”]/g,'"'), fences=[...t.matchAll(/```(?:json)?\s*([\s\S]*?)```/g)].map(m=>m[1]);
   const src=fences.length?fences:[t], out=[];
@@ -1871,10 +1915,10 @@ function exprOf(v){ /* ekspresi bilangan bulat bernilai v */
     if(k===2){ const d=RN.int(2,4); return {s:fmt(v*d)+' ÷ '+d,st:fmt(v*d)+' ÷ '+d+' = '+v}; } }
   return {s:String(v),st:String(v)};
 }
-function zone5(p,q){ return p>=2*q-1e-9?0:p>q+1e-9?1:Math.abs(p-q)<1e-9?2:3; }
+function zonePQ(p,q){ return Math.abs(p-q)<1e-9?2:p>q?0:1; } /* 0 P lebih besar, 1 Q lebih besar, 2 sama */
 function pqJudge(samples){ /* samples: [{p,q,lab}] */
-  const pos=samples.every(x=>x.q>0); if(!pos) return null; const z=samples.map(x=>zone5(x.p,x.q)), same=z.every(v=>v===z[0]);
-  return pos?{versi:5,kunci:same?z[0]:4}:null; /* Q harus selalu positif */
+  if(!samples||!samples.length) return null; const z=samples.map(x=>zonePQ(x.p,x.q)), same=z.every(v=>v===z[0]);
+  return {versi:4,kunci:same?z[0]:PQ_TT};
 }
 function pqItem(){
   const T=[];
@@ -1896,9 +1940,9 @@ function pqItem(){
   if(has('ALJ-01','BIL-14')) T.push(()=>{ const S=RN.int(8,16); const xs=[]; for(let x=Math.floor(S/2)+1;x<S;x++) xs.push(x);
     return {info:'x dan y bilangan bulat positif, x + y = '+S+', dan x > y.',P:'x',Q:'y',smp:xs.map(x=>({p:x,q:S-x,lab:'x = '+x+', y = '+(S-x)})),st:null,edge:'Coba nilai x terkecil dan terbesar yang mungkin.'}; });
   T.push(T[0]); /* soal angka murni dibobot dua kali supaya opsi "sama" dan "dua kali" juga sering muncul */
-  for(let t=0;t<20;t++){ const r=RN.pick(T)(); if(!r) continue; const j=pqJudge(r.smp); if(!j) continue; const L=PQ5;
-    const st=r.st||r.smp.slice(0,4).map(x=>x.lab+': P = '+fmt(x.p)+', Q = '+fmt(x.q)+' → '+L[zone5(x.p,x.q)].replace(/^Kuantitas /,'').replace(/\.$/,''));
-    const why=j.kunci===4?['Hubungannya berubah untuk nilai yang berbeda, jadi tidak dapat ditentukan.']:[];
+  for(let t=0;t<20;t++){ const r=RN.pick(T)(); if(!r) continue; const j=pqJudge(r.smp); if(!j) continue; const L=PQ_OPSI;
+    const st=r.st||r.smp.slice(0,4).map(x=>x.lab+': P = '+fmt(x.p)+', Q = '+fmt(x.q)+' → '+L[zonePQ(x.p,x.q)].replace(/^Kuantitas /,'').replace(/\.$/,''));
+    const why=j.kunci===PQ_TT?['Hubungannya berubah untuk nilai yang berbeda, jadi tidak dapat ditentukan.']:[];
     return {perintah:r.info+' P: '+r.P+'. Q: '+r.Q+'.',pqv:{info:r.info,P:r.P,Q:r.Q,smp:r.smp,versi:j.versi},html:'<p class="sm">'+esc(r.info)+'</p><div class="pq"><div><span class="sm">P</span>'+mx(r.P)+'</div><div><span class="sm">Q</span>'+mx(r.Q)+'</div></div>',opsi:L,kunci:j.kunci,langkah:st.concat(r.edge&&!r.st?[r.edge]:[],why)}; }
 }
 
@@ -1923,10 +1967,10 @@ const PQT={
     return {info:n1+' '+n[0]+' Rp'+fmt(n1*u1)+'. '+n2+' '+n[1]+' Rp'+fmt(n2*u2)+'.',P:'Harga '+k1+' '+n[0],Q:'Harga '+k2+' '+n[1],txt:1,smp:[{p:k1*u1,q:k2*u2}],
       st:['1 '+n[0]+' = Rp'+fmt(u1)+', jadi P = Rp'+fmt(k1*u1),'1 '+n[1]+' = Rp'+fmt(u2)+', jadi Q = Rp'+fmt(k2*u2)]}; }
 };
-function pqFinish(r){ const j=pqJudge(r.smp); if(!j) return null; const L=PQ5;
-  const st=r.st||r.smp.slice(0,4).map(x=>x.lab+': P = '+fmt(x.p)+', Q = '+fmt(x.q)+' → '+L[zone5(x.p,x.q)].replace(/^Kuantitas /,'').replace(/\.$/,''));
-  const why=j.kunci===4?['Hubungannya berubah untuk nilai yang berbeda, jadi tidak dapat ditentukan.']:[];
-  return {perintah:(r.info?r.info+' ':'')+'P: '+r.P+'. Q: '+r.Q+'.',pqv:{info:r.info,P:r.P,Q:r.Q,smp:r.smp,versi:5,txt:r.txt},html:(r.info?'<p class="sm">'+esc(r.info)+'</p>':'')+'<div class="pq"><div><span class="sm">P</span>'+mx(r.P)+'</div><div><span class="sm">Q</span>'+mx(r.Q)+'</div></div>',opsi:L,kunci:j.kunci,langkah:st.concat(r.edge&&!r.st?[r.edge]:[],why)}; }
+function pqFinish(r){ const j=pqJudge(r.smp); if(!j) return null; const L=PQ_OPSI;
+  const st=r.st||r.smp.slice(0,4).map(x=>x.lab+': P = '+fmt(x.p)+', Q = '+fmt(x.q)+' → '+L[zonePQ(x.p,x.q)].replace(/^Kuantitas /,'').replace(/\.$/,''));
+  const why=j.kunci===PQ_TT?['Hubungannya berubah untuk nilai yang berbeda, jadi tidak dapat ditentukan.']:[];
+  return {perintah:(r.info?r.info+' ':'')+'P: '+r.P+'. Q: '+r.Q+'.',pqv:{info:r.info,P:r.P,Q:r.Q,smp:r.smp,versi:4,txt:r.txt},html:(r.info?'<p class="sm">'+esc(r.info)+'</p>':'')+'<div class="pq"><div><span class="sm">P</span>'+mx(r.P)+'</div><div><span class="sm">Q</span>'+mx(r.Q)+'</div></div>',opsi:L,kunci:j.kunci,langkah:st.concat(r.edge&&!r.st?[r.edge]:[],why)}; }
 function pqGame(i,vid){ const M={kasus:['kasus','negatif'],pecahan:['pecahan','persen'],pangkat:['pangkat'],syarat:['syarat'],cerita:['cerita']};
   if(M[vid]) for(let t=0;t<30;t++){ const it=pqFinish(PQT[RN.pick(M[vid])]()); if(it) return it; }
   return pqCoretItem(); }
@@ -1962,12 +2006,12 @@ function pqCoretItem(){
     const show=a=>a.length?a.map(x=>x.t).join(' × '):'1';
     const st=pairs.map(([i,jx])=>'Coret '+r.P[i].t+(r.P[i].t!==r.Q[jx].t?' dan '+r.Q[jx].t+' (nilainya sama, '+fmt(r.P[i].v)+')':'')+' di kedua sisi.');
     st.push('Sisa: P = '+show(remP)+', Q = '+show(remQ)+'.');
-    if(r.smp.length>1) st.push(...r.smp.slice(0,3).map(x=>x.lab+': '+PQ5[zone5(x.p,x.q)].replace(/\.$/,'')));
-    st.push(j.kunci===4?'Hubungannya berubah untuk nilai x yang berbeda, jadi tidak dapat ditentukan.':'Jadi: '+PQ5[j.kunci]);
+    if(r.smp.length>1) st.push(...r.smp.slice(0,3).map(x=>x.lab+': '+PQ_OPSI[zonePQ(x.p,x.q)].replace(/\.$/,'')));
+    st.push(j.kunci===PQ_TT?'Hubungannya berubah untuk nilai x yang berbeda, jadi tidak dapat ditentukan.':'Jadi: '+PQ_OPSI[j.kunci]);
     st.push('Mencoret faktor positif yang sama tidak mengubah perbandingan P dan Q, termasuk apakah P ≥ 2Q.');
     const Ps=show(r.P), Qs=show(r.Q);
-    return {perintah:r.info+' P: '+Ps+'. Q: '+Qs+'.',coret:{P:r.P,Q:r.Q,n:pairs.length},pqv:{info:r.info,P:Ps,Q:Qs,smp:r.smp,versi:5},
-      html:'<p class="sm">'+esc(r.info)+'</p><div class="pq"><div><span class="sm">P</span>'+mx(Ps)+'</div><div><span class="sm">Q</span>'+mx(Qs)+'</div></div>',opsi:PQ5,kunci:j.kunci,langkah:st}; }
+    return {perintah:r.info+' P: '+Ps+'. Q: '+Qs+'.',coret:{P:r.P,Q:r.Q,n:pairs.length},pqv:{info:r.info,P:Ps,Q:Qs,smp:r.smp,versi:4},
+      html:'<p class="sm">'+esc(r.info)+'</p><div class="pq"><div><span class="sm">P</span>'+mx(Ps)+'</div><div><span class="sm">Q</span>'+mx(Qs)+'</div></div>',opsi:PQ_OPSI,kunci:j.kunci,langkah:st}; }
 }
 
 /* ---------- Game 2: Cukup Nggak? ----------
@@ -2379,10 +2423,10 @@ function gvBarisan(it,K,rv){ const B=it.bar, cs=B.cells, n=cs.length, L=K.st.lup
 function gxBarisan(it,K,v){ if(v==='skip'){ K.st.skip=!K.st.skip; return; } if(v[0]==='g'){ (K.st.lup=K.st.lup||{})[+v.slice(1)]=1; return; } if(v[0]==='s'){ K.st.sel=+v.slice(1); } }
 
 /* ---------- Timbangan P–Q ---------- */
-function dropOf(z,kunci){ return kunci===0?26:kunci===1?14:kunci===2?0:kunci===3?-20:0; }
+function dropOf(z,kunci){ return kunci===0?20:kunci===1?-20:0; }
 function coretRest(K,side,arr){ const c=K.st['c'+side]||[]; const r=arr.filter((_,i)=>!c.includes(i)); return r.length?r.map(x=>x.t).join(' × '):'1'; }
 function gvPQ(it,K,rv){ const z=it.pqv, C=it.coret, cp=K.st.cp||[], cq=K.st.cq||[], side=s=>C?chips(s==='p'?C.P:C.Q,s,s==='p'?cp:cq):'<b class="pqt">'+mx(s==='p'?z.P:z.Q)+'</b>';
-  const d=rv?dropOf(z,it.kunci):0, wob=rv&&it.kunci===4, yL=40+d, yR=40-d, ang=Math.atan2(d,75)*180/Math.PI;
+  const d=rv?dropOf(z,it.kunci):0, wob=rv&&it.kunci===PQ_TT, yL=40+d, yR=40-d, ang=Math.atan2(d,75)*180/Math.PI;
   const chips=(arr,side,cut)=>arr.map((x,i)=>{ const sel=K.st['s'+side]===i, gone=cut.includes(i);
     return (i?'<span class="tx">×</span>':'')+'<button class="fac'+(gone?' cut':'')+(sel?' sel':'')+(K.st.miss&&sel?' miss':'')+'" data-action="gx" data-v="'+side+i+'"'+(gone||rv?' disabled':'')+'>'+mx(x.t)+'</button>'; }).join('');
   const val=s=>rv&&z.smp.length===1?'<em>= '+fmt(s==='p'?z.smp[0].p:z.smp[0].q)+'</em>':'';
@@ -2395,7 +2439,7 @@ function gvPQ(it,K,rv){ const z=it.pqv, C=it.coret, cp=K.st.cp||[], cq=K.st.cq||
     '<div class="plate r" style="--pd:'+(-d)+';top:'+((yR+28)/2)+'%"><small>Q</small><span class="facs">'+side('q')+'</span>'+val('q')+'</div></div>';
   const done=cp.length;
   if(C) h+='<p class="coret2">'+(K.st.miss?'<b class="no">Belum sama</b>':done?'Sisa: <b>P = '+mx(coretRest(K,'p',C.P))+'</b> · <b>Q = '+mx(coretRest(K,'q',C.Q))+'</b>':'&nbsp;')+'</p>';
-  h+='<div class="zones">'+PQ5.map((o,i)=>{ let c='zone'; if(rv&&i===it.kunci) c+=' good'; else if(rv&&K.pick===i) c+=' wrong'; return '<button class="'+c+'" data-action="klpick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+LTR[i]+'</span><span>'+o+'</span></button>'; }).join('')+'</div>';
+  h+='<div class="zones">'+PQ_OPSI.map((o,i)=>{ let c='zone'; if(rv&&i===it.kunci) c+=' good'; else if(rv&&K.pick===i) c+=' wrong'; return '<button class="'+c+'" data-action="klpick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+LTR[i]+'</span><span>'+o+'</span></button>'; }).join('')+'</div>';
   return h; }
 function gxPQ(it,K,v){ const side=v[0], i=+v.slice(1), C=it.coret; K.st.miss=false;
   K.st['s'+side]=i; const sp=K.st.sp, sq=K.st.sq; if(sp==null||sq==null) return;
@@ -2540,7 +2584,7 @@ function viewSoal(){
   (Z.tab==='harian'?'<div class="btns"><button class="btn grow" data-action="prompt2">Salin prompt stok 2 hari ('+esc(stokDates(Z.tgl).map(d=>tgl(d)).join(' + '))+')</button></div>':'')+'</div>';
   h+='<div class="card"><span class="lbl">2 · Tempel JSON dari Claude</span><textarea class="ta" id="paste" rows="5" placeholder="Tempel blok json di sini">'+esc(Z.paste)+'</textarea>';
   if(Z.res&&Z.res.err&&Z.res.err.length) h+='<div class="msg bad"><b>'+(Z.res.ok?'Sebagian belum bisa disimpan':'Belum bisa disimpan')+'</b><ul>'+Z.res.err.slice(0,8).map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul><span class="sm">Minta Claude memperbaiki bagian itu, lalu tempel ulang.</span></div>';
-  if(Z.res&&Z.res.ok) h+='<div class="msg ok"><b>'+esc(Z.res.ok)+'</b>'+(Z.res.warn&&Z.res.warn.length?'<ul>'+Z.res.warn.slice(0,4).map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul>':'')+'</div>';
+  if(Z.res&&Z.res.ok) h+='<div class="msg ok"><b>'+esc(Z.res.ok)+'</b>'+(Z.res.warn&&Z.res.warn.length?'<details class="more" open><summary>'+Z.res.warn.length+' catatan cek mutu '+CHEVI+'</summary><ul>'+Z.res.warn.map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul><span class="sm">Set tetap tersimpan. Bila perlu, minta Claude memperbaiki soal yang disebut lalu tempel ulang.</span></details>':'')+'</div>';
   h+='<div class="btns"><button class="btn pri grow" data-action="simpan">Periksa dan simpan</button></div></div>';
   const nr=riwayatSoal(30).length;
   h+='<div class="card"><span class="lbl">3 · Riwayat bentuk (JSON)</span><p class="sm">'+nr+' soal dari 30 hari terakhir: bentuk arsip, sidik, dan awal kalimat perintah. Prompt sudah memuat 14 hari terakhir. Unggah berkas ini ke pengetahuan proyek Claude bila membuat soal di luar prompt aplikasi, supaya bentuk tidak terulang.</p><div class="btns"><button class="btn grow" data-action="riwayat"'+(nr?'':' disabled')+'>Unduh JSON</button><button class="btn" data-action="riwayatSalin"'+(nr?'':' disabled')+'>Salin</button></div></div>';
