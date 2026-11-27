@@ -858,6 +858,16 @@ html[data-theme="dark"] .ebrule{background:#3d3824;color:#f3ecd0}
 html[data-theme="dark"] .ebcmp .x{color:#ffd9d6}html[data-theme="dark"] .ebcmp .k{color:#d4f5df}
 html[data-theme="dark"] .card.ebnew,html[data-theme="dark"] .card.ebnew .st i{background:#3d3824}
 html[data-theme="dark"] .ebtag{color:#ffd9d6}html[data-theme="dark"] .ebtag.s{color:#cfe0ff}
+/* ===== mode waktu set: Santai / Sprint / Survival ===== */
+.mw-seg{display:flex;gap:4px;padding:4px;border:2px solid var(--line);border-radius:12px;background:var(--plate)}
+.mw-seg button{flex:1;min-height:38px;border-radius:9px;font:700 14px "Rubik",sans-serif;color:var(--text);background:transparent;border:0;cursor:pointer}
+.mw-seg button.on{background:var(--mc);color:#fff}
+.mw-ban{display:flex;gap:12px;align-items:center;margin-top:10px;padding:13px 15px;border-radius:12px;color:#fff;background:linear-gradient(90deg,var(--m1),var(--m2))}
+.mw-ban .ic{font-size:26px;line-height:1;flex:none}.mw-ban b{display:block;font-size:16px}.mw-ban span{font-size:13px;opacity:.95}
+.mw-cap{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px}
+.mw-pills{display:flex;flex-wrap:wrap;gap:6px}.mw-pills button{flex:1;min-width:64px;min-height:36px;border-radius:9px;border:2px solid var(--line);background:var(--plate);color:var(--text);font:700 13.5px "Rubik",sans-serif;cursor:pointer}
+.mw-pills button.on{background:var(--mc);border-color:var(--mc);color:#fff}
+.mw-big{font-family:"Lilita One","Rubik",sans-serif;font-size:40px;line-height:1.1;color:var(--text);text-align:center;margin-top:12px}
 </style>
 </head>
 <body>
@@ -2004,28 +2014,58 @@ function streak(){ let n=0, d=new Date(); d.setHours(0,0,0,0); if(!dayFull(d)) d
 /* ---------- Sesi soal ---------- */
 const V={run:null,kl:null,hasil:null,soal:{tab:'harian',tgl:null,paste:'',res:null},prog:{},eb:{sel:{},txt:{},err:{},warn:{},f:'semua',n:5,edit:null,del:null}};
 function newRun(o){ o.A=o.items.map(it=>({c:null,is:'',bs:it.q.tipe==='bs'?it.q.bs.map(()=>null):null,done:false,ok:false})); o.T=o.items.map(()=>0); o.cur=0; o.t0=Date.now(); o.started=Date.now(); return o; }
-function startSet(st,again){ const pr=setProg(st); const items=st.soal.map(q=>({q,set:st}));
-  const R=newRun({sid:st.id,label:st.label,mode:st.mode,items,cek:st.mode==='sim'?'akhir':S.cek,limit:st.mode==='sim'?SUB[st.sub].simMs:null,rep:pr.a>=pr.n||!!again});
+/* Mode waktu set (bukan simulasi): Santai tanpa hitung mundur; Sprint memberi jatah 3/5/10/20 menit untuk mengerjakan
+   sebanyak mungkin (jatah hanya berkurang selama soal belum dijawab, jadi membaca pembahasan tidak memakan waktu);
+   Survival memberi batas per soal (waktu resmi atau lebih ketat) dan berhenti di jawaban salah pertama atau saat waktu habis.
+   Batas per soal tidak pernah lebih longgar dari waktu resmi. Soal yang belum dijawab tidak dicatat dan menunggu run berikutnya. */
+const MW={santai:{nama:'Santai',c:'#4fa9f0',g:['#6fd3f8','#4fa9f0'],ic:'🌿',tag:'Waktu bebas, maksimalkan akurasi'},
+  sprint:{nama:'Sprint',c:'#e8894a',g:['#f0b26e','#e8894a'],ic:'⚡',tag:'Siap ngebut? Selesaikan sebanyak mungkin'},
+  survival:{nama:'Survival',c:'#d9534f',g:['#ef7d78','#d9534f'],ic:'🔥',tag:'Bertahan selama mungkin, raih streak terpanjang!'}};
+const MW_SPR=[3,5,10,20], MW_SV=[1,.75,.5];
+function mwPref(){ const m=S.mw||{}; return {m:MW[m.m]?m.m:'sprint',spr:MW_SPR.includes(m.spr)?m.spr:10,sv:MW_SV.includes(m.sv)?m.sv:1}; }
+function mwSet(k,v){ S.mw=Object.assign(mwPref(),{[k]:v}); save(); render(); }
+function mwBatas(R,q){ return Math.round(SUB[q.sub].dtk*R.mw.sv)*1000; }
+function mwLeft(R){ const M=R&&R.mw; if(!M||M.m==='santai') return null; const a=R.A[R.cur], run=a.done?0:Math.min(Date.now()-R.t0,10*60000);
+  if(M.m==='sprint') return M.spr*60000-R.T.reduce((s,x,i)=>s+(R.A[i].prev?0:x),0)-run;
+  return mwBatas(R,R.items[R.cur].q)-R.T[R.cur]-run; }
+function viewPick(){ const st=S.sets.find(x=>x.id===V.pick), P=mwPref(), M=MW[P.m], pr=setProg(st), sisa=pr.a>=pr.n?pr.n:pr.n-pr.a;
+  let h='<header class="top run"><button class="btn sm" data-action="pickback">‹ Kembali</button><span class="grow mid"><span class="lbl">'+esc(st.label)+'</span></span><span class="cd" style="visibility:hidden">0</span></header>';
+  h+='<div class="card"><p class="sm" style="margin:0 0 12px">'+(pr.a&&pr.a<pr.n?'Sisa '+sisa+' dari '+pr.n+' soal.':pr.n+' soal: PU, PK, dan PM.')+' Waktu resmi: PU dan PK 60 detik, PM ±2 menit per soal.</p>';
+  h+='<div class="mw-seg">'+Object.keys(MW).map(k=>'<button class="'+(k===P.m?'on':'')+'" style="--mc:'+MW[k].c+'" data-action="mwmode" data-v="'+k+'">'+MW[k].nama+'</button>').join('')+'</div>';
+  h+='<div class="mw-ban" style="--m1:'+M.g[0]+';--m2:'+M.g[1]+'"><span class="ic">'+M.ic+'</span><div><b>Mode '+M.nama+'</b><span>'+M.tag+'</span></div></div>';
+  if(P.m==='sprint') h+='<div class="mw-cap">Batas waktu</div><div class="mw-pills" style="--mc:'+M.c+'">'+MW_SPR.map(x=>'<button class="'+(x===P.spr?'on':'')+'" data-action="mwspr" data-v="'+x+'">'+x+' menit</button>').join('')+'</div><p class="sm" style="margin-top:8px">Kerjakan sebanyak mungkin. Waktu berhenti saat membaca pembahasan. Waktu habis = run berhenti; soal yang belum dijawab menunggu run berikutnya.</p>';
+  else if(P.m==='survival') h+='<div class="mw-cap">Timer per soal</div><div class="mw-pills" style="--mc:'+M.c+'">'+MW_SV.map(x=>'<button class="'+(x===P.sv?'on':'')+'" data-action="mwsv" data-v="'+x+'">'+(x===1?'Resmi':Math.round(x*100)+'%')+'</button>').join('')+'</div><p class="sm" style="margin-top:8px">PU/PK '+Math.round(60*P.sv)+' detik, PM '+Math.round(SUB.PM.dtk*P.sv)+' detik per soal. Jawaban langsung diperiksa. Satu salah atau waktu habis, run selesai.</p>';
+  else h+='<p class="sm" style="margin-top:10px">Tanpa hitung mundur. Waktu tiap soal tetap dicatat dan dibandingkan dengan waktu resmi.</p>';
+  h+='<button class="btn pri block" data-action="mwgo" id="pbtn" style="margin-top:16px">Mulai '+M.nama+'</button></div>';
+  return h; }
+function startSet(st,again,mw){ const pr=setProg(st); const items=st.soal.map(q=>({q,set:st}));
+  const R=newRun({sid:st.id,label:st.label,mode:st.mode,items,cek:st.mode==='sim'?'akhir':mw&&mw.m==='survival'?'langsung':S.cek,limit:st.mode==='sim'?SUB[st.sub].simMs:null,rep:pr.a>=pr.n||!!again});
+  if(mw&&st.mode!=='sim') R.mw={m:mw.m,spr:mw.spr,sv:mw.sv,n:0,b:0};
   if(!R.rep&&pr.a){ const hs={}; S.hist.filter(h=>h.sid===st.id&&!h.rep).forEach(h=>{ hs[h.qid]=h; }); items.forEach((it,i)=>{ const h=hs[it.q.qid]; if(h){ R.A[i].done=true; R.A[i].ok=h.ok; R.A[i].prev=true; R.T[i]=h.ms; } }); const nx=R.A.findIndex(a=>!a.done); R.cur=nx<0?0:nx; }
   V.run=R; V.hasil=null; persist(); go('main'); }
 function startUlang(list){ if(!list.length){ toast('Tidak ada soal salah yang menunggu.'); return; } V.run=newRun({sid:'ulang',label:'Ulang soal salah',mode:'ulang',items:list.slice(0,10),cek:'langsung',limit:null,rep:true}); V.hasil=null; persist(); go('main'); }
 function isAns(q,a){ return q.tipe==='isian'?!isNaN(parseNum(a.is)):q.tipe==='bs'?a.bs.every(x=>x!==null):a.c!=null; }
 function grade(q,a){ if(q.tipe==='isian') return Math.abs(parseNum(a.is)-q.kunciNum)<1e-9; if(q.tipe==='bs') return q.bs.every((r,i)=>a.bs[i]===r.benar); return a.c===q.kunci; }
 function tick(R){ if(!R||R.fin) return; const now=Date.now(); if(!R.A[R.cur].done) R.T[R.cur]+=Math.min(now-R.t0,10*60000); R.t0=now; }
-function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a); if(R.cek==='langsung') setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70);
+function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a);
+  if(R.mw){ R.mw.n++; if(a.ok) R.mw.b++; else if(R.mw.m==='survival'){ R.mw.end=1; S.mwBest=Math.max(S.mwBest||0,R.mw.b); } } if(R.cek==='langsung') setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70);
   S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,fmt:q.format||'',lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
   if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid];
   if(R.mode==='eb'){ const key=ebKunci(it)||q.qid, r=ebReview(q,a.ok,a,key); if(r) R.eb[key]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
-function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; SFX.play('selesai'); const ok=save(); R.simpan=cekTersimpan(R);
+function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); const part=R.mw&&R.mw.m!=='santai';
+  /* Sprint/Survival: soal tanpa jawaban tidak dicatat, jadi tetap menunggu run berikutnya */
+  R.items.forEach((it,i)=>{ if(!R.A[i].done&&(!part||isAns(it.q,R.A[i]))) recordAt(i); }); R.fin=true; if(R.mw&&R.mw.m==='survival') S.mwBest=Math.max(S.mwBest||0,R.mw.b); SFX.play('selesai');
+  let H=R; if(part){ const ix=R.items.map((_,i)=>i).filter(i=>R.A[i].done&&!R.A[i].prev); H=Object.assign({},R,{items:ix.map(i=>R.items[i]),A:ix.map(i=>R.A[i]),T:ix.map(i=>R.T[i])}); }
+  const ok=save(); H.simpan=cekTersimpan(H);
   /* sesi baru dibuang bila jawabannya benar-benar sudah ada di penyimpanan */
-  if(ok&&R.simpan.ok) clearSesi(); V.hasil=R; V.run=null; render(); window.scrollTo(0,0); }
+  if(ok&&H.simpan.ok) clearSesi(); V.run=null; V.hasil=H.items.length?H:null; if(!V.hasil){ clearSesi(); toast('Belum ada soal yang dijawab.'); go('beranda'); return; } render(); window.scrollTo(0,0); }
 /* Baca ulang penyimpanan: apakah setiap jawaban di putaran ini tercatat? */
 function cekTersimpan(R){ try{ const d=diskS(), H=(d&&d.hist)||[], s=R.started||0;
   const ada=R.items.filter((it,i)=>H.some(h=>h.qid===it.q.qid&&(R.A[i].prev||h.ts>=s))).length;
   return {n:ada,tot:R.items.length,ok:ada===R.items.length}; }catch(e){ return {n:0,tot:R.items.length,ok:false}; } }
 function timeLeft(R){ return R.limit?R.started+R.limit-Date.now():null; }
 function persist(){ try{ const R=V.run; if(!R||R.fin){ if(!R||(R.simpan&&R.simpan.ok)) localStorage.removeItem(SKEY); return; }
-  R.day=R.day||ymd(new Date()); localStorage.setItem(SKEY,JSON.stringify({day:R.day,sid:R.sid,label:R.label,mode:R.mode,qids:R.items.map(it=>it.q.qid),A:R.A,T:R.T,cur:R.cur,cek:R.cek,limit:R.limit,started:R.started,rep:R.rep,eb:R.eb,ebNew:R.ebNew})); }catch(e){ gagalSimpan('sesi belum selesai tidak tersimpan ('+((e&&e.name)||'Error')+')'); } }
+  R.day=R.day||ymd(new Date()); localStorage.setItem(SKEY,JSON.stringify({day:R.day,sid:R.sid,label:R.label,mode:R.mode,qids:R.items.map(it=>it.q.qid),A:R.A,T:R.T,cur:R.cur,cek:R.cek,limit:R.limit,started:R.started,rep:R.rep,eb:R.eb,ebNew:R.ebNew,mw:R.mw})); }catch(e){ gagalSimpan('sesi belum selesai tidak tersimpan ('+((e&&e.name)||'Error')+')'); } }
 function clearSesi(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
 /* Sesi yang belum selesai TIDAK hangus lewat tengah malam (R0a): jawaban "periksa di akhir" baru tercatat saat
    Selesai, jadi sesi disimpan sampai kamu melanjutkan atau menyelesaikannya. Simulasi yang waktunya sudah habis
@@ -3004,7 +3044,7 @@ function pisahTanya(t){ const m=String(t).match(/^(.*[.!])\s+([^.!]*\?)$/); retu
 function viewRun(){
   const R=V.run, k=R.cur, n=R.items.length, it=R.items[k], q=it.q, a=R.A[k], rv=a.done&&R.cek==='langsung', left=timeLeft(R);
   const g=q.stim?(it.set.stimulus||[]).find(x=>x.id===q.stim):null;
-  let h='<header class="top run"><button class="btn sm" data-action="keluar">‹ Keluar</button><span class="grow mid"><span class="lbl">'+esc(R.label)+'</span></span><span class="cd" id="tm">'+(left!=null?mmss(left):mmss(R.T[k]))+'</span></header>';
+  let h='<header class="top run"><button class="btn sm" data-action="keluar">‹ Keluar</button><span class="grow mid"><span class="lbl">'+esc(R.label)+'</span></span><span class="cd" id="tm">'+(left!=null?mmss(left):R.mw&&R.mw.m!=='santai'?(MW[R.mw.m].ic+' '+(R.mw.m==='sprint'?mmss(Math.max(0,mwLeft(R))):Math.max(0,Math.ceil(mwLeft(R)/1000))+' dtk')):mmss(R.T[k]))+'</span></header>';
   h+='<div class="dots">'+R.items.map((x,i)=>'<button data-action="ke" data-v="'+i+'" class="'+(i===k?'cur ':'')+(R.A[i].done&&R.cek==='langsung'?(R.A[i].ok?'ok':'no'):(R.A[i].done||isAns(x.q,R.A[i])?'ans':''))+'">'+(i+1)+'</button>').join('')+'</div>';
   h+='<div class="qhd">'+badge(q.sub)+'</div>';
   if(g) h+='<div class="card stim">'+(g.judul?'<b>'+esc(g.judul)+'</b>':'')+g.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(g.tabel)+'</div>';
@@ -3021,8 +3061,11 @@ function viewRun(){
   if(R.mode==='eb'&&rv){ const key=ebKunci(R.items[k])||q.qid, e=S.eb[key], r=R.eb&&R.eb[key]; if(e){ const k2=h.lastIndexOf('</div>'), jn=R.items[k].eb||(it.set.mode==='varian'?(q.ulang||'varian'):'');
     h=h.slice(0,k2)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b>'+(jn==='kembar'?' · soal kembar':jn==='varian'?' · varian bentuk lain':'')+'</span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar 4 kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</p>'+
     (e.aturan?'<p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya.</p>')+'</div>'+h.slice(k2); } }
-  const last=k===n-1, allDone=R.A.every(x=>x.done);
-  h+='<div class="btns foot">'+(k>0?'<button class="btn" data-action="prev">Sebelumnya</button>':'');
+  const last=k===n-1, allDone=R.A.every(x=>x.done), sv=R.mw&&R.mw.m==='survival';
+  if(sv&&a.done&&R.mw.habis===k) h=h.replace('<div class="card pb wrong"><b>Belum tepat</b>','<div class="card pb wrong"><b>Waktu habis</b>');
+  if(R.mw&&(R.mw.end||(R.mw.m==='sprint'&&a.done&&mwLeft(R)<=0))){ h+='<div class="btns foot"><button class="btn pri grow" data-action="selesai" id="pbtn">Lihat hasil</button></div>'; return h; }
+  if(sv&&a.done){ h+='<div class="btns foot"><button class="btn pri grow" data-action="'+(R.A.some(x=>!x.done)?'next':'selesai')+'" id="pbtn">'+(R.A.some(x=>!x.done)?'Lanjut':'Lihat hasil')+'</button></div>'; return h; }
+  h+='<div class="btns foot">'+(k>0&&!sv?'<button class="btn" data-action="prev">Sebelumnya</button>':'');
   if(R.cek==='langsung') h+=a.done?'<button class="btn pri grow" data-action="'+(last&&allDone?'selesai':'next')+'" id="pbtn">'+(last?(allDone?'Lihat hasil':'Ke soal yang belum'):'Lanjut')+'</button>':'<button class="btn pri grow" data-action="periksa" id="pbtn"'+(isAns(q,a)?'':' disabled')+'>Periksa</button>';
   else h+='<button class="btn pri grow" data-action="'+(last?'selesai':'next')+'" id="pbtn">'+(last?'Selesai dan periksa':'Lanjut')+'</button>';
   h+='</div>';
@@ -3064,6 +3107,10 @@ function viewHasil(){
   const R=V.hasil, n=R.items.length, ok=R.A.filter(a=>a.ok).length, tot=R.T.reduce((s,x)=>s+x,0), tg=R.items.reduce((s,it)=>s+SUB[it.q.sub].dtk*1000,0);
   let h='<header class="top run"><a class="btn sm" href="#beranda">‹ Beranda</a><span class="grow mid"><span class="lbl">'+esc(R.label)+'</span></span><span class="cd" style="visibility:hidden">0</span></header>';
   h+='<div class="card score"><div><b class="big">'+ok+'/'+n+'</b><span class="sm">benar ('+pct(ok,n)+'%)</span></div><div><b class="big">'+mmss(tot)+'</b><span class="sm">waktu · target '+mmss(R.limit||tg)+'</span></div></div>';
+  if(R.mw&&R.mw.m!=='santai'){ const M=MW[R.mw.m], st=S.sets.find(x=>x.id===R.sid), pr=st?setProg(st):null, sisa=pr&&!R.rep?pr.n-pr.a:0;
+    h+='<div class="card"><div class="mw-ban" style="margin-top:0;--m1:'+M.g[0]+';--m2:'+M.g[1]+'"><span class="ic">'+M.ic+'</span><div><b>'+(R.mw.m==='survival'?'Survival berakhir':'Sprint '+R.mw.spr+' menit selesai')+'</b><span>'+(R.mw.m==='survival'?(R.mw.end?(R.mw.habis!=null?'Waktu soal terakhir habis.':'Satu jawaban salah mengakhiri run.'):'Semua soal terjawab benar!'):'Bagus, kamu sudah melangkah.')+'</span></div></div>'+
+      (R.mw.m==='survival'?'<div class="mw-big">'+R.mw.b+'</div><span class="sm" style="text-align:center">streak benar · terbaik '+(S.mwBest||R.mw.b)+'</span>':'')+
+      (sisa>0?'<p class="sm" style="text-align:center;margin-top:8px">Sisa '+sisa+' soal di set ini menunggu run berikutnya.</p><button class="btn pri block" data-action="mulai" data-v="'+esc(R.sid)+'">Run lagi</button>':'')+'</div>'; }
   const sv=R.simpan;
   if(sv) h+=sv.ok?'<div class="msg ok simpan"><b>Tersimpan ✓</b> '+sv.n+' dari '+sv.tot+' jawaban tercatat di perangkat ini.</div>'
     :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila penyimpanan penuh, buka Pengaturan → Penyimpanan untuk merampingkan data lama. Bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button><button class="btn" data-action="kesimpan">Buka Pengaturan → Penyimpanan</button></div>';
@@ -3113,7 +3160,7 @@ function viewKilat(){
 function render(){
   wkApply();
   let r=route(), h, full=false;
-  if(r==='main'){ if(V.run){ h=viewRun(); full=true; } else if(V.kl){ h=viewKilat(); full=true; } else if(V.hasil){ h=viewHasil(); full=true; } else { r='beranda'; } }
+  if(r==='main'){ if(V.pick&&!V.run&&S.sets.some(x=>x.id===V.pick)){ h=viewPick(); full=true; } else if(V.run){ h=viewRun(); full=true; } else if(V.kl){ h=viewKilat(); full=true; } else if(V.hasil){ h=viewHasil(); full=true; } else { r='beranda'; } }
   if(!h) h=r==='game'?viewGame():r==='soal'?viewSoal():r==='salah'?viewSalah():r==='progres'?viewProgres():r==='pengaturan'?viewPengaturan():r==='mingguan'?viewMingguan():viewBeranda();
   $('#view').innerHTML=(full?'':appbar()+(hero(r)||'<div class="gap0"></div>'))+h; $('#nav').hidden=full;
   document.body.classList.remove('cbt'); /* semua halaman memakai tema lego */
@@ -3138,7 +3185,12 @@ function act(a,v){
   else if(a==='wkdel'){ if(S.wk){ delete S.wk[v]; save(); WK_ON=''; V.wkres=null; render(); } }
   else if(a==='gosoal'){ Z.tab='harian'; Z.tgl=ymd(new Date()); Z.res=null; go('soal'); }
   else if(a==='gosim'){ Z.tab=v; Z.res=null; go('soal'); }
-  else if(a==='mulai'){ const ss=loadSesi(); if(ss&&ss.sid===v){ V.run=ss; V.hasil=null; go('main'); return; } const st=S.sets.find(x=>x.id===v); if(st) startSet(st); }
+  else if(a==='mulai'){ const ss=loadSesi(); if(ss&&ss.sid===v){ V.run=ss; V.hasil=null; go('main'); return; } const st=S.sets.find(x=>x.id===v); if(st){ if(st.mode==='sim') startSet(st); else { V.pick=st.id; V.run=null; V.hasil=null; go('main'); } } }
+  else if(a==='mwmode') mwSet('m',v);
+  else if(a==='mwspr') mwSet('spr',+v);
+  else if(a==='mwsv') mwSet('sv',+v);
+  else if(a==='mwgo'){ const st=S.sets.find(x=>x.id===V.pick); V.pick=null; if(st) startSet(st,false,mwPref()); }
+  else if(a==='pickback'){ V.pick=null; go('beranda'); }
   else if(a==='resume'){ const o=loadSesi(); if(o){ V.run=o; V.hasil=null; go('main'); } }
   else if(a==='ulang'||a==='ebulang') ebStartUlang();
   else if(a==='goeb') go('salah');
@@ -3198,6 +3250,8 @@ function act(a,v){
   else if(R&&a==='pick'){ if(R.A[R.cur].done) return; R.A[R.cur].c=+v; persist(); render(); }
   else if(R&&a==='bs'){ if(R.A[R.cur].done) return; const [i,b]=v.split(':'); R.A[R.cur].bs[+i]=b==='1'; persist(); render(); }
   else if(R&&a==='periksa'){ tick(R); recordAt(R.cur); save(); persist(); render(); }
+  else if(R&&R.mw&&R.mw.m==='survival'&&(a==='prev'||a==='ke')) return;
+  else if(R&&a==='next'&&R.mw&&R.mw.m==='survival'){ tick(R); const n=R.items.length; let to=-1; for(let j=1;j<=n;j++){ const x=(R.cur+j)%n; if(!R.A[x].done){ to=x; break; } } if(to<0){ finishRun(); return; } R.cur=to; R.t0=Date.now(); persist(); render(); window.scrollTo(0,0); }
   else if(R&&(a==='next'||a==='prev'||a==='ke')){ tick(R); const n=R.items.length; let to=a==='ke'?+v:a==='prev'?R.cur-1:R.cur+1; if(a==='next'&&to>=n){ to=R.A.findIndex(x=>!x.done); if(to<0) to=n-1; } R.cur=Math.max(0,Math.min(n-1,to)); R.t0=Date.now(); persist(); render(); window.scrollTo(0,0); }
   else if(R&&a==='selesai'){ finishRun(); }
   else if(R&&a==='keluar'){ tick(R); persist(); V.run=null; go('beranda'); toast('Sesi disimpan. Lanjutkan dari Beranda.'); }
@@ -3222,9 +3276,14 @@ document.addEventListener('input',e=>{ const t=e.target;
   else if(t.dataset&&t.dataset.eb){ V.eb.txt[t.dataset.eb]=t.value; } });
 document.addEventListener('keydown',e=>{ if(V.kl&&!V.kl.fb&&route()==='main'&&document.querySelector('.kpad')&&e.target.tagName!=='INPUT'){ if(/^[0-9]$/.test(e.key)){ kpPress(e.key); return; } if(e.key==='Backspace'){ kpPress('⌫'); return; } if(e.key==='-'){ kpPress('±'); return; } }
   if(e.key!=='Enter'||e.target.tagName==='TEXTAREA') return; const p=$('#pbtn'); if(p&&!p.disabled&&route()==='main'){ e.preventDefault(); p.click(); } });
-window.addEventListener('hashchange',()=>{ if(route()!=='main'){ if(V.run){ tick(V.run); persist(); V.run=null; } V.kl=null; V.hasil=null; } render(); });
+window.addEventListener('hashchange',()=>{ if(route()!=='main'){ if(V.run){ tick(V.run); persist(); V.run=null; } V.kl=null; V.hasil=null; V.pick=null; } render(); });
 setInterval(()=>{ const R=V.run, K=V.kl;
-  if(R&&route()==='main'){ const el=$('#tm'), left=timeLeft(R); if(left!=null){ if(left<=0){ SFX.play('waktuHabis'); finishRun(); toast('Waktu habis.'); return; }
+  if(R&&route()==='main'&&R.mw&&R.mw.m!=='santai'){ const el=$('#tm'), M=R.mw, a=R.A[R.cur], left=mwLeft(R);
+    if(!a.done&&!M.end&&left<=0){ SFX.play('waktuHabis'); if(M.m==='sprint'){ finishRun(); toast('Waktu sprint habis.'); return; }
+      tick(R); recordAt(R.cur); if(!R.A[R.cur].ok) M.habis=R.cur; save(); persist(); render(); return; }
+    if(!a.done){ const sec=Math.ceil(left/1000), th=M.m==='sprint'?10:5; if(sec<=th&&R._tk!==R.cur+':'+sec){ R._tk=R.cur+':'+sec; SFX.play('detik',sec); } }
+    if(el){ const l=Math.max(0,left); el.textContent=MW[M.m].ic+' '+(M.m==='sprint'?mmss(l):(a.done?(M.habis===R.cur?0:Math.ceil(l/1000)):Math.ceil(l/1000))+' dtk'); el.classList.toggle('late',!a.done&&l<(M.m==='sprint'?60000:10000)); } }
+  else if(R&&route()==='main'){ const el=$('#tm'), left=timeLeft(R); if(left!=null){ if(left<=0){ SFX.play('waktuHabis'); finishRun(); toast('Waktu habis.'); return; }
       const sec=Math.ceil(left/1000); if(left<=10000&&R._tk!==sec){ R._tk=sec; SFX.play('detik',sec); } if(left<=60000&&left>58000&&!R._w60){ R._w60=1; SFX.play('telat'); } if(el){ el.textContent=mmss(left); el.classList.toggle('late',left<60000); } }
     else if(el){ const a=R.A[R.cur], ms=R.T[R.cur]+(a.done?0:Date.now()-R.t0); el.textContent=mmss(ms);
       const tg=SUB[R.items[R.cur].q.sub].dtk*1000; R._late=R._late||{}; if(!a.done&&ms>tg&&!R._late[R.cur]){ R._late[R.cur]=1; if(ms<tg+1500) SFX.play('telat'); } el.classList.toggle('late',!a.done&&ms>SUB[R.items[R.cur].q.sub].dtk*1000); } }
