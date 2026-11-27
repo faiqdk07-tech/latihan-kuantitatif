@@ -1181,6 +1181,54 @@ const NEED={'PU-K3':['BIL-13'],'PU-K4':['BIL-13'],'PU-K5':['BIL-13'],'PU-K8':['B
 const BERAT=['PU-K4','PU-K12','PU-K13','PK-M12'];
 /* Tuas yang memperpanjang soal (kalimat pengalih, langkah tambahan): tidak dipakai di tahap Fondasi. */
 const TUAS_PANJANG=['sembunyi','langkah'];
+/* R1: isi tabel "Kunci Pola Soal UTBK-SNBT: Brief untuk Chat Claude" (12 Nov 2026), disalin per kode.
+   s = kerangka stimulus, q = kerangka pertanyaan atau rangkaian, p = pengecoh khas, c = contoh bentuk.
+   Prompt hanya mengirim baris untuk kode yang dipakai resep hari itu. */
+const BRIEF={
+ 'PU-K1':{s:'Lima sampai enam nilai berturut-turut yang naik-turun selang-seling (11, 16, 13, 18, 15, 20)',q:'"Jika tren tersebut konsisten, berapa nilai pada periode berikutnya?"',p:'Hanya memakai selisih terakhir'},
+ 'PU-K2':{s:'Dua barisan sekaligus; suku ke-5 kosong, suku ke-6 diketahui',q:'"…berapa nilai masing-masing pada periode ke-5?"',p:'Pola barisan pertama dipakai untuk barisan kedua'},
+ 'PU-K3':{s:'Satu desimal dan satu persen atau pecahan',q:'"Bilangan yang PALING MENDEKATI hasil pengurangan (atau perkalian)…"',p:'Salah mengubah persen ke desimal'},
+ 'PU-K4':{s:'Diagram atau tabel 3 seri × 5 periode, dipakai dua soal',q:'Soal 1: nilai atau persentase kenaikan terbesar. Soal 2: "pernyataan PALING TEPAT untuk memperkirakan periode berikutnya"',p:'Selisih mutlak dianggap persentase; tren satu seri dipakai untuk semua'},
+ 'PU-K5':{s:'Nilai setelah perubahan persen diketahui',q:'Ditanya nilai sebelum perubahan',p:'Persen dihitung dari nilai akhir'},
+ 'PU-K6':{s:'Tiga orang atau pilihan dengan satuan berbeda (per hari, per minggu, per bulan) atau rentang nilai',q:'"Manakah pernyataan yang PALING TEPAT?"',p:'Lupa menyamakan satuan; mengabaikan batas rentang'},
+ 'PU-K7':{s:'Dua informasi bernomor tentang jumlah anggota dua kelompok yang beririsan',q:'Ditanya jumlah irisan, selisih, atau pernyataan yang benar',p:'Irisan dihitung dua kali'},
+ 'PU-K8':{s:'"Sebanyak a/b dari p% total adalah n orang"',q:'Ditanya persen lain dari total',p:'Pecahan dan persen tidak digabung'},
+ 'PU-K9':{s:'Jumlah dua harga sekarang; perbandingan keduanya beberapa tahun lalu; kenaikan tetap per tahun',q:'Harga salah satunya sekarang',p:'Lupa mengurangi atau menambah kenaikan untuk kedua objek'},
+ 'PU-K10':{s:'Pola dua operasi bergantian (×3, −4) dengan titik awal digeser',q:'Nilai pada hari tertentu',p:'Indeks hari tidak digeser'},
+ 'PU-K11':{s:'Dua persamaan pendek (6x^2y = 12 dan xy = 3)',q:'Nilai y atau kelipatan x',p:'Tidak memanfaatkan substitusi xy'},
+ 'PU-K12':{s:'Tabel persen capaian dengan nilai maksimum berbeda per kolom',q:'Siapa yang skor totalnya tertinggi',p:'Menjumlahkan persen tanpa bobot'},
+ 'PU-K13':{s:'Diagram persentase digabung tabel persentase lain',q:'Jumlah di satu kategori bila kategori lain diketahui',p:'Memakai persen dari sumber yang salah'},
+ 'PU-K14':{s:'Dua kejadian berulang dengan periode berbeda, mulai bersamaan',q:'Kapan pertama kali bersamaan lagi',p:'Mengalikan periode, bukan mencari kelipatan persekutuan terkecil'},
+ 'PU-K15':{s:'Pertanyaan "apakah…" dengan pernyataan (i) dan (ii)',q:'Opsi kecukupan data lima pilihan',p:'Menganggap perlu nilai pasti padahal cukup perbandingan'},
+ 'PK-F1':{s:'Informasi singkat, lalu kuantitas P dan Q',q:'"Manakah hubungan antara kuantitas P dan Q yang benar?" (opsi baku)',p:'Lupa menguji nilai negatif, nol, atau pecahan'},
+ 'PK-F2':{s:'Pertanyaan "apakah…" atau "berapakah…", lalu pernyataan (1) dan (2)',q:'"Putuskan apakah pernyataan (1) dan (2) cukup untuk menjawab." Opsi tetap: (1) saja, (2) saja, bersama-sama, masing-masing, tidak cukup',p:'Menghitung jawabannya, bukan menilai kecukupan'},
+ 'PK-F3':{s:'Informasi, lalu 3–4 pernyataan',q:'Tabel benar/salah per baris, atau "berapa banyak pernyataan yang benar"',p:'Satu pernyataan benar hanya untuk kasus khusus'},
+ 'PK-F4':{s:'Satu informasi atau gambar untuk tiga soal berurutan',q:'Soal makin dalam: nilai, lalu panjang atau jarak, lalu luas',p:'Kesalahan soal pertama terbawa'},
+ 'PK-F5':{s:'Pilihan ganda biasa dengan hasil akhir "nilai a + b" atau "2p + q"',q:'Lima opsi angka',p:'Berhenti di nilai a atau b saja'},
+ 'PK-M1':{s:'Operasi baru didefinisikan dengan simbol, atau simbol mewakili operasi yang harus ditebak',c:'"(4 ⊗ 3) ⊞ 2 = 10; nilai (5 ⊗ 6) ⊞ 10 = …"'},
+ 'PK-M2':{s:'Sifat bilangan: prima, ganjil-genap, sisa bagi, faktor, kuadrat sempurna',c:'"Hasil kali tiga bilangan prima berbeda adalah 182; jumlahnya …"'},
+ 'PK-M3':{s:'Barisan aritmetika atau geometri dengan suku berhuruf',c:'"−1, a, −9, b merupakan barisan geometri; nilai a × b …"'},
+ 'PK-M4':{s:'Fungsi kuadrat lewat beberapa titik; manfaatkan simetri',c:'"Grafik melalui (1,6), (a,3), dan (a+3,6); nilai ab …"'},
+ 'PK-M5':{s:'Garis dan koordinat: gradien, tegak lurus, jarak titik ke garis',c:'Persegi atau segitiga pada bidang koordinat'},
+ 'PK-M6':{s:'Lingkaran, segitiga, bangun ruang: busur, juring, luas, tinggi',c:'"Luas lingkaran 9π, panjang busur π…"'},
+ 'PK-M7':{s:'Peluang dan pencacahan dengan bilangan atau sandi',c:'"Bilangan dua digit, kedua digit ganjil dan berbeda…"'},
+ 'PK-M8':{s:'Rata-rata, median, jangkauan dengan satu data berhuruf',c:'"Enam bilangan 1, 4, 7, 3, b, 8 memiliki rata-rata…"'},
+ 'PK-M9':{s:'Membandingkan pecahan, desimal, persen',c:'"Urutan dari yang terkecil…"'},
+ 'PK-M10':{s:'Prosedur: diagram alir atau mesin input-output',c:'"Input x = 3 menghasilkan z = 12…"'},
+ 'PM-1':{s:'Jual-beli: harga, diskon, uang muka, angsuran, bunga',q:'Total bayar; besar angsuran; pilihan paling murah',p:'Diskon dihitung setelah, bukan sebelum, uang muka'},
+ 'PM-2':{s:'Pola bertingkat: benda bertambah tiap tahap',q:'Rumus tahap ke-n; nilai tahap tertentu; jumlah sampai tahap n',p:'Rumus suku dipakai untuk jumlah'},
+ 'PM-3':{s:'Besaran berubah terhadap waktu (riak air, bola dilempar)',q:'Rumus fungsi; nilai pada t tertentu; nilai maksimum atau daerah asal',p:'Satuan waktu atau panjang tidak disamakan'},
+ 'PM-4':{s:'Denah atau bangun: rumah, lintasan, sekat, bayangan lampu',q:'Keliling atau panjang; luas; jumlah bahan dan biaya',p:'Lupa pembulatan ke atas; salah perbandingan sebangun'},
+ 'PM-5':{s:'Diagram atau tabel data penjualan, stok, produksi',q:'Nilai terbesar; rata-rata; syarat tercapai atau tidak',p:'Membaca sumbu atau satuan yang salah'},
+ 'PM-6':{s:'Sekelompok orang atau benda dengan kategori',q:'Banyak cara memilih; peluang; peluang bersyarat atau "setidaknya satu"',p:'Urutan diperhitungkan padahal tidak perlu'},
+ 'PM-7':{s:'Jarak, kecepatan, waktu pada peta atau lintasan',q:'Jarak terpendek; waktu tiba; kapan dua pelari bertemu',p:'Kecepatan rata-rata dihitung sebagai rata-rata kecepatan'},
+ 'PM-8':{s:'Perubahan persen berulang (bocor, tumbuh, susut)',q:'Nilai setelah n periode; perubahan ketika persen berganti',p:'Persen dijumlahkan, bukan dikalikan berulang'}
+};
+/* Satu baris POLA BRIEF untuk satu kode; kode yang tidak ada di Brief memakai deskripsi singkat aplikasi. */
+function briefLine(id,cadangan){ const b=BRIEF[id];
+  if(!b) return id+' · '+(cadangan||'')+' (bukan dari tabel Brief; tidak punya pengecoh khas resmi)';
+  return id+' · Stimulus: '+b.s+(b.q?' · Pertanyaan/rangkaian: '+b.q:'')+(b.c?' · Contoh bentuk: '+b.c:'')+(b.p?' · Pengecoh khas: '+b.p:''); }
+
 /* Opsi baku UTBK 2026: P vs Q selalu lima opsi (PQ5). PQ4 dan PQ_OLD hanya untuk menampilkan set lama.
    Tombol game, layar soal, prompt, dan validator semuanya membaca teks dari konstanta ini. */
 const PQ5=['Kuantitas P lebih dari atau sama dengan 2 kali kuantitas Q.','Kuantitas P lebih dari kuantitas Q, tetapi kurang dari 2 kali kuantitas Q.','Kuantitas P sama dengan kuantitas Q.','Kuantitas P kurang dari kuantitas Q.','Tidak dapat ditentukan hubungan antara kuantitas P dan Q.'];
@@ -1427,7 +1475,7 @@ const ATURAN=[
  'Jenis bentuk dan level adalah dua hal terpisah; ikuti keduanya sesuai resep. LAMA = Mode Dasar, GESER = satu unsur diubah, BARU = sedikitnya dua unsur diubah. Level L = satu–dua langkah dengan konsep langsung; M = dua–tiga langkah atau satu jebakan; H = penalaran berlapis, gabungan dua konsep, atau menuntut menguji kasus. Jadi bisa ada bentuk baru yang mudah dan bentuk lama yang sulit. Dalam satu set, tidak ada dua soal dengan bentuk yang sama.',
  'Setiap soal bisa dijawab hanya dari stimulusnya dan selesai dalam waktu resmi, termasuk waktu membaca: PU dan PK 60 detik, PM sekitar 2 menit per soal. Tanpa kalkulator. Batas wajib: (a) panjang bacaan PU dan PK paling banyak 60 kata termasuk tabel, stimulus PM paling banyak 120 kata, tabel paling banyak 4 baris × 4 kolom isi; (b) banyak langkah hitung: level L 1–2, M 2–3, H paling banyak 4; (c) angka ramah hitung: perkalian paling berat 2 angka × 1 angka atau bilangan berakhiran nol, pembagian selalu habis, persen hanya 5, 10, 20, 25, 50, 75 (atau kelipatan 10), penyebut pecahan paling besar 12, uang dalam ribuan bulat, hasil antara tidak lebih dari 4 angka. Bila soal melanggar batas ini, sederhanakan angkanya atau potong datanya, bukan bentuknya.',
  'Hitungan hanya memakai konsep dari daftar MATERI. Jangan menuntut konsep yang tidak ada di daftar. Bila sebuah kerangka arsip menuntut materi di luar daftar, pertahankan bentuk pertanyaannya dan ganti isinya dengan materi dari daftar; bila tidak mungkin, pakai bentuk arsip lain yang cocok dan tulis kodenya di "bentuk_lama".',
- 'Pilihan ganda: lima opsi, tepat satu benar. Setiap pengecoh mewakili satu kesalahan khas (hasil langkah antara, persen dari nilai yang salah, arah terbalik, syarat terlewat), bukan asal salah. Opsi angka diurutkan naik. Kunci tersebar di A–E dalam satu set.',
+ 'Pilihan ganda: lima opsi, tepat satu benar. Setiap pengecoh mewakili satu kesalahan khas, bukan asal salah: utamakan pengecoh khas di POLA BRIEF untuk kode soal itu, lalu kesalahan nyata lain (hasil langkah antara, persen dari nilai yang salah, arah terbalik, syarat terlewat). Tulis nama kesalahan tiap pengecoh di "alasan" (jangan "…"), dan sebut kode pola soal di langkah pertama pembahasan. Opsi angka diurutkan naik. Kunci tersebar di A–E dalam satu set.',
  'Hitung ulang setiap kunci dengan cara kedua sebelum menulis. Soal dalam satu stimulus harus konsisten satu sama lain.',
  'Konteks Indonesia sehari-hari dengan nama generik (Kota X, Toko A, Bu Rini). Tidak ada gambar: data diagram ditulis sebagai tabel, denah dijelaskan dengan kata-kata.',
  'Teks polos Unicode (× ÷ − √ ≤ ≥), tanpa LaTeX. Pangkat ditulis dengan ^, misalnya x^2 atau 2^(n + 1). Desimal koma, ribuan titik, uang Rp50.000,00.',
@@ -1452,9 +1500,14 @@ function promptSet(r){
   const kems=[...new Set(r.slots.map(s=>s.kem).filter(Boolean))];
   const lain=poolUnits(fromYmd(r.tgl)).filter(u=>!pool.includes(u));
   const adaGrup=r.grup.length>0, adaPM=r.grup.some(g=>g.sub==='PM'), sub=r.mode==='sim'?r.slots[0].sub:null, sd=sidikLama(r.mode==='harian'?r.tgl:null), jd=judulLama();
-  const arsip=[]; if(r.slots.some(s=>s.sub==='PU')) arsip.push('PU kuantitatif: '+LAMA.PU.map(x=>x.id+' '+x.t).join('; ')+'.');
-  if(r.slots.some(s=>s.sub==='PK')) arsip.push('PK format: '+LAMA.PK.map(x=>x.id+' '+x.t).join('; ')+'; PK-F4 satu informasi untuk tiga soal berurutan.','PK materi: '+LAMA.PKM.map(x=>x.id+' '+x.t).join('; ')+'.');
-  if(adaPM) arsip.push('PM templat: '+LAMA.PM.map(x=>x.id+' '+x.t).join('; ')+'; urutan soal lama selalu hitung total → hitung bagian → pilihan termurah.');
+  /* R1: baris tabel Brief lengkap hanya untuk kode yang dipakai resep hari ini; kode lain cukup namanya (daftar yang dihindari) */
+  const semuaKode={}; ['PU','PK','PKM','PM'].forEach(k=>LAMA[k].forEach(x=>{ semuaKode[x.id]=x.t; })); semuaKode['PK-F4']='satu informasi untuk tiga soal berurutan';
+  const dipakai=[]; const tambah=id=>{ if(id&&!dipakai.includes(id)) dipakai.push(id); };
+  r.slots.forEach(s=>{ if(s.lama) tambah(s.lama.id); if(s.lama2) tambah(s.lama2.id); }); r.grup.forEach(g=>{ if(g.lama) tambah(g.lama.id); });
+  const urutKode=(a,b)=>{ const k=x=>{ const m=x.match(/^(PU-K|PK-F|PK-M|PM-)(\d+)/); return m?[['PU-K','PK-F','PK-M','PM-'].indexOf(m[1]),+m[2]]:[9,0]; }, A=k(a), B=k(b); return A[0]-B[0]||A[1]-B[1]; };
+  const polaBrief=dipakai.sort(urutKode).map(id=>briefLine(id,semuaKode[id]));
+  const subHari=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)), awalan={PU:['PU-K'],PK:['PK-F','PK-M'],PM:['PM-']};
+  const lainnya=Object.keys(semuaKode).filter(id=>!dipakai.includes(id)&&subHari.some(x=>awalan[x].some(a=>id.startsWith(a)))).sort(urutKode).map(id=>id+' '+semuaKode[id]);
   let body=''; let lastG=null;
   r.slots.forEach(s=>{ if(s.grup&&s.grup!==lastG){ lastG=s.grup; body+='\n'+grupLine(r.grup.find(g=>g.id===s.grup))+'\n'; } else if(!s.grup&&lastG){ lastG=null; body+='\n'; } body+=(s.grup?'   ':'')+slotLine(s)+'\n'; });
   return 'Buatkan '+(r.mode==='sim'?'satu set simulasi '+SUB[sub].nama+' ('+r.slots.length+' soal, '+mmss(SUB[sub].simMs)+' menit)':'set latihan kuantitatif UTBK-SNBT untuk '+tgl(r.tgl,true)+' ('+r.slots.length+' soal)')+
@@ -1465,7 +1518,8 @@ function promptSet(r){
   (lain.length?'Sudah kupelajari juga dan boleh dipakai bila bentuk soal menuntutnya: '+lain.map(uname).join('; ')+'.\n':'')+
   'Cakupan tiap unit mengikuti judulnya (urutan materi Zenius Matematika Dasar dan PU). Materi di luar daftar ini belum kupelajari; bila ragu, pilih tafsiran yang paling dasar.\n\n'+
   'RESEP PER SOAL\n'+body+'\n'+
-  'ARSIP BENTUK 2019–2026 (ditiru hanya pada soal LAMA; pada soal GESER dan BARU ini daftar yang dihindari)\n'+arsip.map(a=>'- '+a).join('\n')+'\n'+
+  'POLA BRIEF HARI INI (dari tabel Brief Kunci Pola; soal LAMA meniru kerangka dan pertanyaannya, soal GESER berangkat dari sini lalu mengubah satu–dua unsur; pengecoh khas WAJIB dipakai sebagai salah satu pengecoh pada soal yang memakai kode itu)\n'+polaBrief.map(a=>'- '+a).join('\n')+'\n'+
+  (lainnya.length?'Bentuk arsip lain (hanya nama; jangan ditiru pada soal BARU): '+lainnya.join('; ')+'.\n':'')+
   (sd.length?'\nRIWAYAT BENTUK 14 HARI TERAKHIR, termasuk stok hari lain (subtes tipe ~arsip | sidik | awal kalimat perintah). Jangan ulangi kombinasi stimulus + arah tanya + format, dan jangan pakai kalimat perintah yang mirip.\n'+sd.map(x=>'- '+x).join('\n')+'\n':'')+
   (jd.length?'\nCERITA YANG SUDAH DIPAKAI (jangan mirip): '+jd.join('; ')+'\n':'')+
   '\nATURAN\n'+ATURAN.map((a,i)=>(i+1)+'. '+a).join('\n')+'\n'+
