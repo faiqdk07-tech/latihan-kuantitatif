@@ -1052,7 +1052,7 @@ document.addEventListener('click',function(e){
     case 'tab': case 'tgl': return SFX.play('ketuk');
     case 'ke': case 'prev': case 'next': case 'klnext': return SFX.play('halaman');
     case 'pick': case 'bs': return SFX.play('pensil');
-    case 'copy': case 'varian': case 'ekspor': return SFX.play('salin');
+    case 'copy': case 'varian': case 'varianB': case 'ebkembar': case 'ekspor': return SFX.play('salin');
     case 'simpan': return setTimeout(()=>SFX.play(V.soal.res&&V.soal.res.ok?'simpan':'galat'),0);
     case 'hapus': return SFX.play(V._del===v?'buang':'peringatan');
     case 'reset': return SFX.play(V.prog.reset?'buang':'peringatan');
@@ -1696,8 +1696,8 @@ function qPlain(q,st){ const g=q.stim&&st?(st.stimulus||[]).find(x=>x.id===q.sti
   else t+='Kunci: '+fmt(q.kunciNum);
   return t; }
 function varLvl(q){ const o='LMH', a=o.indexOf(q.lvl||'M'), cap=tahap(q.sub)===1?1:2; return o[Math.max(0,Math.min(a<0?1:a,cap))]; }
-function promptVarian(q,st){
-  return 'Aku salah mengerjakan soal di bawah. Buatkan 3 varian untuk melatih kemampuan yang sama dengan bentuk berbeda. Keluarkan HANYA satu blok kode json.\n\n'+
+function promptVarian(q,st,benar){
+  return (benar?'Aku sudah benar mengerjakan soal di bawah. Buatkan 3 varian untuk memastikan aku menguasai kemampuannya, bukan hanya hafal bentuknya.':'Aku salah mengerjakan soal di bawah. Buatkan 3 varian untuk melatih kemampuan yang sama dengan bentuk berbeda.')+' Keluarkan HANYA satu blok kode json.\n\n'+
   'KEMAMPUAN: '+(q.kem||'-')+(KEM[q.kem]?' ('+KEM[q.kem]+')':'')+'\nUNIT: '+uname(q.unit)+'\n\nSOAL ASAL\n'+qPlain(q,st)+'\n\n'+
   'TAHAP '+q.sub+': '+TAHAP[tahap(q.sub)].nama+'. Level ketiga varian: '+varLvl(q)+' (tidak lebih sulit dari soal asal dan dari tahapku)'+(tahap(q.sub)===1?'; tetap memakai bentuk yang dekat dengan arsip':'')+'.\n\n'+
   'TIGA VARIAN\n1. Konteks diganti total, struktur hitungan sama.\n2. Arah tanya dibalik: yang tadinya diketahui menjadi yang ditanya.\n3. Satu syarat ditambah sehingga perlu satu langkah lagi.\nKetiganya memakai stimulus dan format jawaban yang berbeda dari soal asal bila memungkinkan.\n\n'+
@@ -1721,6 +1721,9 @@ function parseSet(raw){
       tipe:x.tipe,perintah:String(x.perintah||'').trim(),langkah:[].concat(x.langkah||[]).map(String).filter(Boolean),jebakan:String(x.jebakan||'').trim()};
     const bj=bacaJenis(x.jenis,mode); if(bj.warn) warn.push('Soal '+no+': '+bj.warn);
     const bf=bacaFormat(x.format,q.tipe); q.format=bf.format; if(bf.warn) warn.push('Soal '+no+': '+bf.warn);
+    /* R7: soal pengganti Error Book menyimpan soal asalnya dan jenis ulangnya (kembar atau varian) */
+    if(mode==='varian'){ const as=String(x.asal||'').trim(); if(as){ q.asal=as; if(!findQ(as)) warn.push('Soal '+no+': soal asal "'+as+'" tidak ditemukan, jadi soal ini tidak dipakai Error Book.'); }
+      const ul=String(x.ulang||'').trim().toLowerCase(); if(ul==='kembar'||ul==='varian') q.ulang=ul; }
     if(!q.sub) E('"sub" harus PU, PK, atau PM.');
     if(!q.kem) warn.push('Soal '+no+': kode kemampuan tidak dikenali, rekap per kemampuan melewatinya.');
     if(!q.perintah) E('"perintah" kosong.');
@@ -1742,7 +1745,7 @@ function parseSet(raw){
   const now=Date.now(); let id, tg=null, sub=null, label;
   if(mode==='harian'){ tg=/^\d{4}-\d{2}-\d{2}$/.test(st.tgl||'')?st.tgl:ymd(new Date()); id='h'+tg; label='Set '+tgl(tg); }
   else if(mode==='sim'){ sub=soal[0].sub; id='sim'+now; label='Simulasi '+sub; if(soal.some(q=>q.sub!==sub)) warn.push('Simulasi memuat lebih dari satu subtes.'); }
-  else { sub=soal[0].sub; id='var'+now; label='Varian '+sub; }
+  else { sub=soal[0].sub; id='var'+now; label=soal.some(q=>q.asal)?'Pengganti Error Book':'Varian '+sub; }
   soal.forEach(q=>{ q.qid=id+'#'+q.no; });
   warn.push(...cekMutu(soal,stim,mode,tg));
   return {err:[],warn,set:{id,mode,tgl:tg,sub,label,asal:st.asal||null,stimulus:stim,soal,ts:now}};
@@ -1852,7 +1855,25 @@ function ebJw(q,a){ if(q.tipe==='isian') return a.is?String(a.is):'kosong'; if(q
 function ebAdd(q,a,ms){ if(!S.eb) S.eb={}; const e=S.eb[q.qid], now=Date.now();
   if(e){ e.mt=now; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); e.ms=ms; if(e.lulus){ e.lulus=0; e.box=0; e.perlu=true; e.ulang=1; } e.due=ebPlus(1); return e; }
   return S.eb[q.qid]={qid:q.qid,sub:q.sub,kem:q.kem||'',unit:q.unit||'',t:now,jw:ebJw(q,a),ms:ms||0,kosong:isAns(q,a)?0:1,sebab:'',aturan:'',box:0,due:ebPlus(1),log:[],lulus:0,perlu:true,salah:1}; }
-function ebReview(q,ok,a){ const e=S.eb&&S.eb[q.qid]; if(!e) return null; const now=Date.now(), b0=e.box; e.mt=now; e.log.push({ts:now,ok:ok?1:0,box:b0});
+/* R7: hari ke-1 dan ke-3 memakai soal kembar (stimulus sama, angka diganti), hari ke-7 dan ke-14 varian bentuk 2027.
+   Soal pengganti diambil dari set varian yang menyebut soal asalnya; tiap pengganti dipakai sekali. Bila belum ada, soal asli dipakai. */
+function ebCalon(e){ const out=[]; S.sets.forEach(st=>{ if(st.mode!=='varian') return; st.soal.forEach(q=>{ if((q.asal||st.asal)===e.qid) out.push({q,set:st,ulang:q.ulang||'varian'}); }); }); return out; }
+function ebMau(e){ return e.box<=1?'kembar':'varian'; }
+function ebPengganti(e){ const pakai=new Set(S.hist.map(h=>h.qid)), c=ebCalon(e).filter(x=>!pakai.has(x.q.qid));
+  const urut=ebMau(e)==='kembar'?['kembar']:['varian','kembar']; for(const m of urut){ const x=c.find(y=>y.ulang===m); if(x) return {q:x.q,set:x.set,eb:m}; }
+  const it=findQ(e.qid); return it?{q:it.q,set:it.set,eb:'asli'}:null; }
+/* soal jatuh tempo dalam 3 hari ke depan yang belum punya pengganti yang cocok untuk kotaknya */
+function ebButuh(){ const batas=ebPlus(2); return ebAktif().filter(e=>!e.perlu&&e.due&&e.due<=batas&&findQ(e.qid)).filter(e=>{ const p=ebPengganti(e); return !p||p.eb!==ebMau(e); }).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:0).slice(0,EB_MAX); }
+function ebPromptUlang(L){ const adaStim=L.some(e=>{ const it=findQ(e.qid); return it&&it.q.stim; });
+  return 'Buatkan soal pengganti untuk Error Book latihan kuantitatif UTBK-ku: tepat satu soal untuk tiap SOAL ASAL di bawah. Keluarkan HANYA satu blok kode json, tanpa teks lain.\n\n'+
+  'DUA JENIS PENGGANTI\n- KEMBAR (ulangan hari ke-1 dan ke-3): stimulus, kerangka, tipe, dan arah tanya sama dengan soal asal; hanya angka (dan nama bila ada) yang diganti, lalu kunci, opsi, pengecoh, dan pembahasan dihitung ulang. Jawabannya tidak boleh sama dengan soal asal.\n'+
+  '- VARIAN (ulangan hari ke-7 dan ke-14): kemampuan dan materi sama, bentuk 2027 berbeda: ganti stimulus, arah tanya, atau format (satu atau dua). Tidak lebih sulit dari soal asal.\n\n'+
+  L.map((e,i)=>{ const it=findQ(e.qid); return 'SOAL ASAL '+(i+1)+' · "asal": "'+e.qid+'" · buat '+ebMau(e).toUpperCase()+' · '+it.q.sub+' · '+(it.q.kem||'-')+' · unit '+(it.q.unit||'-')+(e.sebab?'\nKesalahanku: '+(EBS[e.sebab]||'-')+(e.aturan?'. Aturanku: '+e.aturan:''):'')+'\n'+qPlain(it.q,it.set); }).join('\n\n')+'\n\n'+
+  'ATURAN\n'+[ATURAN[2],ATURAN[3],ATURAN[4],ATURAN[5],ATURAN[7]].map((a,i)=>(i+1)+'. '+a).join('\n')+'\n6. Salah satu pengecoh memancing kesalahan yang sama dengan kesalahanku di soal asal.\n\n'+
+  'FORMAT JSON (set "mode" tetap "varian"; tiap soal wajib berisi "asal" = kode soal asal dan "ulang" = "kembar" atau "varian"; "jenis" diisi "varian"; soal PM membawa stimulusnya sendiri dengan id baru)\n'+
+  fmtJson('varian','',null,adaStim).replace(/"no": (\d+), "sub"/g,'"no": $1, "asal": "'+L[0].qid+'", "ulang": "'+ebMau(L[0])+'", "sub"'); }
+function ebKunci(it){ const q=it.q; if(S.eb&&S.eb[q.qid]) return q.qid; const a=q.asal||(it.set&&it.set.asal); return a&&S.eb&&S.eb[a]?a:null; }
+function ebReview(q,ok,a,key){ const e=S.eb&&S.eb[key||q.qid]; if(!e) return null; const now=Date.now(), b0=e.box; e.mt=now; e.log.push({ts:now,ok:ok?1:0,box:b0});
   if(ok){ e.box=b0+1; if(e.box>=EB_INT.length){ e.lulus=now; e.due=''; } else e.due=ebPlus(EB_INT[e.box]); }
   else { e.box=0; e.due=ebPlus(1); e.perlu=true; e.ulang=1; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); }
   return {b0,box:e.box,lulus:!!e.lulus,ok}; }
@@ -1870,7 +1891,7 @@ function ebKapan(d){ const k=ebToday(); if(!d) return '-'; if(d<=k) return 'hari
 function ebDots(e){ return '<span class="ebdots" aria-label="Kotak '+Math.min(e.box,4)+' dari 4">'+EB_INT.map((_,i)=>'<i class="'+(i<e.box||e.lulus?'on':'')+'"></i>').join('')+'</span>'; }
 function ebStartUlang(){ const L=ebDue(); if(!L.length){ toast('Belum ada soal yang jatuh tempo.'); return; }
   /* diselang-seling antarsubtes supaya tidak menebak dari urutan */
-  const pick=RN.shuf(L.slice(0,EB_MAX)).map(e=>findQ(e.qid)).filter(Boolean);
+  const pick=RN.shuf(L.slice(0,EB_MAX)).map(ebPengganti).filter(Boolean);
   V.run=newRun({sid:'eb',label:'Ulang Error Book',mode:'eb',items:pick,cek:'langsung',limit:null,rep:true}); V.run.eb={}; V.hasil=null; persist(); go('main'); }
 function ebTask(){ const k=ebToday(), L=ebList(), done=L.reduce((n,e)=>n+e.log.filter(x=>dk(x.ts)===k).length+(e.dt&&dk(e.dt)===k?1:0),0), p=ebPerlu().length, d=ebDue().length, rem=p+Math.min(d,EB_MAX);
   return {id:'salah',t:'Error Book',d:p||d?[p?p+' perlu diagnosis':'',d?d+' jatuh tempo':''].filter(Boolean).join(' · '):'Tidak ada yang menunggu hari ini',cur:rem?done:Math.max(done,1),n:Math.max(1,done+rem),act:p?'goeb':'ebulang',btn:p?'Diagnosis':'Ulang',off:!rem}; }
@@ -1920,10 +1941,11 @@ function ebKartuDiag(e){ const it=findQ(e.qid), st=V.eb, sb=st.sel[e.qid]||e.seb
     '<div class="btns"><button class="btn pri grow" data-action="ebsimpan" data-v="'+esc(e.qid)+'">Simpan diagnosis</button><button class="btn" data-action="varian" data-v="'+esc(e.qid)+'">Prompt 3 varian</button>'+(st.edit===e.qid?'<button class="btn" data-action="ebbatal" data-v="'+esc(e.qid)+'">Batal</button>':'')+'</div>'+
     '<div class="btns"><button class="btn sm danger" data-action="ebhapus" data-v="'+esc(e.qid)+'">Soal/kuncinya keliru, hapus</button></div></div>'; }
 function viewSalah(){
-  const st=V.eb, P=ebPerlu(), D=ebDue(), A=ebAktif(), J=A.filter(e=>!e.perlu&&!D.includes(e)), Lu=ebList().filter(e=>e.lulus).sort((a,b)=>b.lulus-a.lulus), po=ebPola(30);
-  let h='<p class="intro">Setiap soal yang salah masuk ke sini. <b>Diagnosis</b> penyebabnya dan tulis aturan untuk dirimu, <b>ulang</b> tanpa melihat kunci pada hari berikutnya, lalu <b>lulus</b> setelah benar 4 kali berjarak (1, 3, 7, 14 hari). Salah lagi berarti kembali ke kotak 1.</p>';
+  const st=V.eb, P=ebPerlu(), D=ebDue(), A=ebAktif(), B=ebButuh(), J=A.filter(e=>!e.perlu&&!D.includes(e)), Lu=ebList().filter(e=>e.lulus).sort((a,b)=>b.lulus-a.lulus), po=ebPola(30);
+  let h='<p class="intro">Setiap soal yang salah masuk ke sini. <b>Diagnosis</b> penyebabnya dan tulis aturan untuk dirimu, <b>ulang</b> tanpa melihat kunci, lalu <b>lulus</b> setelah benar 4 kali berjarak (1, 3, 7, 14 hari). Hari ke-1 dan ke-3 memakai soal kembar (angka diganti), hari ke-7 dan ke-14 memakai varian bentuk lain. Salah lagi berarti kembali ke kotak 1.</p>';
   const nx=A.filter(e=>e.due&&!e.perlu).sort((a,b)=>a.due<b.due?-1:1)[0];
   h+='<h2>Status</h2><div class="card"><div class="ebsum">'+[['Diagnosis',P.length,'red'],['Jatuh tempo',D.length,'blue'],['Terjadwal',J.length,'orange'],['Lulus',Lu.length,'green']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+
+    (B.length?'<div class="ebnote"><p class="sm"><b>Soal pengganti:</b> '+B.length+' soal yang jatuh tempo dalam 3 hari belum punya '+(B.some(e=>ebMau(e)==='kembar')?'soal kembar':'')+(B.some(e=>ebMau(e)==='kembar')&&B.some(e=>ebMau(e)==='varian')?' atau ':'')+(B.some(e=>ebMau(e)==='varian')?'varian':'')+'. Tanpa pengganti, soal aslinya yang diulang (kamu bisa hafal jawabannya).</p><button class="btn block" data-action="ebkembar">Salin prompt soal pengganti ('+B.length+')</button></div>':'')+
     (D.length?'<button class="btn pri block" data-action="ebulang">Ulang '+Math.min(D.length,EB_MAX)+' soal jatuh tempo</button>'+(D.length>EB_MAX?'<p class="sm ebnote">Paling banyak '+EB_MAX+' per putaran supaya tetap fokus. Sisanya bisa diulang setelah ini.</p>':'')
     :P.length?'<p class="sm ebnote">Diagnosis dulu soal di bawah. Soalnya mulai diulang besok.</p>'
     :A.length?'<p class="sm ebnote">Tidak ada yang perlu dikerjakan sekarang. Ulangan berikutnya '+(nx?ebKapan(nx.due):'-')+'. Mengulang lebih cepat tidak membantu ingatan jangka panjang.</p>':'')+'</div>';
@@ -1939,7 +1961,7 @@ function viewSalah(){
     h+=list.length?list.map(e=>{ if(st.edit===e.qid) return '</div><h2>Ubah diagnosis</h2>'+ebKartuDiag(e)+'<div class="card">'; const it=findQ(e.qid), due=D.includes(e);
       return '<div class="ebitem"><div class="ebhd">'+badge(e.sub)+(e.kem?'<span class="code">'+esc(e.kem)+'</span>':'')+'<span class="ebtag s">'+esc(EBS[e.sebab]||'-')+'</span><span class="ebwhen'+(due?' due':'')+'">'+ebDots(e)+'<b>'+(due?'jatuh tempo':esc(ebKapan(e.due)))+'</b></span></div>'+
       (it?'<p class="snip">'+mx(it.q.perintah.slice(0,140))+(it.q.perintah.length>140?'…':'')+'</p>':'<p class="sm">Soal tidak tersedia lagi.</p>')+
-      '<p class="ebrule">'+esc(e.aturan)+'</p><div class="btns"><button class="btn sm" data-action="ebedit" data-v="'+esc(e.qid)+'">Ubah diagnosis</button>'+(e.box>=2&&it?'<button class="btn sm" data-action="varian" data-v="'+esc(e.qid)+'">Uji di bentuk lain (3 varian)</button>':'')+'</div></div>'; }).join(''):'<p class="sm ebnote">Tidak ada untuk '+esc(st.f)+'.</p>';
+      '<p class="ebrule">'+esc(e.aturan)+'</p>'+(()=>{ const pg=ebPengganti(e), m=ebMau(e); return '<p class="sm">Ulangan berikutnya: '+(pg&&pg.eb===m?(m==='kembar'?'soal kembar siap':'varian siap'):'soal asli (belum ada '+(m==='kembar'?'soal kembar':'varian')+')')+'</p>'; })()+'<div class="btns"><button class="btn sm" data-action="ebedit" data-v="'+esc(e.qid)+'">Ubah diagnosis</button>'+(e.box>=2&&it?'<button class="btn sm" data-action="varian" data-v="'+esc(e.qid)+'">Uji di bentuk lain (3 varian)</button>':'')+'</div></div>'; }).join(''):'<p class="sm ebnote">Tidak ada untuk '+esc(st.f)+'.</p>';
     h+='</div>'; }
   if(Lu.length) h+='<details class="card fold"><summary><span class="grow"><b>Lulus ('+Lu.length+')</b> <span class="sm">benar 4 kali berjarak</span></span>'+CHEVI+'</summary>'+Lu.slice(0,30).map(e=>'<div class="row"><div class="grow">'+badge(e.sub)+' <span class="code">'+esc(e.kem||'-')+'</span><p class="ebrule">'+esc(e.aturan||'-')+'</p></div><span class="sm">'+esc(tgl(dk(e.lulus)))+'</span></div>').join('')+'</details>';
   if(!ebList().length) h+='<h2>Masih kosong</h2><div class="card"><p class="sm">Error Book masih kosong. Soal yang salah di Set soal dan Simulasi otomatis masuk ke sini.</p></div>';
@@ -1974,7 +1996,7 @@ function tick(R){ if(!R||R.fin) return; const now=Date.now(); if(!R.A[R.cur].don
 function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a); if(R.cek==='langsung') setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70);
   S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,fmt:q.format||'',lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
   if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid];
-  if(R.mode==='eb'){ const r=ebReview(q,a.ok,a); if(r) R.eb[q.qid]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
+  if(R.mode==='eb'){ const key=ebKunci(it)||q.qid, r=ebReview(q,a.ok,a,key); if(r) R.eb[key]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
 function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); R.items.forEach((_,i)=>{ if(!R.A[i].done) recordAt(i); }); R.fin=true; SFX.play('selesai'); const ok=save(); R.simpan=cekTersimpan(R);
   /* sesi baru dibuang bila jawabannya benar-benar sudah ada di penyimpanan */
   if(ok&&R.simpan.ok) clearSesi(); V.hasil=R; V.run=null; render(); window.scrollTo(0,0); }
@@ -2865,9 +2887,9 @@ function viewRun(){
   else h+='<div class="isi"><input id="isian" inputmode="decimal" autocomplete="off" placeholder="jawaban angka" value="'+esc(a.is)+'"'+(rv?' disabled':'')+'><span class="sm">Desimal pakai koma, tanpa satuan.</span></div>';
   h+='</div>';
   if(rv||a.prev) h+=pembahasan(q,a);
-  if(R.mode==='eb'&&rv){ const e=S.eb[q.qid], r=R.eb&&R.eb[q.qid]; if(e){ const k=h.lastIndexOf('</div>');
-    h=h.slice(0,k)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b></span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar 4 kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</p>'+
-    (e.aturan?'<p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya.</p>')+'</div>'+h.slice(k); } }
+  if(R.mode==='eb'&&rv){ const key=ebKunci(R.items[k])||q.qid, e=S.eb[key], r=R.eb&&R.eb[key]; if(e){ const k2=h.lastIndexOf('</div>'), jn=R.items[k].eb||(it.set.mode==='varian'?(q.ulang||'varian'):'');
+    h=h.slice(0,k2)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b>'+(jn==='kembar'?' · soal kembar':jn==='varian'?' · varian bentuk lain':'')+'</span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar 4 kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</p>'+
+    (e.aturan?'<p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya.</p>')+'</div>'+h.slice(k2); } }
   const last=k===n-1, allDone=R.A.every(x=>x.done);
   h+='<div class="btns foot">'+(k>0?'<button class="btn" data-action="prev">Sebelumnya</button>':'');
   if(R.cek==='langsung') h+=a.done?'<button class="btn pri grow" data-action="'+(last&&allDone?'selesai':'next')+'" id="pbtn">'+(last?(allDone?'Lihat hasil':'Ke soal yang belum'):'Lanjut')+'</button>':'<button class="btn pri grow" data-action="periksa" id="pbtn"'+(isAns(q,a)?'':' disabled')+'>Periksa</button>';
@@ -2920,7 +2942,7 @@ function viewHasil(){
     return '<details class="card rev fold '+(a.ok?'good':'wrong')+'"><summary><span class="num">'+(i+1)+'</span>'+badge(q.sub)+'<span class="grow snip1">'+esc(q.perintah.slice(0,70))+'</span><span class="sm">'+(a.ok?'benar':'salah')+' · '+Math.round(R.T[i]/1000)+' dtk'+(slow?' (lambat)':'')+'</span>'+CHEVI+'</summary>'+
     q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>'+
     (q.tipe==='pg'?'<ul class="ol">'+q.opsi.map((o,j)=>'<li class="'+(j===q.kunci?'k':a.c===j?'x':'')+'"><b>'+'ABCDE'[j]+'.</b> '+mx(o)+(q.alasan&&q.alasan[j]&&j!==q.kunci?'<span class="why">'+mx(q.alasan[j])+'</span>':'')+'</li>').join('')+'</ul>':q.tipe==='pq'?'<p>P: '+txt(q.p)+'<br>Q: '+txt(q.q)+'</p>':q.tipe==='cukup'?'<p>'+ckLab(q)[0]+' '+txt(q.pern[0])+'<br>'+ckLab(q)[1]+' '+txt(q.pern[1])+'</p>':q.tipe==='bs'?'<ul class="ol">'+q.bs.map(b=>'<li>'+mx(b.teks)+' <b>('+(b.benar?'Benar':'Salah')+')</b></li>').join('')+'</ul>':'<p class="sm">Jawabanmu: '+esc(a.is||'kosong')+'</p>')+
-    pembahasan(q,a)+'</details>'; }).join('');
+    pembahasan(q,a)+(a.ok&&['harian','sim'].includes(it.set.mode)?'<div class="btns"><button class="btn sm" data-action="varianB" data-v="'+esc(q.qid)+'">Uji di 3 bentuk lain</button></div>':'')+'</details>'; }).join('');
   if(R.mode==='eb'){ const rs=Object.values(R.eb||{}), up=rs.filter(r=>r.ok&&!r.lulus).length, lu=rs.filter(r=>r.lulus).length, dn=rs.filter(r=>!r.ok).length;
     h=h.replace('<div class="fhead">','<div class="card has-lbl"><span class="lbl bl">Error Book</span><div class="ebsum c3">'+[['Naik kotak',up,'blue'],['Lulus',lu,'green'],['Mulai lagi',dn,'red']].map(x=>'<div style="--c:var(--'+x[2]+')"><b>'+x[1]+'</b><span class="sm">'+x[0]+'</span></div>').join('')+'</div>'+(dn?'<p class="sm ebnote">'+dn+' soal salah lagi. Perbarui diagnosisnya selagi masih ingat apa yang membuatmu keliru.</p>':'')+'</div><div class="fhead">'); }
   const nb=Object.keys(R.ebNew||{}).length+(R.mode==='eb'?Object.values(R.eb||{}).filter(r=>!r.ok).length:0);
@@ -2994,7 +3016,8 @@ function act(a,v){
   else if(a==='ebmore'){ V.eb.n+=5; render(); }
   else if(a==='ebprompt') copyText(ebPrompt(),'Prompt analisis disalin. Jalankan di Claude.');
   else if(a==='ulang1'){ const it=findQ(v); if(it) startUlang([it]); }
-  else if(a==='varian'){ const it=findQ(v); if(it) copyText(promptVarian(it.q,it.set),'Prompt varian disalin. Tempel hasilnya di Set soal.'); }
+  else if(a==='varian'||a==='varianB'){ const it=findQ(v); if(it) copyText(promptVarian(it.q,it.set,a==='varianB'),'Prompt varian disalin. Tempel hasilnya di Set soal.'); }
+  else if(a==='ebkembar'){ const L=ebButuh(); if(L.length) copyText(ebPromptUlang(L),'Prompt soal pengganti disalin. Jalankan di Claude, lalu tempel hasilnya di Set soal.'); }
   else if(a==='tab'){ Z.tab=v; Z.res=null; render(); }
   else if(a==='tgl'){ Z.tgl=v; render(); }
   else if(a==='copy'){ copyText($('#promptbox').value,'Prompt disalin. Jalankan di Claude.'); }
