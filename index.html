@@ -1150,7 +1150,7 @@ const KEM={
   'PU-KUA-3':'membaca dan menggabungkan data dari tabel atau diagram',
   'PU-KUA-4':'menyusun hubungan sederhana dari cerita (dulu dan kini, bekerja bersama, kelipatan)',
   'PU-KUA-5':'menilai apakah informasi yang ada cukup untuk menjawab',
-  'PK-A':'memakai sifat bilangan, aljabar, data (sifat dan strategi, bukan hitungan panjang)',
+  'PK-A':'memakai sifat bilangan, aljabar dan fungsi, geometri, data, dan peluang (sifat dan strategi, bukan hitungan panjang)',
   'PK-B':'membandingkan dua kuantitas tanpa menghitung tuntas',
   'PK-C':'mengikuti aturan atau prosedur baru yang didefinisikan di soal',
   'PM-A':'merumuskan: mengubah cerita menjadi model matematika',
@@ -1176,16 +1176,24 @@ const TUAS=[{id:'bungkus',t:'ganti bungkus cerita',dim:'stim',tanpa:['PK']},{id:
 /* Arsip bentuk 2019–2026 (ringkas). Ditiru hanya pada soal LAMA; dihindari pada GESER dan BARU. */
 const LAMA={
   PU:ob([['PU-K1','5–6 nilai naik-turun selang-seling; tanya nilai periode berikutnya'],['PU-K2','dua barisan sekaligus, suku ke-5 kosong'],['PU-K3','desimal dan persen/pecahan; bilangan PALING MENDEKATI hasil'],['PU-K4','tabel 3 seri × 5 periode; kenaikan terbesar atau perkiraan periode berikutnya'],['PU-K5','nilai setelah perubahan persen diketahui; tanya nilai sebelum'],['PU-K6','tiga pilihan dengan satuan berbeda; pernyataan PALING TEPAT'],['PU-K7','dua informasi jumlah anggota dua kelompok beririsan'],['PU-K8','"a/b dari p% total adalah n"; tanya persen lain dari total'],['PU-K9','jumlah dua harga sekarang, perbandingan beberapa tahun lalu, kenaikan tetap'],['PU-K10','pola dua operasi bergantian dengan titik awal digeser'],['PU-K11','dua persamaan pendek (6x^2y = 12 dan xy = 3)'],['PU-K12','tabel persen capaian dengan nilai maksimum berbeda per kolom'],['PU-K13','persentase satu sumber digabung tabel persentase lain'],['PU-K14','dua kejadian berulang dengan periode berbeda; kapan bersamaan lagi'],['PU-K15','pertanyaan "apakah …" dengan pernyataan (i) dan (ii), opsi kecukupan data']]),
-  PK:ob([['PK-F1','informasi singkat lalu kuantitas P dan Q'],['PK-F2','pertanyaan lalu pernyataan (1) dan (2): kecukupan data'],['PK-F3','informasi lalu 3–4 pernyataan: benar/salah atau banyak yang benar'],['PK-F5','pilihan ganda dengan hasil akhir "a + b" atau "2p + q"'],['PK-F6','pilihan ganda "Ya/Tidak, karena …": setiap opsi berupa jawaban beserta alasannya']]),
-  PKM:ob([['PK-M1','operasi baru bersimbol'],['PK-M2','sifat bilangan: prima, ganjil-genap, sisa bagi, faktor'],['PK-M3','barisan aritmetika/geometri dengan suku berhuruf'],['PK-M8','rata-rata, median, jangkauan dengan satu data berhuruf'],['PK-M9','membandingkan pecahan, desimal, persen'],['PK-M10','prosedur: mesin input–output'],['PK-M11','teka-teki operasi kisi: simbol # dan @ mewakili operasi yang sama di persamaan mendatar dan menurun'],['PK-M12','langkah pembuktian: beberapa langkah penyelesaian bernomor, cari langkah yang salah atau alasan yang tepat']]),
-  PM:ob([['PM-1','jual-beli: harga, diskon, uang muka, angsuran'],['PM-2','pola bertingkat: benda bertambah tiap tahap'],['PM-5','tabel data penjualan, stok, produksi'],['PM-7','jarak, kecepatan, waktu pada lintasan'],['PM-8','perubahan persen berulang (bocor, tumbuh, susut)']])
+  PK:ob([['PK-F1','informasi singkat lalu kuantitas P dan Q'],['PK-F2','pertanyaan lalu pernyataan (1) dan (2): kecukupan data'],['PK-F3','informasi lalu 3–4 pernyataan: benar/salah atau banyak yang benar'],['PK-F5','pilihan ganda dengan hasil akhir "a + b" atau "2p + q"']]),
+  PKM:ob([['PK-M1','operasi baru bersimbol, atau simbol mewakili operasi yang harus ditebak (teka-teki kisi paling banyak 1 soal per set)'],['PK-M2','sifat bilangan: prima, ganjil-genap, sisa bagi, faktor'],['PK-M3','barisan aritmetika/geometri dengan suku berhuruf'],['PK-M4','fungsi kuadrat lewat beberapa titik; manfaatkan simetri'],['PK-M5','garis dan koordinat: gradien, tegak lurus, jarak titik ke garis'],['PK-M6','lingkaran, segitiga, bangun ruang: busur, juring, luas, tinggi'],['PK-M7','peluang dan pencacahan dengan bilangan atau sandi'],['PK-M8','rata-rata, median, jangkauan dengan satu data berhuruf'],['PK-M9','membandingkan pecahan, desimal, persen'],['PK-M10','prosedur: mesin input–output']]),
+  PM:ob([['PM-1','jual-beli: harga, diskon, uang muka, angsuran'],['PM-2','pola bertingkat: benda bertambah tiap tahap'],['PM-3','besaran berubah terhadap waktu: rumus fungsi dari cerita'],['PM-4','denah atau bangun: keliling, luas, bahan dan biaya'],['PM-5','tabel data penjualan, stok, produksi'],['PM-6','sekelompok orang atau benda berkategori: banyak cara dan peluang'],['PM-7','jarak, kecepatan, waktu pada lintasan'],['PM-8','perubahan persen berulang (bocor, tumbuh, susut)']])
 };
 /* Bentuk arsip yang menuntut materi tertentu hanya dipakai setelah materinya dipelajari. */
-const NEED={'PU-K3':['BIL-13'],'PU-K4':['BIL-13'],'PU-K5':['BIL-13'],'PU-K8':['BIL-13'],'PU-K12':['BIL-13'],'PU-K13':['BIL-13'],'PU-K9':['BIL-14'],'PU-K11':['ALJ-01'],'PU-K14':['BIL-08','BIL-11'],'PU-K7':['ALJ-05'],'PK-M3':['ALJ-10'],'PK-M8':['DAT-09','U3-PU4'],'PK-M9':['BIL-13'],'PM-1':['BIL-13','BIL-19'],'PM-7':['BIL-14'],'PK-M12':['BIL-15'],'PM-8':['BIL-13']};
+const NEED={'PU-K3':['BIL-13'],'PU-K4':['BIL-13'],'PU-K5':['BIL-13'],'PU-K8':['BIL-13'],'PU-K12':['BIL-13'],'PU-K13':['BIL-13'],'PU-K9':['BIL-14'],'PU-K11':['ALJ-01'],'PU-K14':['BIL-08','BIL-11'],'PU-K7':['ALJ-05'],'PK-M3':['ALJ-10'],'PK-M8':['DAT-09','U3-PU4'],'PK-M9':['BIL-13'],'PM-1':['BIL-13','BIL-19'],'PM-7':['BIL-14'],'PM-8':['BIL-13'],
+  /* R2: pola yang materinya belum dipelajari dikunci ke jadwal Progres Harian */
+  'PK-M4':['ALJ-13'],'PK-M5':['ALJ-09'],'PK-M6':['GEO-04','GEO-05'],'PK-M7':['DAT-03'],'PM-2':['ALJ-10'],'PM-3':['ALJ-09'],'PM-4':['GEO-04'],'PM-6':['DAT-05']};
 /* Bentuk arsip yang bacaannya panjang (tabel besar atau banyak langkah): tidak dipakai di tahap Fondasi. */
-const BERAT=['PU-K4','PU-K12','PU-K13','PK-M12'];
+const BERAT=['PU-K4','PU-K12','PU-K13'];
 /* Tuas yang memperpanjang soal (kalimat pengalih, langkah tambahan): tidak dipakai di tahap Fondasi. */
 const TUAS_PANJANG=['sembunyi','langkah'];
+/* R2: bobot frekuensi dari Peta Pola 2019–2026 (banyak tahun terlihat). Peta: kuasai dulu pola yang terlihat tiga tahun atau lebih,
+   dan latih lebih banyak pola baru yang diperkirakan keluar 2027. Pola jarang diberi jeda tambahan (dalam hari) saat diputar. */
+const PETA_TAHUN={'PK-F1':6,'PK-F2':5,'PK-F3':6,'PK-F5':2,'PK-M1':7,'PK-M2':6,'PK-M3':6,'PK-M4':5,'PK-M5':6,'PK-M6':6,'PK-M7':3,'PK-M8':2,'PK-M9':1,'PK-M10':3,
+  'PM-1':4,'PM-2':3,'PM-3':3,'PM-4':4,'PM-5':3,'PM-6':3,'PM-7':2,'PM-8':1};
+const PERKIRAAN_2027=['PM-3','PM-6','PM-8'];
+function jedaFrek(id){ const t=PETA_TAHUN[id]; if(t==null||t>=3||PERKIRAAN_2027.includes(id)) return 0; return t===2?2:4; }
 /* R1: isi tabel "Kunci Pola Soal UTBK-SNBT: Brief untuk Chat Claude" (12 Nov 2026), disalin per kode.
    s = kerangka stimulus, q = kerangka pertanyaan atau rangkaian, p = pengecoh khas, c = contoh bentuk.
    Prompt hanya mengirim baris untuk kode yang dipakai resep hari itu. */
@@ -1399,7 +1407,7 @@ function lruMap(){ const m={}; Object.values(S.resep).forEach(r=>{ (r.keys||[]).
 /* Tahap per subtes: Fondasi → Peralihan setelah 20 soal bentuk lama benar ≥ 80%, Peralihan → Bentuk baru setelah 30 soal digeser
    benar ≥ 80%. Turun satu tahap bila 10 soal terakhir subtes itu di bawah 60%. Bobot w = [porsi lama, porsi baru]. */
 const TAHAP=[null,{nama:'Fondasi',w:[.7,0],lv:[.6,.4,0]},{nama:'Peralihan',w:[.3,.2],lv:[.3,.5,.2]},{nama:'Bentuk baru',w:[.2,.3],lv:[.2,.5,.3]}];
-function tahapInfo(sub){ const h=first().filter(x=>x.mode==='harian'&&x.sub===sub), a=stat(h.filter(x=>x.jenis==='lama').slice(-20)), b=stat(h.filter(x=>x.jenis==='geser').slice(-30));
+function tahapInfo(sub){ const h=first().filter(x=>x.mode==='harian'&&x.sub===sub&&!(UMAP[x.unit]&&UMAP[x.unit].old)), /* R2: soal ulasan jadwal lama tidak dihitung ke tahap */ a=stat(h.filter(x=>x.jenis==='lama').slice(-20)), b=stat(h.filter(x=>x.jenis==='geser').slice(-30));
   let t=a.n<20||a.p<80?1:b.n<30||b.p<80?2:3, turun=false; const l=stat(h.slice(-10)); if(t>1&&l.n>=10&&l.p<60){ t--; turun=true; }
   const txt=turun?'turun sementara: 10 soal terakhir '+l.p+'%':t===1?'bentuk lama '+Math.min(a.n,20)+'/20 soal'+(a.n?', benar '+a.p+'%':''):t===2?'digeser '+Math.min(b.n,30)+'/30 soal'+(b.n?', benar '+b.p+'%':''):'tahap tertinggi';
   return {t,txt}; }
@@ -1434,7 +1442,7 @@ const PU_TABEL=['PU-K4','PU-K12','PU-K13'];
 const TANYA_M={PM:[{id:'cukup',t:'kecukupan data: apakah pernyataan (1) dan (2) cukup untuk menentukan besaran yang diminta (bentuk khas PK/PU dipindah ke PM)',tipe:'cukup'}],PU:[{id:'pq',t:'hubungan kuantitas P dan Q (bentuk khas PK dipindah ke PU kuantitatif; empat opsi baku)',tipe:'pq'}]};
 function buildResep(id,date,plan,mode){
   const last=lruMap(), loc={}, keys=[], d=dayNo(date), TH={PU:tahap('PU'),PK:tahap('PK'),PM:tahap('PM')};
-  const pick=(dim,list)=>{ let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
+  const pick=(dim,list)=>{ let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+(dim==='lama'||dim==='lamaM'?jedaFrek(it.id):0)+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
     const k=dim+':'+best.id; loc[k]=(loc[k]||0)+1; keys.push(k); return best; };
   const kemFree={PU:['PU-KUA-1','PU-KUA-2','PU-KUA-3','PU-KUA-4'],PK:['PK-A','PK-A','PK-B','PK-C']};
   const pickKem=sub=>{ const ids=[...new Set(kemFree[sub])].map(x=>({id:x})); const w=kemFree[sub]; let k=pick('kem',ids).id; if(sub==='PK'&&k!=='PK-A'&&(loc['kem:'+k]||0)>1&&(loc['kem:PK-A']||0)<w.filter(x=>x==='PK-A').length){ k='PK-A'; loc['kem:PK-A']=(loc['kem:PK-A']||0)+1; } return k; };
@@ -1500,6 +1508,10 @@ function buildResep(id,date,plan,mode){
   const owners=slots.filter(s=>!s.grup&&s.jenis!=='lama').concat(grup); const nf=Math.max(1,Math.ceil(owners.length/3));
   RN.shuf(owners).forEach((o,i)=>{ o.unit=i<nf?fokus[i%fokus.length]:i<nf+Math.min(weak.length,2)*2?weak[Math.floor((i-nf)/2)]:RN.pick(bag); });
   grup.forEach(g=>{ let u2=RN.pick(bag), t=0; while(u2===g.unit&&t++<8) u2=RN.pick(bag); g.unit2=u2!==g.unit?u2:null; });
+  /* R2 (A5): materi jadwal lama hanya ulasan, paling banyak 25% set (4 dari 16 soal); sisanya unit jadwal baru */
+  const isOld=u=>!!(UMAP[u]&&UMAP[u].old), barukah=bag.filter(u=>!isOld(u)), capUlas=Math.floor(N*.25), berat=o=>o.grup?1:o.id?slots.filter(s=>s.grup===o.id).length:1;
+  let nUlas=0; if(barukah.length){ const pm=owners.filter(o=>isOld(o.unit)); nUlas=pm.reduce((a,o)=>a+berat(o),0);
+    RN.shuf(pm).forEach(o=>{ if(nUlas>capUlas){ nUlas-=berat(o); o.unit=RN.pick(barukah); } }); }
   /* R3: unit yang baru masuk jadwal (hari ini atau kemarin) memakai Mode Dasar */
   const baruU=[...new Set(slots.map(s=>s.unit).concat(grup.map(g=>g.unit)).filter(u=>unitBaru(u,date)))];
   const pindah=[]; slots.forEach(s=>{ if(!s.grup&&s.jenis!=='lama'&&baruU.includes(s.unit)){ pindah.push(s.jenis); s.jenis='lama'; s.alasan='materi baru'; isiSlot(s); } });
@@ -1523,7 +1535,7 @@ function buildResep(id,date,plan,mode){
   ['PU','PK','PM'].forEach(sub=>{ const ss=RN.shuf(slots.filter(s=>s.sub===sub)), lv=TAHAP[TH[sub]].lv, nL=Math.round(ss.length*lv[0]), nH=Math.round(ss.length*lv[2]);
     ss.forEach((s,i)=>{ s.lvl=i<nL?'L':i<nL+nH?'H':'M'; }); });
   slots.forEach((s,i)=>{ s.no=i+1; });
-  const r={v:3,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,kerangka:KR.id,fokus,slots,grup,keys,sig:poolSig(date),nama:pilihNama(date),kesiapan:{dasar:Object.keys(KS).filter(k=>KS[k].dasar),naik:Object.keys(KS).filter(k=>KS[k].naik),baru:baruU},ts:Date.now()};
+  const r={v:3,rv:RESEP_V,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,kerangka:KR.id,ulasan:barukah.length?{maks:capUlas,dipakai:nUlas}:null,fokus,slots,grup,keys,sig:poolSig(date),nama:pilihNama(date),kesiapan:{dasar:Object.keys(KS).filter(k=>KS[k].dasar),naik:Object.keys(KS).filter(k=>KS[k].naik),baru:baruU},ts:Date.now()};
   S.resep[id]=r;
   Object.keys(S.resep).forEach(k=>{ if(S.resep[k].d<dayNo()-45) delete S.resep[k]; });
   save(); return r;
@@ -1531,8 +1543,10 @@ function buildResep(id,date,plan,mode){
 const PLAN={harian:{PU:4,PK:6,PM:[2,3]},PU:{PU:10},PK:{PK:20},PM:{PM:[5,4]}};
 function poolSig(date){ return poolUnits(date).join(','); }
 /* resep yang dibuat dengan jadwal lain (misalnya sebelum jadwal Progres Harian berubah) dibuat ulang selama setnya belum ditempel */
-function resepHarian(k){ const r=S.resep[k], d=fromYmd(k); if(r&&(r.sig===poolSig(d)||harianSet(k))){ if(!r.nama&&!harianSet(k)){ r.nama=pilihNama(d); save(); } return r; } return buildResep(k,d,PLAN.harian,'harian'); }
-function resepSim(sub,baru){ const id='sim-'+sub; if(baru||!S.resep[id]) return buildResep(id,new Date(),PLAN[sub],'sim'); return S.resep[id]; }
+/* R2: versi aturan resep. Resep dari versi lama dibuat ulang selama setnya belum ditempel, supaya pembaruan aplikasi langsung berlaku. */
+const RESEP_V=2;
+function resepHarian(k){ const r=S.resep[k], d=fromYmd(k); if(r&&((r.sig===poolSig(d)&&r.rv===RESEP_V)||harianSet(k))){ if(!r.nama&&!harianSet(k)){ r.nama=pilihNama(d); save(); } return r; } return buildResep(k,d,PLAN.harian,'harian'); }
+function resepSim(sub,baru){ const id='sim-'+sub; if(baru||!S.resep[id]||S.resep[id].rv!==RESEP_V) return buildResep(id,new Date(),PLAN[sub],'sim'); return S.resep[id]; }
 /* R4: ringkasan kerangka hari ini untuk Beranda */
 function kerangkaTeks(r){ const pm=r.grup.filter(g=>g.sub==='PM').map(g=>r.slots.filter(s=>s.grup===g.id).length), b=[];
   const lp=x=>r.slots.filter(s=>s.sub===x&&!s.grup).length;
@@ -1579,7 +1593,7 @@ function konteks30(){ const lim=dayNo()-30, c={}; S.sets.forEach(st=>{ const t=s
   return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>k+' ×'+n); }
 function judulLama(){ const lim=dayNo()-30, out=[]; S.sets.forEach(st=>{ const t=st.tgl||dk(st.ts); if(dayNo(fromYmd(t))<lim) return; (st.stimulus||[]).forEach(g=>{ if(g.judul&&!out.includes(g.judul)) out.push(g.judul); }); }); return out.slice(-20); }
 function slotLine(s){
-  const u=s.unit?' Unit utama: '+uname(s.unit)+'.':' Unit: pilih dari daftar MATERI yang cocok dengan kerangka ini.', lv=' Level '+s.lvl+'.';
+  const u=s.unit?' Unit utama: '+uname(s.unit)+(UMAP[s.unit]&&UMAP[s.unit].old?' (ulasan)':'')+'.':' Unit: pilih dari daftar MATERI yang cocok dengan kerangka ini, utamakan unit jadwal baru.', lv=' Level '+s.lvl+'.';
   if(s.grup){ const head=s.no+'. ['+s.kem+(s.jenis==='migrasi'?' · MIGRASI':'')+'] '+KEM[s.kem].split(':')[0]+'.'+lv;
     if(s.jenis==='migrasi') return head+' Bentuk khas subtes lain dipindah ke '+s.sub+' → '+s.tanya.t+' (tipe "'+s.tanya.tipe+'"). Tetap memakai stimulus ini dan waktu '+s.sub+'.';
     if(s.rantai!=null) return head+[' Soal pertama rantai: nilai dasar langsung dari informasi.',' Rantai kedua: memakai hasil soal sebelumnya untuk besaran berikutnya (misalnya panjang atau jarak).',' Rantai ketiga, paling dalam (misalnya luas atau nilai akhir): memakai hasil soal kedua.'][s.rantai]+(s.tanya?' Arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").':s.jenis==='lama'?' Tipe pg.':'');
@@ -1605,6 +1619,7 @@ const ATURAN=[
  'Hitungan hanya memakai konsep dari daftar MATERI. Jangan menuntut konsep yang tidak ada di daftar. Bila sebuah kerangka arsip menuntut materi di luar daftar, pertahankan bentuk pertanyaannya dan ganti isinya dengan materi dari daftar; bila tidak mungkin, pakai bentuk arsip lain yang cocok dan tulis kodenya di "bentuk_lama".',
  'Pilihan ganda: lima opsi, tepat satu benar. Setiap pengecoh mewakili satu kesalahan khas, bukan asal salah: utamakan pengecoh khas di POLA BRIEF untuk kode soal itu, lalu kesalahan nyata lain (hasil langkah antara, persen dari nilai yang salah, arah terbalik, syarat terlewat). Tulis nama kesalahan tiap pengecoh di "alasan" (jangan "…"), dan sebut kode pola soal di langkah pertama pembahasan. Opsi angka diurutkan naik. Kunci tersebar di A–E dalam satu set.',
  'Hitung ulang setiap kunci dengan cara kedua sebelum menulis. Soal dalam satu stimulus harus konsisten satu sama lain.',
+ 'Hanya bentuk yang ada di Brief. Teka-teki kisi (simbol # dan @ pada persamaan mendatar dan menurun) paling banyak 1 soal per set. Jangan memakai pilihan ganda "Ya/Tidak, karena …" atau soal mencari langkah pembuktian yang salah: keduanya bukan pola UTBK.',
  'Konteks tiap soal PU dan tiap stimulus PM mengikuti resep; soal PK tanpa cerita. Nama tempat dan lembaga generik (Kota X, Desa Y, Toko A, PT X); nama orang HANYA dari DAFTAR NAMA HARI INI (boleh dengan sapaan Bu, Pak, Kak). Isi spesifik dan bisa diperiksa: barang, kegiatan, satuan, dan angka yang khas untuk konteksnya, bukan cerita umum. Tidak ada gambar: data diagram ditulis sebagai tabel, denah dijelaskan dengan kata-kata.',
  'Teks polos Unicode (× ÷ − √ ≤ ≥), tanpa LaTeX. Pangkat ditulis dengan ^, misalnya x^2 atau 2^(n + 1). Desimal koma, ribuan titik, uang Rp50.000,00.',
  'Jika resep sebuah soal tidak wajar untuk unitnya, pertahankan kemampuan dan jenisnya, sesuaikan stimulus seperlunya, lalu tulis bentuk yang benar-benar dipakai di "sidik".',
@@ -1649,6 +1664,7 @@ function promptSet(r){
   'KEMAMPUAN YANG DIUJI\n'+kems.map(k=>'- '+k+': '+KEM[k]).join('\n')+'\n\n'+
   'MATERI (hitungan hanya dari unit ini)\n'+pool.map(u=>'- '+unameP(u,fromYmd(r.tgl))+(r.fokus.includes(u)?' (fokus hari ini)':'')).join('\n')+'\n'+
   (lain.length?'Sudah kupelajari juga dan boleh dipakai bila bentuk soal menuntutnya: '+lain.map(uname).join('; ')+'.\n':'')+
+  (r.ulasan?'Unit berlabel "ulasan" (jadwal lama) paling banyak '+r.ulasan.maks+' dari '+r.slots.length+' soal; resep sudah memakai '+r.ulasan.dipakai+', jadi soal yang unitnya bebas dipilih memakai unit jadwal baru'+(r.ulasan.maks-r.ulasan.dipakai>0?' (ulasan boleh '+(r.ulasan.maks-r.ulasan.dipakai)+' lagi)':'')+'.\n':'')+
   'Cakupan tiap unit mengikuti judulnya (urutan materi Zenius Matematika Dasar dan PU). Materi di luar daftar ini belum kupelajari; bila ragu, pilih tafsiran yang paling dasar.\n\n'+
   'NAMA DAN KONTEKS\n- DAFTAR NAMA HARI INI: '+(r.nama&&r.nama.length?r.nama:pilihNama(fromYmd(r.tgl))).join(', ')+'. Nama orang hanya dari daftar ini.\n'+
   (namaTerakhir(r.tgl).length?'- Dilarang (sudah dipakai 3 hari terakhir): '+namaTerakhir(r.tgl).join(', ')+'.\n':'')+
@@ -1765,6 +1781,14 @@ function cekMutu(soal,stim,mode,tg){ const W=[], kata=t=>String(t||'').trim().sp
     if(beda.length) W.push('Cek resep · jenis soal berbeda dari resep di soal '+beda.join(', ')+'.'); }
   const tgl0=tg?fromYmd(tg):new Date(), kolam=poolUnits(tgl0), luar=[], asing=[];
   soal.forEach(q=>{ if(!q.unit) return; if(!UMAP[q.unit]) asing.push(q.no+' ('+q.unit+')'); else if(!kolam.includes(q.unit)) luar.push(q.no+' ('+q.unit+')'); });
+  /* R2: ulasan paling banyak 25% set; teka-teki kisi paling banyak 1; bentuk di luar Brief */
+  if(soal.length>=8&&openUnits(tgl0).length){ const nu=soal.filter(q=>UMAP[q.unit]&&UMAP[q.unit].old).length, mu=Math.floor(soal.length*.25);
+    if(nu>mu) W.push('Cek jadwal · '+nu+' soal memakai unit ulasan jadwal lama; batasnya '+mu+' dari '+soal.length+' soal (25%).'); }
+  const teks=q=>[].concat(q.teks||[],q.perintah||'',q.opsi||[]).join(' ')+' '+((stim||[]).find(g=>g.id===q.stim)||{teks:[]}).teks.join(' ');
+  const kisiQ=soal.filter(q=>/\bkisi\b|#[^#]{0,40}@|@[^@]{0,40}#/i.test(teks(q))).map(q=>q.no);
+  if(kisiQ.length>1) W.push('Cek pola · teka-teki kisi muncul di '+kisiQ.length+' soal ('+kisiQ.join(', ')+'); batasnya 1 per set.');
+  const luarBrief=soal.filter(q=>['PK-F6','PK-M11','PK-M12'].includes(q.bl)||(q.tipe==='pg'&&q.opsi&&q.opsi.filter(o=>/^\s*(ya|tidak)\b/i.test(o)).length>=4)).map(q=>q.no);
+  if(luarBrief.length) W.push('Cek pola · bentuk di luar Brief (Ya/Tidak beralasan atau kode PK-F6/M11/M12) di soal '+luarBrief.join(', ')+'.');
   if(luar.length) W.push('Cek jadwal · unit belum dijadwalkan pada '+(tg||'hari ini')+': soal '+luar.join(', ')+'.');
   if(asing.length) W.push('Cek jadwal · kode unit tidak dikenal: soal '+asing.join(', ')+'.');
   /* R8: nama tokoh */
@@ -2444,7 +2468,7 @@ function gameBentuk(id,max){ const L=(GVAR[id]||[]).filter(v=>!v.need||has(...v.
 const GAMES=[
   {id:'pq',vary:1,cara:["Coret faktor yang sama bila ada.", "Pilih hubungan P dan Q."],nama:'Timbangan P–Q',ket:'Coret faktor sama, bandingkan P dan Q.',bentuk:'PK-F1',limit:45,gen:pqGame,c:'var(--yellow)',yk:1,ic:'<path d="M12 3v18M7 21h10M5 7h14"/><path d="M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>'},
   {id:'cukup',vary:1,cara:["Buka pernyataan dengan koin.", "Pilih: cukup atau tidak."],nama:'Cukup Nggak?',ket:'Cukup untuk menjawab atau tidak?',bentuk:'PU-K15 · PK-F2',gen:ckItem,c:'var(--red)',ic:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>'},
-  {id:'kisi',vary:1,cara:["Isi simbol dan angka yang kosong.", "Semua baris dan kolom harus cocok."],nama:'Kisi Operasi',ket:'Isi simbol sampai semua cocok.',bentuk:'PK-M1 · PK-M11',gen:kisiItem,c:'var(--blue)',ic:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>'},
+  {id:'kisi',vary:1,cara:["Isi simbol dan angka yang kosong.", "Semua baris dan kolom harus cocok."],nama:'Kisi Operasi',ket:'Isi simbol sampai semua cocok.',bentuk:'PK-M1',gen:kisiItem,c:'var(--blue)',ic:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>'},
   {id:'barisan',vary:1,cara:["Amati barisannya, temukan polanya sendiri.", "Ketik suku yang dicari."],nama:'Detektif Barisan',ket:'Temukan pola barisan.',bentuk:'PU-K1 · K2 · K10',gen:barisanItem,c:'var(--green)',ic:'<path d="M3 17l5-6 4 4 4-7 5 5"/><circle cx="3" cy="17" r="1"/><circle cx="21" cy="13" r="1"/>'},
   {id:'dekat',vary:1,cara:["Bulatkan, jangan hitung tuntas.", "Ketuk bendera terdekat."],nama:'Paling Mendekati',ket:'Tebak hasil terdekat, 25 detik.',bentuk:'PU-K3',limit:25,gen:estimItem,c:'var(--orange)',ic:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>'},
   {id:'mesin',vary:1,cara:["Tebak aturan dari pasangan angka.", "Jawab pertanyaan di bawah mesin."],nama:'Mesin Fungsi',ket:'Tebak aturan mesin.',bentuk:'PK-M10',gen:mesinItem,c:'var(--purple)',ic:'<rect x="5" y="7" width="14" height="10" rx="2"/><path d="M2 12h3M19 12h3M9 11h.01M15 11h.01M10 14h4"/>'}
@@ -2859,7 +2883,7 @@ function labelKode(q){ const f=q.format||'', part=[];
   part.push('<b>Level:</b> '+esc(q.lvl||'M'));
   if(q.bl) part.push('<b>Bentuk lama terdekat:</b> '+esc(q.bl));
   if(q.diubah&&q.jenis!=='lama') part.push('<b>Diubah:</b> '+esc(q.diubah));
-  if(q.unit) part.push('<b>Materi:</b> '+esc(UMAP[q.unit]?uname(q.unit):q.unit));
+  if(q.unit) part.push('<b>Materi:</b> '+esc(UMAP[q.unit]?uname(q.unit):q.unit)+(UMAP[q.unit]&&UMAP[q.unit].old?' (ulasan, tidak dihitung ke tahap)':''));
   return '<p class="lblk">'+part.join(' · ')+'</p>'; }
 /* R6: rekap per jenis + Indeks Kesiapan + waktu bentuk baru (kesiapan-2027 §2). l = [{jenis, ok, ms, sub}] */
 function rekapJenis(l,judul){ const t=x=>x.ms>0&&x.ms<30*60000, acc=a=>a.length?a.filter(x=>x.ok).length/a.length:null, pc=v=>v==null?'–':Math.round(v*100)+'%', dk2=v=>v.toFixed(2).replace('.',',');
