@@ -197,6 +197,10 @@ th{font-weight:700}
 .pb.good .st i{border-color:var(--green);background:#f5fbf7}.pb.wrong .st i{border-color:var(--red);background:#fef7f6}
 .pb>b{font-family:"Lilita One","Rubik",sans-serif;font-weight:400;font-size:17px}.pb.good>b{color:var(--green)}.pb.wrong>b{color:var(--red)}
 .kunci{font-weight:700;margin:6px 0}
+.lblk{margin:2px 0 8px;font-size:12.5px;line-height:1.5;color:var(--muted)}.lblk b{color:var(--text)}
+table.rkj{width:100%;min-width:0;font-variant-numeric:tabular-nums}table.rkj th,table.rkj td{padding:5px 5px}table.rkj td:not(:first-child){white-space:nowrap}.rkj-ix .sm{display:inline}table.rkj td:not(:first-child),table.rkj th:not(:first-child){text-align:right}
+.rkj-h{font-size:15px;margin:0 0 8px}
+.rkj-ix{margin:8px 0 0;font-size:13.5px;line-height:1.55}.rkj-ix .ok{color:var(--green)}.rkj-ix .bad{color:var(--red)}
 .steps{margin:4px 0 8px;padding-left:20px}
 .steps li{margin-bottom:2px}
 .lbl{font-size:12px;color:var(--muted);margin:10px 0 0;padding-top:9px;border-top:2px dashed var(--edge)}
@@ -2678,7 +2682,10 @@ function statRow(label,st,target,extra){ return '<div class="srow"><div class="g
 function viewProgres(){
   const h0=first(), wk=h0.filter(x=>x.ts>Date.now()-7*DAY), a7=stat(wk);
   let h='<p class="intro">7 hari terakhir: <b>'+a7.n+' soal</b>, benar <b>'+(a7.n?a7.p+'%':'–')+'</b></p>';
-  h+='<h2>Kesiapan bentuk baru</h2><div class="card"><p class="sm">Bila angka "bentuk baru" jauh di bawah "bentuk lama", kamu masih bergantung pada hafalan templat.</p>'+['lama','geser','baru','migrasi'].map(j=>statRow(jbadge(j),stat(h0.filter(x=>x.jenis===j)))).join('')+'</div>';
+  const h30=h0.filter(x=>x.ts>Date.now()-30*DAY&&x.jenis!=='varian');
+  const kk=Object.keys(KEM).map(k=>kesiapanKem(k)).filter(k=>k.n);
+  h+='<h2>Kesiapan bentuk baru</h2><div class="card"><p class="sm">Bila angka "bentuk baru" jauh di bawah "bentuk lama", kamu masih bergantung pada hafalan templat. Rekap 30 hari terakhir (percobaan pertama).</p>'+rekapJenis(h30)+
+    (kk.length?'<h3 class="rkj-h" style="margin-top:14px">Per kemampuan (20 soal terakhir)</h3><table class="rkj"><thead><tr><th>Kemampuan</th><th>Lama</th><th>Baru+migrasi</th><th>Indeks</th></tr></thead><tbody>'+kk.map(k=>'<tr><td><span class="code">'+esc(k.kem)+'</span>'+(k.dasar?' <span class="sm">Mode Dasar</span>':k.naik?' <span class="sm">B/M didahulukan</span>':'')+'</td><td>'+(k.nL?k.aL+'% ('+k.nL+')':'–')+'</td><td>'+(k.nBM?k.aBM+'% ('+k.nBM+')':'–')+'</td><td>'+(k.idx==null?'–':String(k.idx.toFixed(2)).replace('.',','))+'</td></tr>').join('')+'</tbody></table><p class="sm">Mode Dasar: akurasi bentuk lama di bawah 70% (minimal 5 soal). B/M didahulukan: Indeks Kesiapan di bawah 0,75.</p>':'')+'</div>';
   h+='<h2>Per subtes</h2><div class="card">'+Object.keys(SUB).map(s=>statRow(badge(s)+' '+SUB[s].nama,stat(h0.filter(x=>x.sub===s)),SUB[s].dtk)).join('')+'</div>';
   h+='<h2>Per kemampuan</h2><div class="card">'+Object.keys(KEM).map(k=>statRow('<span class="code">'+k+'</span>',stat(h0.filter(x=>x.kem===k)),SUB[k.slice(0,2)].dtk,esc(KEM[k]))).join('')+'</div>';
   const us=[...new Set(h0.map(x=>x.unit))].filter(u=>UMAP[u]).map(u=>({u,s:stat(h0.filter(x=>x.unit===u))})).sort((a,b)=>a.s.p-b.s.p);
@@ -2778,9 +2785,33 @@ function viewRun(){
   h+='</div>';
   return h;
 }
+/* R6: label kode di pembahasan (Brief aturan 6, kesiapan-2027 §1), dari kolom yang sudah tersimpan */
+const JKODE={lama:'L',geser:'G',baru:'B',migrasi:'M',varian:'V'};
+function labelKode(q){ const f=q.format||'', part=[];
+  part.push('<b>Kemampuan:</b> '+(q.kem?'<span class="code">'+esc(q.kem)+'</span>'+(KEM[q.kem]?' '+esc(KEM[q.kem]):''):'tidak tercatat'));
+  if(q.jenis) part.push('<b>Jenis:</b> '+(JKODE[q.jenis]||'?')+' ('+esc(JN[q.jenis]||q.jenis)+')');
+  if(f) part.push('<b>Format:</b> '+esc(f)+(JFMT[f]?' ('+esc(JFMT[f])+')':''));
+  part.push('<b>Level:</b> '+esc(q.lvl||'M'));
+  if(q.bl) part.push('<b>Bentuk lama terdekat:</b> '+esc(q.bl));
+  if(q.diubah&&q.jenis!=='lama') part.push('<b>Diubah:</b> '+esc(q.diubah));
+  if(q.unit) part.push('<b>Materi:</b> '+esc(UMAP[q.unit]?uname(q.unit):q.unit));
+  return '<p class="lblk">'+part.join(' · ')+'</p>'; }
+/* R6: rekap per jenis + Indeks Kesiapan + waktu bentuk baru (kesiapan-2027 §2). l = [{jenis, ok, ms, sub}] */
+function rekapJenis(l,judul){ const t=x=>x.ms>0&&x.ms<30*60000, acc=a=>a.length?a.filter(x=>x.ok).length/a.length:null, pc=v=>v==null?'–':Math.round(v*100)+'%', dk2=v=>v.toFixed(2).replace('.',',');
+  const rows=['lama','geser','baru','migrasi','varian'].map(j=>({j,a:l.filter(x=>x.jenis===j)})).filter(x=>x.a.length||x.j!=='varian');
+  let h='<table class="rkj"><thead><tr><th>Jenis</th><th>Benar/total</th><th>Persen</th><th>Waktu rata-rata</th></tr></thead><tbody>'+rows.map(x=>{ const tt=x.a.filter(t);
+    return '<tr><td>'+jbadge(x.j)+'</td><td>'+(x.a.length?x.a.filter(y=>y.ok).length+'/'+x.a.length:'–')+'</td><td>'+pc(acc(x.a))+'</td><td>'+(tt.length?Math.round(tt.reduce((s,y)=>s+y.ms,0)/tt.length/1000)+' dtk':'–')+'</td></tr>'; }).join('')+'</tbody></table>';
+  const L=l.filter(x=>x.jenis==='lama'), BM=l.filter(x=>x.jenis==='baru'||x.jenis==='migrasi'), aL=acc(L), aBM=acc(BM), at=acc(l), bt=BM.filter(t);
+  const ix=aL&&aBM!=null?aBM/aL:null, wr=bt.length?bt.reduce((s,y)=>s+y.ms/1000/SUB[y.sub].dtk,0)/bt.length:null;
+  const cls=(ok,bad)=>ok?' class="ok"':bad?' class="bad"':'';
+  h+='<p class="rkj-ix">'+(judul?'<b>'+judul+'</b><br>':'')+
+    'Akurasi total: <b'+cls(at!=null&&at>=.8,at!=null&&at<.6)+'>'+pc(at)+'</b> <span class="sm">(target ≥ 80%)</span><br>'+
+    'Indeks Kesiapan: <b'+cls(ix!=null&&ix>=.9,ix!=null&&ix<.75)+'>'+(ix==null?'–':dk2(ix))+'</b> <span class="sm">'+(ix==null?(aL===0?'(akurasi bentuk lama 0%, indeks tidak dihitung)':'(butuh soal bentuk lama dan soal baru/migrasi)'):'= akurasi baru+migrasi '+pc(aBM)+' ÷ akurasi lama '+pc(aL)+' · target ≥ 0,90')+'</span><br>'+
+    'Waktu bentuk baru: <b'+cls(wr!=null&&wr<=1.25,wr!=null&&wr>1.25)+'>'+(wr==null?'–':dk2(wr)+'×')+'</b> <span class="sm">'+(wr==null?'(belum ada soal baru/migrasi)':'waktu resmi per soal · target ≤ 1,25×')+'</span></p>';
+  return h; }
 function pembahasan(q,a){
   let key=q.tipe==='pg'?'ABCDE'[q.kunci]+'. '+q.opsi[q.kunci]:q.tipe==='pq'?pqList(q)[q.kunci]:q.tipe==='cukup'?ckList(q)[q.kunci]:q.tipe==='bs'?q.bs.map((b,i)=>(i+1)+' '+(b.benar?'Benar':'Salah')).join(' · '):fmt(q.kunciNum);
-  let h='<div class="card pb '+(a.ok?'good':'wrong')+'"><b>'+(a.ok?'Benar':'Belum tepat')+'</b><p class="kunci">Kunci: '+mx(key)+'</p>';
+  let h='<div class="card pb '+(a.ok?'good':'wrong')+'"><b>'+(a.ok?'Benar':'Belum tepat')+'</b><p class="kunci">Kunci: '+mx(key)+'</p>'+labelKode(q);
   if(q.langkah.length) h+=stepsFold(q.langkah,3);
   if(q.jebakan) h+='<p class="sm"><b>Jebakan:</b> '+mx(q.jebakan)+'</p>';
   h+='</div>';
@@ -2794,7 +2825,7 @@ function viewHasil(){
   if(sv) h+=sv.ok?'<div class="msg ok simpan"><b>Tersimpan ✓</b> '+sv.n+' dari '+sv.tot+' jawaban tercatat di perangkat ini.</div>'
     :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button></div>';
   const js=['lama','geser','baru','migrasi','varian'].map(j=>({j,l:R.items.map((it,i)=>({it,a:R.A[i]})).filter(x=>x.it.q.jenis===j)})).filter(x=>x.l.length);
-  if(js.length>1) h+='<div class="card">'+js.map(x=>'<div class="srow"><div class="grow">'+jbadge(x.j)+bar(pct(x.l.filter(y=>y.a.ok).length,x.l.length))+'</div><div class="sv"><b>'+x.l.filter(y=>y.a.ok).length+'/'+x.l.length+'</b></div></div>').join('')+'</div>';
+  if(js.length>1) h+='<div class="card"><h3 class="rkj-h">Rekap per jenis</h3>'+rekapJenis(R.items.map((it,i)=>({jenis:it.q.jenis,ok:R.A[i].ok,ms:R.T[i],sub:it.q.sub})))+'</div>';
   h+='<div class="fhead"><h2>Pembahasan</h2><button class="btn sm" data-action="foldall">Buka/tutup semua</button></div>'+R.items.map((it,i)=>{ const q=it.q, a=R.A[i], slow=R.T[i]>SUB[q.sub].dtk*1500;
     return '<details class="card rev fold '+(a.ok?'good':'wrong')+'"><summary><span class="num">'+(i+1)+'</span>'+badge(q.sub)+'<span class="grow snip1">'+esc(q.perintah.slice(0,70))+'</span><span class="sm">'+(a.ok?'benar':'salah')+' · '+Math.round(R.T[i]/1000)+' dtk'+(slow?' (lambat)':'')+'</span>'+CHEVI+'</summary>'+
     q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>'+
