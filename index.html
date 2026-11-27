@@ -1172,7 +1172,7 @@ const TANYA={
 };
 const KONTEKS=ob([['sekolah','sekolah'],['umkm','UMKM'],['kesehatan','kesehatan'],['lingkungan','lingkungan'],['wisata','pariwisata'],['tani','pertanian'],['ilmiah','percobaan ilmiah'],['kerja','pekerjaan lapangan'],['angkut','transportasi'],['olahraga','olahraga'],
   ['pasar','pasar tradisional'],['kuliner','usaha kuliner'],['ikan','perikanan dan kelautan'],['energi','listrik dan energi'],['digital','layanan digital (aplikasi, kuota, ojek daring)'],['budaya','kesenian dan budaya'],['bangun','konstruksi dan renovasi'],['koperasi','koperasi dan keuangan keluarga']]);
-const TUAS=[{id:'bungkus',t:'ganti bungkus cerita',dim:'stim'},{id:'sembunyi',t:'sembunyikan struktur dalam narasi (sisipkan 1–2 kalimat latar yang tidak dipakai)',dim:'stim'},{id:'langkah',t:'tambah satu langkah',dim:null},{id:'balik',t:'balik arah tanya',dim:'tanya'},{id:'format',t:'ganti format jawaban',dim:'tanya'}];
+const TUAS=[{id:'bungkus',t:'ganti bungkus cerita',dim:'stim',tanpa:['PK']},{id:'hasilsyarat',t:'hasil diberikan, syarat atau nilai awal dicari',dim:'stim',stim:'terbalik',hanya:['PK']},{id:'duamateri',t:'dua materi digabung dalam satu soal',dim:'stim',stim:'gabung',hanya:['PK']},{id:'sembunyi',t:'sembunyikan struktur dalam narasi (sisipkan 1–2 kalimat latar yang tidak dipakai)',dim:'stim'},{id:'langkah',t:'tambah satu langkah',dim:null},{id:'balik',t:'balik arah tanya',dim:'tanya'},{id:'format',t:'ganti format jawaban',dim:'tanya'}];
 /* Arsip bentuk 2019–2026 (ringkas). Ditiru hanya pada soal LAMA; dihindari pada GESER dan BARU. */
 const LAMA={
   PU:ob([['PU-K1','5–6 nilai naik-turun selang-seling; tanya nilai periode berikutnya'],['PU-K2','dua barisan sekaligus, suku ke-5 kosong'],['PU-K3','desimal dan persen/pecahan; bilangan PALING MENDEKATI hasil'],['PU-K4','tabel 3 seri × 5 periode; kenaikan terbesar atau perkiraan periode berikutnya'],['PU-K5','nilai setelah perubahan persen diketahui; tanya nilai sebelum'],['PU-K6','tiga pilihan dengan satuan berbeda; pernyataan PALING TEPAT'],['PU-K7','dua informasi jumlah anggota dua kelompok beririsan'],['PU-K8','"a/b dari p% total adalah n"; tanya persen lain dari total'],['PU-K9','jumlah dua harga sekarang, perbandingan beberapa tahun lalu, kenaikan tetap'],['PU-K10','pola dua operasi bergantian dengan titik awal digeser'],['PU-K11','dua persamaan pendek (6x^2y = 12 dan xy = 3)'],['PU-K12','tabel persen capaian dengan nilai maksimum berbeda per kolom'],['PU-K13','persentase satu sumber digabung tabel persentase lain'],['PU-K14','dua kejadian berulang dengan periode berbeda; kapan bersamaan lagi'],['PU-K15','pertanyaan "apakah …" dengan pernyataan (i) dan (ii), opsi kecukupan data']]),
@@ -1415,7 +1415,23 @@ function kesiapanKem(kem){ const h=first().filter(x=>x.kem===kem).slice(-20), L=
 /* unit jadwal baru = bagian pertamanya dijadwalkan hari ini atau kemarin (1–2 sesi pertama); ikut penundaan Progres Harian */
 function unitBaru(u,date){ const x=UMAP[u]; if(!u||!x||x.old||!x.les||!x.les.length) return false; const J=phJadwal();
   const tgls=x.les.map(l=>lesDate(l,J)).filter(Boolean).sort(); if(!tgls.length) return false; const sel=dayNo(date||new Date())-dayNo(fromYmd(tgls[0])); return sel>=0&&sel<=1; }
-const TANYA_M={PU:[{id:'pq',t:'hubungan kuantitas P dan Q (bentuk khas PK dipindah ke PU kuantitatif; empat opsi baku)',tipe:'pq'}]};
+/* R4: kerangka harian berputar dalam siklus 7 hari: PM 3+3, 4+2, atau 2+4; PK-F4 berantai 2× seminggu; PU satu tabel untuk dua soal 3× seminggu.
+   Dua hari berturut-turut tidak pernah memakai kerangka yang sama. */
+const KERANGKA=[{id:'A',pm:[3,3],f4:0,pu2:1},{id:'B',pm:[4,2],f4:1,pu2:0},{id:'C',pm:[3,3],f4:0,pu2:0},{id:'D',pm:[2,4],f4:0,pu2:1},{id:'E',pm:[3,3],f4:1,pu2:0},{id:'F',pm:[4,2],f4:0,pu2:1},{id:'G',pm:[2,4],f4:0,pu2:0}];
+function kerangkaHari(d,plan,mode){ const pm=plan.PM?Array(plan.PM[0]).fill(plan.PM[1]):[];
+  if(mode==='sim') return {id:'sim',pm,f4:!!plan.PK,pu2:(plan.PU||0)>=10};
+  if(!(plan.PM&&plan.PM[0]===2&&plan.PM[1]===3&&plan.PU&&plan.PK)) return {id:'-',pm,f4:false,pu2:false};
+  const k=KERANGKA[((d%7)+7)%7]; return {id:k.id,pm:k.pm.slice(),f4:!!k.f4,pu2:!!k.pu2}; }
+/* rangkaian PM selalu merumuskan → menggunakan → menafsirkan (Brief); 2 soal: menggunakan → menafsirkan */
+const PM_URUT={2:['PM-B','PM-C'],3:['PM-A','PM-B','PM-C'],4:['PM-A','PM-B','PM-B','PM-C'],5:['PM-A','PM-B','PM-B','PM-C','PM-C']};
+/* rangkaian pertanyaan arsip per templat PM (dari kolom q Brief), dibagi ke tiap soal stimulus */
+function rangkaianPM(id,n){ const b=BRIEF[id]; if(!b||!b.q) return []; const q=b.q.split(';').map(x=>x.trim()).filter(Boolean);
+  if(q.length===2) q.push('tafsiran atau keputusan dari hasil '+q[1].toLowerCase());
+  if(n===2) return [q[1]||q[0],q[2]||q[1]||q[0]]; if(n===3) return [q[0],q[1]||q[0],q[2]||q[1]||q[0]];
+  if(n===4) return [q[0],q[1]||q[0],'skenario "Jika …" dari '+(q[1]||q[0]).toLowerCase(),q[2]||q[1]];
+  return [q[0],q[1]||q[0],'skenario "Jika …" dari '+(q[1]||q[0]).toLowerCase(),q[2]||q[1],'tafsiran lain: '+(q[2]||q[1]).toLowerCase()]; }
+const PU_TABEL=['PU-K4','PU-K12','PU-K13'];
+const TANYA_M={PM:[{id:'cukup',t:'kecukupan data: apakah pernyataan (1) dan (2) cukup untuk menentukan besaran yang diminta (bentuk khas PK/PU dipindah ke PM)',tipe:'cukup'}],PU:[{id:'pq',t:'hubungan kuantitas P dan Q (bentuk khas PK dipindah ke PU kuantitatif; empat opsi baku)',tipe:'pq'}]};
 function buildResep(id,date,plan,mode){
   const last=lruMap(), loc={}, keys=[], d=dayNo(date), TH={PU:tahap('PU'),PK:tahap('PK'),PM:tahap('PM')};
   const pick=(dim,list)=>{ let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
@@ -1423,35 +1439,48 @@ function buildResep(id,date,plan,mode){
   const kemFree={PU:['PU-KUA-1','PU-KUA-2','PU-KUA-3','PU-KUA-4'],PK:['PK-A','PK-A','PK-B','PK-C']};
   const pickKem=sub=>{ const ids=[...new Set(kemFree[sub])].map(x=>({id:x})); const w=kemFree[sub]; let k=pick('kem',ids).id; if(sub==='PK'&&k!=='PK-A'&&(loc['kem:'+k]||0)>1&&(loc['kem:PK-A']||0)<w.filter(x=>x==='PK-A').length){ k='PK-A'; loc['kem:PK-A']=(loc['kem:PK-A']||0)+1; } return k; };
   const op0=eqUnits(date), okL=(l,sub)=>{ const f=l.filter(it=>(!NEED[it.id]||NEED[it.id].some(u=>op0.has(u)))&&!(TH[sub]===1&&BERAT.includes(it.id))); return f.length?f:l; };
-  const tuasOk=sub=>TH[sub]===1?TUAS.filter(t=>!TUAS_PANJANG.includes(t.id)):TUAS;
+  const tuasOk=sub=>TUAS.filter(t=>!(t.tanpa&&t.tanpa.includes(sub))&&!(t.hanya&&!t.hanya.includes(sub))&&!(TH[sub]===1&&TUAS_PANJANG.includes(t.id)));
+  const stimTuas=(t,sub)=>t.stim?STIM[sub].find(x=>x.id===t.stim):pick('stim:'+sub,STIM[sub]);
   const slots=[], grup=[], KS={}; Object.keys(KEM).forEach(k=>{ KS[k]=kesiapanKem(k); });
-  const f4=!!plan.PK&&(mode==='sim'||((d%7)+7)%7===2), cnt={PU:plan.PU||0,PK:(plan.PK||0)-(f4?3:0)};
+  const KR=kerangkaHari(d,plan,mode), f4=KR.f4;
+  const pu2=KR.pu2&&(plan.PU||0)>=2&&!KS['PU-KUA-3'].dasar, cnt={PU:(plan.PU||0)-(pu2?2:0),PK:(plan.PK||0)-(f4?3:0)};
   /* R3: komposisi Mode 2027 untuk satu set: per 10 soal 3 L, 4 G, 2 B, 1 M (kesiapan-2027 §1) */
-  const N=(plan.PU||0)+(plan.PK||0)+(plan.PM?plan.PM[0]*plan.PM[1]:0), tok={L:Math.round(N*.3),B:Math.round(N*.2),M:Math.round(N*.1)}; tok.G=N-tok.L-tok.B-tok.M;
-  const mMax=plan.PU?Math.max(1,Math.floor((plan.PU||0)/10)):0; if(tok.M>mMax){ tok.G+=tok.M-mMax; tok.M=mMax; } /* migrasi sementara hanya di PU (P–Q); PM menyusul di R4 */
+  const N=(plan.PU||0)+(plan.PK||0)+KR.pm.reduce((a,x)=>a+x,0), tok={L:Math.round(N*.3),B:Math.round(N*.2),M:Math.round(N*.1)}; tok.G=N-tok.L-tok.B-tok.M;
+  /* R4: migrasi = P–Q di PU (paling banyak 1 per 10 soal PU, minimal 1) dan kecukupan data di PM (paling banyak 1 per stimulus) */
   const isiSlot=s=>{ const sub=s.sub, j=s.jenis; delete s.lama; delete s.lama2; delete s.tanya; delete s.stim; delete s.tuas;
     if(j==='lama'){ s.lama=pick('lama',okL(LAMA[sub],sub)); if(sub==='PK') s.lama2=pick('lamaM',okL(LAMA.PKM,sub)); }
     else if(j==='baru'){ s.tanya=pick('tanya:'+sub,TANYA[sub]); s.stim=pick('stim:'+sub,STIM[sub]); if(s.tanya.kem) s.kem=s.tanya.kem; }
     else if(j==='migrasi'){ s.tanya=TANYA_M[sub][0]; s.stim=pick('stim:'+sub,STIM[sub]); }
-    else { s.tuas=pick('tuas',tuasOk(sub)); if(s.tuas.dim==='stim') s.stim=pick('stim:'+sub,STIM[sub]); if(s.tuas.dim==='tanya') s.tanya=pick('tanya:'+sub,TANYA[sub]); if(s.tanya&&s.tanya.kem) s.kem=s.tanya.kem; } };
+    else { s.tuas=pick('tuas',tuasOk(sub)); if(s.tuas.dim==='stim') s.stim=stimTuas(s.tuas,sub); if(s.tuas.dim==='tanya') s.tanya=pick('tanya:'+sub,TANYA[sub]); if(s.tanya&&s.tanya.kem) s.kem=s.tanya.kem; } };
   /* PM lebih dulu (satu stimulus = satu jenis); Mode Dasar PM bila salah satu kemampuan PM sedang Mode Dasar */
   const pmDasar=['PM-A','PM-B','PM-C'].some(k=>KS[k].dasar), pakai={L:0,G:0,B:0,M:0};
-  if(plan.PM){ const ng=plan.PM[0], sz=plan.PM[1];
+  if(KR.pm.length){ const ng=KR.pm.length;
     let js; if(pmDasar) js=Array(ng).fill('lama');
     else if(ng===2) js=RN.shuf(['lama',d%2?'baru':'geser']);
     else { const nl=Math.round(ng*.3), nb=Math.round(ng*.2); js=RN.shuf(Array.from({length:ng},(_,i)=>i<nl?'lama':i<nl+nb?'baru':'geser')); }
-    for(let i=0;i<ng;i++){ const g={id:'g'+(i+1),sub:'PM',jenis:js[i]};
+    let mPM=pmDasar?0:Math.max(0,Math.min(tok.M-(plan.PU?1:0),Math.round(N/10)));
+    if(!plan.PU) mPM=pmDasar?0:Math.min(tok.M,ng);
+    for(let i=0;i<ng;i++){ const sz=KR.pm[i], g={id:'g'+(i+1),sub:'PM',jenis:js[i],n:sz};
       if(g.jenis!=='baru') g.lama=pick('lama',okL(LAMA.PM,'PM'));
       g.kon=pick('kon',KONTEKS); if(g.jenis!=='lama') g.stim=pick('stim:PM',STIM.PM);
       if(g.jenis==='geser') g.tuas=pick('tuas',tuasOk('PM').filter(t=>t.id!=='format'));
-      grup.push(g); pakai[{lama:'L',geser:'G',baru:'B'}[g.jenis]]+=sz;
-      (g.jenis==='lama'?(sz===4?['PM-B','PM-B','PM-B','PM-C']:['PM-B','PM-B','PM-C']):(sz===4?['PM-A','PM-B','PM-B','PM-C']:['PM-A','PM-B','PM-C'])).forEach(k=>{ const s={sub:'PM',jenis:g.jenis,grup:g.id,kem:k}; if(g.jenis!=='lama') s.tanya=pick('tanya:'+k,TANYA[k]); slots.push(s); }); } }
+      grup.push(g); const urut=PM_URUT[sz]||PM_URUT[3], rk=g.jenis==='lama'?rangkaianPM(g.lama.id,sz):[];
+      const mig=g.jenis!=='lama'&&mPM>0&&sz>=3?urut.indexOf('PM-A'):-1; if(mig>=0) mPM--;
+      urut.forEach((k,j)=>{ const sl={sub:'PM',jenis:g.jenis,grup:g.id,kem:k};
+        if(j===mig){ sl.jenis='migrasi'; sl.tanya=TANYA_M.PM[0]; pakai.M++; }
+        else { if(g.jenis!=='lama') sl.tanya=pick('tanya:'+k,TANYA[k]); else if(rk[j]) sl.rk=rk[j]; pakai[{lama:'L',geser:'G',baru:'B'}[g.jenis]]++; }
+        slots.push(sl); }); } }
   /* PU dan PK: kemampuan dipilih dulu, lalu jenis dibagi dari sisa token */
   const lepas=[]; ['PU','PK'].forEach(sub=>{ for(let i=0;i<cnt[sub];i++){ const s={sub,kem:pickKem(sub)}; if(sub==='PU') s.kon=pick('kon',KONTEKS); lepas.push(s); } });
-  if(f4){ const g={id:'k1',sub:'PK',jenis:KS['PK-A'].dasar||KS['PK-B'].dasar||KS['PK-C'].dasar||RN.chance(.5)?'lama':'geser',lama:{id:'PK-F4',t:'satu informasi untuk tiga soal berurutan'}};
-    if(g.jenis==='geser'){ g.tuas=pick('tuas',tuasOk('PK').filter(t=>t.dim==='stim')); g.stim=pick('stim:PK',STIM.PK); }
-    grup.push(g); pakai[g.jenis==='lama'?'L':'G']+=3; RN.shuf(['PK-A','PK-A','PK-B','PK-C']).slice(0,3).forEach(k=>slots.push({sub:'PK',jenis:g.jenis,grup:'k1',kem:k})); }
-  const sisa={L:Math.max(0,tok.L-pakai.L),B:Math.max(0,tok.B-pakai.B),M:tok.M,G:0}; sisa.G=Math.max(0,lepas.length-sisa.L-sisa.B-sisa.M);
+  if(f4){ const g={id:'k1',sub:'PK',n:3,jenis:KS['PK-A'].dasar||KS['PK-B'].dasar||KS['PK-C'].dasar||RN.chance(.5)?'lama':'geser',lama:{id:'PK-F4',t:'satu informasi untuk tiga soal berurutan'}};
+    if(g.jenis==='geser'){ g.tuas=pick('tuas',tuasOk('PK').filter(t=>t.dim==='stim')); g.stim=stimTuas(g.tuas,'PK'); }
+    grup.push(g); pakai[g.jenis==='lama'?'L':'G']+=3; ['PK-A','PK-A',RN.pick(['PK-A','PK-C'])].forEach((k,j)=>slots.push({sub:'PK',jenis:g.jenis,grup:'k1',kem:k,rantai:j})); }
+  if(pu2){ const ada=LAMA.PU.filter(x=>PU_TABEL.includes(x.id)&&(!NEED[x.id]||NEED[x.id].some(u=>op0.has(u)))&&!(TH.PU===1&&BERAT.includes(x.id)));
+    const g={id:'d1',sub:'PU',n:2,kon:pick('kon',KONTEKS),jenis:ada.length&&RN.chance(.5)?'lama':'geser'};
+    if(g.jenis==='lama') g.lama=pick('lama',ada); else { g.stim=pick('stim:PU',STIM.PU.filter(x=>['tabel','diagram','sel','menu','jadwal'].includes(x.id))); g.lama={id:RN.pick(PU_TABEL),t:'tabel atau diagram untuk dua soal'}; }
+    grup.push(g); pakai[g.jenis==='lama'?'L':'G']+=2;
+    const k2=RN.pick(['PU-KUA-1','PU-KUA-2','PU-KUA-4']); RN.shuf(['PU-KUA-3',k2]).forEach(k=>{ const sl={sub:'PU',jenis:g.jenis,grup:'d1',kem:k}; if(g.jenis==='geser') sl.tanya=pick('tanya:PU',TANYA.PU.filter(t=>t.tipe==='pg')); slots.push(sl); }); }
+  const sisa={L:Math.max(0,tok.L-pakai.L),B:Math.max(0,tok.B-pakai.B),M:Math.min(Math.max(0,tok.M-pakai.M),cnt.PU?Math.max(1,Math.floor((plan.PU||0)/10)):0),G:0}; sisa.G=Math.max(0,lepas.length-sisa.L-sisa.B-sisa.M);
   while(sisa.L+sisa.B+sisa.M+sisa.G>lepas.length){ if(sisa.G) sisa.G--; else if(sisa.L) sisa.L--; else if(sisa.B) sisa.B--; else sisa.M--; }
   const paksa=lepas.filter(s=>KS[s.kem]&&KS[s.kem].dasar); paksa.forEach(s=>{ s.jenis='lama'; s.alasan='dasar'; });
   let lebih=paksa.length-sisa.L; sisa.L=Math.max(0,sisa.L-paksa.length); while(lebih>0){ if(sisa.G) sisa.G--; else if(sisa.B) sisa.B--; else if(sisa.M) sisa.M--; lebih--; }
@@ -1461,8 +1490,10 @@ function buildResep(id,date,plan,mode){
   ambil(sisa.B,()=>true).forEach(s=>{ s.jenis='baru'; });
   bebas.forEach((s,i)=>{ s.jenis=i<sisa.L?'lama':'geser'; });
   ['PU','PK'].forEach(sub=>lepas.filter(s=>s.sub===sub).forEach(s=>{ isiSlot(s); slots.push(s); }));
-  /* urutan: PU, PK, lalu stimulus PM (seperti sebelumnya) */
-  slots.sort((a,b)=>['PU','PK','PM'].indexOf(a.sub)-['PU','PK','PM'].indexOf(b.sub));
+  /* urutan: PU, PK, lalu stimulus PM. R4: blok stimulus PU/PK (satu tabel dua soal, PK-F4) ditaruh di posisi acak di antara soal lepas */
+  const urutSub=sub=>{ const lp=RN.shuf(slots.filter(s=>s.sub===sub&&!s.grup)), bl=grup.filter(g=>g.sub===sub).map(g=>slots.filter(s=>s.grup===g.id));
+    if(sub==='PM') return bl.flat().concat(lp); const out=lp.map(s=>[s]); bl.forEach(b=>out.splice(RN.int(0,out.length),0,b)); return out.flat(); };
+  const urutan=['PU','PK','PM'].flatMap(urutSub); slots.length=0; urutan.forEach(s=>slots.push(s));
   /* materi: fokus hari ini, lalu unit lemah, sisanya acak dari unit terbuka dan ulasan */
   const open=poolUnits(date), rec=recentUnits(date), fokus=fokusUnits(date), weak=weakUnits(date).filter(u=>!fokus.includes(u));
   const bag=[]; open.forEach(u=>{ bag.push(u); if(rec.includes(u)) bag.push(u,u); });
@@ -1476,11 +1507,23 @@ function buildResep(id,date,plan,mode){
   pindah.sort((a,b)=>(a==='migrasi'?0:a==='baru'?1:2)-(b==='migrasi'?0:b==='baru'?1:2)).forEach(j=>{ const c=RN.shuf(slots.filter(s=>!s.grup&&s.jenis==='lama'&&!s.alasan&&!baruU.includes(s.unit)&&(j!=='migrasi'||s.sub==='PU')));
     if(c.length){ c[0].jenis=j; isiSlot(c[0]); } });
   grup.forEach(g=>{ if(g.sub==='PM'&&g.jenis!=='lama'&&baruU.includes(g.unit)){ g.jenis='lama'; g.alasan='materi baru'; if(!g.lama) g.lama=pick('lama',okL(LAMA.PM,'PM')); delete g.stim; delete g.tuas;
-    slots.filter(s=>s.grup===g.id).forEach(s=>{ s.jenis='lama'; delete s.tanya; }); } });
+      const ss=slots.filter(s=>s.grup===g.id), rk=rangkaianPM(g.lama.id,ss.length); ss.forEach((s,j)=>{ s.jenis='lama'; delete s.tanya; if(rk[j]) s.rk=rk[j]; }); }
+    /* tabel dua soal PU dan PK-F4 geser: materinya dipindah ke unit yang sudah dikenal (bentuknya tetap) */
+    if(g.sub!=='PM'&&g.jenis!=='lama'&&baruU.includes(g.unit)){ const lain=bag.filter(u=>!baruU.includes(u)); if(lain.length) g.unit=RN.pick(lain); } });
+  /* R4: format jawaban. kesiapan-2027 §3: minimal 2 soal per 10 di luar pilihan ganda biasa; isian (J3) dan benar/salah (J2) masing-masing paling sedikit satu */
+  const tipeSlot=s=>s.tanya?s.tanya.tipe:s.fmtR4&&s.lama&&s.lama.id==='PK-F3'?'bs':'pg', nonJ1=()=>slots.filter(s=>['isian','bs'].includes(tipeSlot(s))).length, perlu=Math.max(2,Math.round(slots.length*.2));
+  const kunciT=c=>c.sub==='PM'?c.kem:c.sub;
+  const kandidat=t=>RN.shuf(slots.filter(s=>s.jenis!=='lama'&&s.jenis!=='migrasi'&&tipeSlot(s)==='pg'&&(s.sub==='PK'||s.sub==='PM')&&(TANYA[kunciT(s)]||[]).some(x=>x.tipe===t)));
+  const ubahFormat=t=>{ const c=kandidat(t)[0]; if(!c) return false; const daftar=TANYA[kunciT(c)].filter(x=>x.tipe===t);
+    c.tanya=pick('tanya:'+kunciT(c),daftar); if(c.jenis==='geser'&&!c.grup){ c.tuas=TUAS.find(x=>x.id==='format'); delete c.stim; } c.fmtR4=1; return true; };
+  ['isian','bs'].forEach(t=>{ if(!slots.some(s=>tipeSlot(s)===t)) ubahFormat(t); });
+  for(let i=0;i<6&&nonJ1()<perlu;i++) ubahFormat(i%2?'bs':'isian');
+  /* masih kurang: soal PK lama memakai arsip PK-F3 (pernyataan benar/salah), tetap bentuk lama */
+  RN.shuf(slots.filter(s=>s.sub==='PK'&&!s.grup&&s.jenis==='lama'&&s.lama)).forEach(s=>{ if(nonJ1()<perlu||!slots.some(x=>tipeSlot(x)==='bs')){ s.lama=LAMA.PK.find(x=>x.id==='PK-F3'); s.fmtR4=1; } });
   ['PU','PK','PM'].forEach(sub=>{ const ss=RN.shuf(slots.filter(s=>s.sub===sub)), lv=TAHAP[TH[sub]].lv, nL=Math.round(ss.length*lv[0]), nH=Math.round(ss.length*lv[2]);
     ss.forEach((s,i)=>{ s.lvl=i<nL?'L':i<nL+nH?'H':'M'; }); });
   slots.forEach((s,i)=>{ s.no=i+1; });
-  const r={v:3,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,fokus,slots,grup,keys,sig:poolSig(date),nama:pilihNama(date),kesiapan:{dasar:Object.keys(KS).filter(k=>KS[k].dasar),naik:Object.keys(KS).filter(k=>KS[k].naik),baru:baruU},ts:Date.now()};
+  const r={v:3,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,kerangka:KR.id,fokus,slots,grup,keys,sig:poolSig(date),nama:pilihNama(date),kesiapan:{dasar:Object.keys(KS).filter(k=>KS[k].dasar),naik:Object.keys(KS).filter(k=>KS[k].naik),baru:baruU},ts:Date.now()};
   S.resep[id]=r;
   Object.keys(S.resep).forEach(k=>{ if(S.resep[k].d<dayNo()-45) delete S.resep[k]; });
   save(); return r;
@@ -1490,6 +1533,13 @@ function poolSig(date){ return poolUnits(date).join(','); }
 /* resep yang dibuat dengan jadwal lain (misalnya sebelum jadwal Progres Harian berubah) dibuat ulang selama setnya belum ditempel */
 function resepHarian(k){ const r=S.resep[k], d=fromYmd(k); if(r&&(r.sig===poolSig(d)||harianSet(k))){ if(!r.nama&&!harianSet(k)){ r.nama=pilihNama(d); save(); } return r; } return buildResep(k,d,PLAN.harian,'harian'); }
 function resepSim(sub,baru){ const id='sim-'+sub; if(baru||!S.resep[id]) return buildResep(id,new Date(),PLAN[sub],'sim'); return S.resep[id]; }
+/* R4: ringkasan kerangka hari ini untuk Beranda */
+function kerangkaTeks(r){ const pm=r.grup.filter(g=>g.sub==='PM').map(g=>r.slots.filter(s=>s.grup===g.id).length), b=[];
+  const lp=x=>r.slots.filter(s=>s.sub===x&&!s.grup).length;
+  if(r.slots.some(s=>s.sub==='PU')) b.push('PU '+lp('PU')+' lepas'+(r.grup.some(g=>g.id==='d1')?' + satu tabel untuk 2 soal':''));
+  if(r.slots.some(s=>s.sub==='PK')) b.push('PK '+lp('PK')+' lepas'+(r.grup.some(g=>g.id==='k1')?' + PK-F4 berantai (3 soal)':''));
+  if(pm.length) b.push('PM '+pm.length+' stimulus ('+pm.join(' + ')+' soal)');
+  return b.join(' · '); }
 function slotShort(s,r){ const g=s.grup?r.grup.find(x=>x.id===s.grup):null;
   const b=s.jenis==='lama'?(g?g.lama.id:s.lama.id+(s.lama2?' × '+s.lama2.id:'')):[(g?g.stim:s.stim)&&(g?g.stim:s.stim).t.split(/[:(]/)[0].trim(),s.tanya&&s.tanya.t.split(/[:(,]/)[0].trim(),!g&&s.tuas&&!s.stim&&!s.tanya?s.tuas.t:null].filter(Boolean).join(' · ');
   return b; }
@@ -1530,18 +1580,24 @@ function konteks30(){ const lim=dayNo()-30, c={}; S.sets.forEach(st=>{ const t=s
 function judulLama(){ const lim=dayNo()-30, out=[]; S.sets.forEach(st=>{ const t=st.tgl||dk(st.ts); if(dayNo(fromYmd(t))<lim) return; (st.stimulus||[]).forEach(g=>{ if(g.judul&&!out.includes(g.judul)) out.push(g.judul); }); }); return out.slice(-20); }
 function slotLine(s){
   const u=s.unit?' Unit utama: '+uname(s.unit)+'.':' Unit: pilih dari daftar MATERI yang cocok dengan kerangka ini.', lv=' Level '+s.lvl+'.';
-  if(s.grup){ const head=s.no+'. ['+s.kem+'] '+KEM[s.kem].split(':')[0]+'.'+lv; return s.jenis==='lama'?head+(s.sub==='PK'?' Tipe bebas (pg, pq, cukup, atau bs) asal berbeda dari dua soal lain di stimulus ini.':' Pertanyaan mengikuti rangkaian arsip.'):head+(s.tanya?' Arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").':' Tipe bebas, berbeda dari dua soal lain di stimulus ini.'); }
-  const kn=s.kon?' Konteks: '+s.kon.t+'.':'';
-  if(s.jenis==='lama') return s.no+'. ['+s.sub+' · LAMA]'+lv+' Tiru kerangka arsip '+s.lama.id+' ('+s.lama.t+')'+(s.lama2?' pada materi '+s.lama2.id+' ('+s.lama2.t+'); bila materi itu di luar unit, pakai materi unit ini':'')+'. Mode Dasar: hanya angka dan konteks yang baru.'+u+kn;
+  if(s.grup){ const head=s.no+'. ['+s.kem+(s.jenis==='migrasi'?' · MIGRASI':'')+'] '+KEM[s.kem].split(':')[0]+'.'+lv;
+    if(s.jenis==='migrasi') return head+' Bentuk khas subtes lain dipindah ke '+s.sub+' → '+s.tanya.t+' (tipe "'+s.tanya.tipe+'"). Tetap memakai stimulus ini dan waktu '+s.sub+'.';
+    if(s.rantai!=null) return head+[' Soal pertama rantai: nilai dasar langsung dari informasi.',' Rantai kedua: memakai hasil soal sebelumnya untuk besaran berikutnya (misalnya panjang atau jarak).',' Rantai ketiga, paling dalam (misalnya luas atau nilai akhir): memakai hasil soal kedua.'][s.rantai]+(s.tanya?' Arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").':s.jenis==='lama'?' Tipe pg.':'');
+    if(s.jenis==='lama') return head+(s.rk?' Pertanyaan rangkaian arsip: '+s.rk+'.':s.sub==='PK'?' Tipe bebas (pg, pq, cukup, atau bs) asal berbeda dari soal lain di stimulus ini.':' Pertanyaan mengikuti rangkaian arsip.');
+    return head+(s.tanya?' Arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").':' Tipe bebas, berbeda dari soal lain di stimulus ini.'); }
+  const kn=(s.kon?' Konteks: '+s.kon.t+'.':'')+(s.sub==='PK'?' Minimal 2 langkah penalaran (bukan hitungan satu langkah).':'');
+  if(s.jenis==='lama') return s.no+'. ['+s.sub+' · LAMA]'+lv+' Tiru kerangka arsip '+s.lama.id+' ('+s.lama.t+')'+(s.lama2?' pada materi '+s.lama2.id+' ('+s.lama2.t+'); bila materi itu di luar unit, pakai materi unit ini':'')+'.'+(s.fmtR4&&s.lama.id==='PK-F3'?' Tulis sebagai tabel benar/salah (tipe "bs").':'')+' Mode Dasar: hanya angka dan konteks yang baru.'+u+kn;
   if(s.jenis==='geser') return s.no+'. ['+s.sub+' · GESER]'+lv+' Kemampuan '+s.kem+'.'+u+' Ambil bentuk arsip terdekat, ubah SATU hal dengan tuas "'+s.tuas.t+'"'+(s.stim?' → stimulus: '+s.stim.t:'')+(s.tanya?' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'")':'')+'.'+kn;
   if(s.jenis==='migrasi') return s.no+'. ['+s.sub+' · MIGRASI]'+lv+' Kemampuan '+s.kem+'.'+u+' Bentuk khas subtes lain dipindah ke '+s.sub+' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'"); stimulus: '+s.stim.t+'. Panjang dan waktu tetap gaya '+s.sub+' (2–6 kalimat, 60 detik).'+kn;
   return s.no+'. ['+s.sub+' · BARU]'+lv+' Kemampuan '+s.kem+'.'+u+' Bentuk yang belum pernah keluar → stimulus: '+s.stim.t+'; arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").'+kn;
 }
 function grupLine(g){ const u='Unit: '+uname(g.unit)+(g.unit2?' dan '+uname(g.unit2):'')+'.';
-  if(g.sub==='PK') return 'STIMULUS '+g.id+' [PK-F4 · '+(g.jenis==='lama'?'LAMA':'GESER')+'] Satu informasi (cerita, tabel, atau aturan) dipakai tiga soal berurutan; tiap soal bisa dijawab tanpa jawaban soal lain'+(g.jenis==='geser'?'; ubah dengan tuas "'+g.tuas.t+'" → stimulus: '+g.stim.t:'')+'. Unit: '+uname(g.unit)+'.';
-  if(g.jenis==='lama') return 'STIMULUS '+g.id+' [PM · LAMA] Tiru templat arsip '+g.lama.id+' ('+g.lama.t+')'+(g.kon?', konteks '+g.kon.t:'')+'. '+u;
-  if(g.jenis==='geser') return 'STIMULUS '+g.id+' [PM · GESER] Berangkat dari templat arsip '+g.lama.id+' ('+g.lama.t+'), ubah dengan tuas "'+g.tuas.t+'" → stimulus: '+g.stim.t+', konteks '+g.kon.t+'. '+u;
-  return 'STIMULUS '+g.id+' [PM · BARU] Belum pernah keluar → stimulus: '+g.stim.t+', konteks '+g.kon.t+', menggabungkan dua konsep. '+u; }
+  if(g.sub==='PK') return 'STIMULUS '+g.id+' [PK-F4 BERANTAI · '+(g.jenis==='lama'?'LAMA':'GESER')+' · J4] Satu informasi singkat tanpa cerita panjang (bangun, aturan, atau tabel kecil) dipakai tiga soal yang makin dalam, misalnya nilai → panjang atau jarak → luas. Soal 2 memakai hasil soal 1, soal 3 memakai hasil soal 2; pengecoh khasnya "kesalahan soal pertama terbawa"'+(g.jenis==='geser'?'; ubah dengan tuas "'+g.tuas.t+'" → stimulus: '+g.stim.t:'')+'. Unit: '+uname(g.unit)+'.';
+  if(g.sub==='PU') return 'STIMULUS '+g.id+' [PU · '+(g.jenis==='lama'?'LAMA':'GESER')+' · J4] Satu '+(g.stim?g.stim.t:'tabel')+' dipakai DUA soal PU berurutan dengan arah tanya berbeda. '+(g.jenis==='lama'?'Tiru kerangka arsip '+g.lama.id+' ('+g.lama.t+').':'Berangkat dari arsip '+g.lama.id+', data diperkecil (paling banyak 4 × 4) dan memakai materi dari daftar.')+' Panjang tetap gaya PU (60 detik per soal termasuk membaca)'+(g.kon?', konteks '+g.kon.t:'')+'. '+u;
+  const nn=g.n?' · J4, '+g.n+' soal':'';
+  if(g.jenis==='lama') return 'STIMULUS '+g.id+' [PM · LAMA'+nn+'] Tiru templat arsip '+g.lama.id+' ('+g.lama.t+') dengan rangkaian pertanyaannya'+(g.kon?', konteks '+g.kon.t:'')+'. '+u;
+  if(g.jenis==='geser') return 'STIMULUS '+g.id+' [PM · GESER'+nn+'] Berangkat dari templat arsip '+g.lama.id+' ('+g.lama.t+'), ubah dengan tuas "'+g.tuas.t+'" → stimulus: '+g.stim.t+', konteks '+g.kon.t+'. '+u;
+  return 'STIMULUS '+g.id+' [PM · BARU'+nn+'] Belum pernah keluar → stimulus: '+g.stim.t+', konteks '+g.kon.t+', menggabungkan dua konsep. '+u; }
 const ATURAN=[
  'Mulai dari KEMAMPUAN, bukan dari templat. Soal yang baik bisa dijawab orang yang menguasai kemampuannya walau belum pernah melihat bentuknya. Bila soal bisa dijawab hanya dengan mengenali templat, ganti bentuknya.',
  'Jenis bentuk dan level adalah dua hal terpisah; ikuti keduanya sesuai resep. LAMA = Mode Dasar, GESER = satu unsur diubah, BARU = sedikitnya dua unsur diubah. Level L = satu–dua langkah dengan konsep langsung; M = dua–tiga langkah atau satu jebakan; H = penalaran berlapis, gabungan dua konsep, atau menuntut menguji kasus. Jadi bisa ada bentuk baru yang mudah dan bentuk lama yang sulit. Dalam satu set, tidak ada dua soal dengan bentuk yang sama.',
@@ -1564,7 +1620,7 @@ function fmtJson(mode,tg,sub,adaPM){
   '      {"no": 4, "sub": "PM", "stim": "g1", "kemampuan": "PM-B", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "isian", "perintah": "…", "kunci": "12,5", "langkah": ["…"], "jebakan": "…"},\n'+
   '      {"no": 5, "sub": "PM", "stim": "g1", "kemampuan": "PM-C", "jenis": "baru", "bentuk_lama": "PM-1", "diubah": "stimulus dan format", "unit": "BIL-13", "level": "H", "sidik": "…", "tipe": "bs", "perintah": "Tentukan apakah setiap pernyataan berikut BENAR atau SALAH.", "pernyataan": [{"teks": "…", "benar": true}, {"teks": "…", "benar": false}, {"teks": "…", "benar": true}], "langkah": ["satu langkah per pernyataan"], "jebakan": "…"}\n'+
   '    ]\n  }\n}\n'+
-  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja; kunci A–D. Opsinya empat, baku sesuai Brief PK-F1, dan sudah ada di aplikasi, persis: '+optLines(PQ4)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal. "konteks" = konteks soal 2–5 kata sesuai resep (kosongkan untuk soal PK tanpa cerita). "jenis" diisi lama, geser, baru, atau migrasi (boleh juga L, G, B, M). "format" boleh diisi kode format jawaban J1–J7 (J1 PG lima opsi, J2 tabel benar/salah, J3 isian angka, J4 satu stimulus untuk 3–4 soal, J5 pilih semua yang benar, J6 menjodohkan, J7 mengurutkan); bila format yang dimaksud belum bisa ditampilkan aplikasi, tulis soalnya dalam tipe yang setara dan isi "format" dengan kode aslinya, misalnya "J5 (ditulis sebagai J2)".';
+  'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja; kunci A–D. Opsinya empat, baku sesuai Brief PK-F1, dan sudah ada di aplikasi, persis: '+optLines(PQ4)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = 3 pernyataan (J5 "pilih semua yang benar" yang ditulis sebagai J2 boleh 4–5 pernyataan); "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal. "konteks" = konteks soal 2–5 kata sesuai resep (kosongkan untuk soal PK tanpa cerita). "jenis" diisi lama, geser, baru, atau migrasi (boleh juga L, G, B, M). "format" boleh diisi kode format jawaban J1–J7 (J1 PG lima opsi, J2 tabel benar/salah, J3 isian angka, J4 satu stimulus untuk 3–4 soal, J5 pilih semua yang benar, J6 menjodohkan, J7 mengurutkan); bila format yang dimaksud belum bisa ditampilkan aplikasi, tulis soalnya dalam tipe yang setara dan isi "format" dengan kode aslinya, misalnya "J5 (ditulis sebagai J2)".';
 }
 function tahapNote(r){ const subs=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)), c={lama:0,geser:0,baru:0,migrasi:0}; r.slots.forEach(s=>c[s.jenis]=(c[s.jenis]||0)+1); const ks=r.kesiapan||{};
   return ' Komposisi hari ini (kesiapan-2027): '+c.lama+' lama, '+c.geser+' digeser, '+c.baru+' baru, '+c.migrasi+' migrasi.'+
@@ -1603,7 +1659,8 @@ function promptSet(r){
   (sd.length?'\nRIWAYAT BENTUK 14 HARI TERAKHIR, termasuk stok hari lain (subtes tipe ~arsip | sidik | awal kalimat perintah). Jangan ulangi kombinasi stimulus + arah tanya + format, dan jangan pakai kalimat perintah yang mirip.\n'+sd.map(x=>'- '+x).join('\n')+'\n':'')+
   (jd.length?'\nCERITA YANG SUDAH DIPAKAI (jangan mirip): '+jd.join('; ')+'\n':'')+
   '\nATURAN\n'+ATURAN.map((a,i)=>(i+1)+'. '+a).join('\n')+'\n'+
-  (adaPM?(ATURAN.length+1)+'. PM: satu stimulus dipakai beberapa soal dengan urutan merumuskan (PM-A) → menggunakan (PM-B) → menafsirkan (PM-C). Angka realistis; pembulatan harus masuk akal.\n':'')+
+  (adaPM?(ATURAN.length+1)+'. PM: satu stimulus dipakai beberapa soal dengan urutan merumuskan (PM-A) → menggunakan (PM-B) → menafsirkan (PM-C), termasuk stimulus LAMA. Jumlah soal per stimulus mengikuti resep (2, 3, atau 4). Angka realistis; pembulatan harus masuk akal.\n':'')+
+  (adaGrup?(ATURAN.length+(adaPM?2:1))+'. Soal yang memakai stimulus bersama mengisi "stim" dengan id stimulusnya (g1, g2, k1, d1) dan teksnya ditulis sekali di "stimulus".\n':'')+
   '\nFORMAT JSON (persis; contoh di bawah hanya menunjukkan bentuk tiap tipe, isi dan jumlah soal mengikuti resep)\n'+fmtJson(r.mode,r.tgl,sub,adaGrup);
 }
 /* Stok dua hari dalam satu prompt (batas mutu: paling banyak dua set per jawaban Claude). */
@@ -1655,7 +1712,7 @@ function parseSet(raw){
     if(q.tipe==='pg'){ q.opsi=[].concat(x.opsi||[]).map(String); if(q.opsi.length!==5) E('pilihan ganda harus 5 opsi.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>=q.opsi.length) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
     else if(q.tipe==='pq'){ q.p=String(x.p||'').trim(); q.q=String(x.q||'').trim(); q.versi=4; if(!q.p||!q.q) E('isi "p" dan "q".'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0||q.kunci>3) E('kunci P–Q harus A–D (empat opsi sesuai Brief: A P lebih besar, B Q lebih besar, C sama, D tidak dapat ditentukan). Set dari prompt lama dengan 5 opsi perlu dibuat ulang.'); q.alasan=[].concat(x.alasan||[]).map(String); }
     else if(q.tipe==='cukup'){ q.pern=[].concat(x.pernyataan||[]).map(p=>String(p).replace(/^\s*\((i{1,2}|1|2)\)\s*/,'')); if(q.pern.length!==2) E('kecukupan data butuh tepat 2 pernyataan.'); q.kunci=L.indexOf(k); if(k.length!==1||q.kunci<0) E('kunci harus huruf A–E.'); q.alasan=[].concat(x.alasan||[]).map(String); }
-    else if(q.tipe==='bs'){ q.bs=[].concat(x.pernyataan||[]).map(p=>({teks:String(p&&p.teks||''),benar:p&&p.benar})); if(q.bs.length<3||q.bs.length>4||q.bs.some(p=>!p.teks||typeof p.benar!=='boolean')) E('benar/salah butuh 3 pernyataan dengan "teks" dan "benar": true/false.'); }
+    else if(q.tipe==='bs'){ q.bs=[].concat(x.pernyataan||[]).map(p=>({teks:String(p&&p.teks||''),benar:p&&p.benar})); if(q.bs.length<3||q.bs.length>5||q.bs.some(p=>!p.teks||typeof p.benar!=='boolean')) E('benar/salah butuh 3–5 pernyataan dengan "teks" dan "benar": true/false.'); }
     else if(q.tipe==='isian'){ q.kunciNum=parseNum(x.kunci); if(isNaN(q.kunciNum)) E('kunci isian harus angka.'); }
     else E('"tipe" harus pg, pq, cukup, bs, atau isian.');
     return q; });
@@ -1717,6 +1774,13 @@ function cekMutu(soal,stim,mode,tg){ const W=[], kata=t=>String(t||'').trim().sp
   /* kesiapan-2027: format yang belum terbukti dibatasi */
   const j56=soal.filter(q=>q.format==='J5'||q.format==='J6').length, bJ56=Math.max(1,Math.floor(soal.length/10));
   if(j56>bJ56) W.push('Cek format · '+j56+' soal memakai J5/J6; batasnya '+bJ56+' per set karena belum terbukti muncul di UTBK.');
+  /* R4: kesiapan-2027 §3 dan §4, serta PK minimal 2 langkah */
+  if(mode!=='varian'&&soal.length>=8){ const nj=soal.filter(q=>q.format&&q.format!=='J1').length, perlu=Math.max(2,Math.round(soal.length*.2));
+    if(nj<perlu) W.push('Cek format · hanya '+nj+' soal di luar J1 (pilihan ganda biasa); kesiapan-2027 meminta minimal 2 per 10 soal ('+perlu+' untuk '+soal.length+' soal). Tambah isian (J3) atau benar/salah (J2).');
+    const nb=soal.filter(q=>q.jenis==='baru').length, rr=mode==='harian'&&tg?S.resep[tg]:null, naik=rr&&rr.kesiapan&&rr.kesiapan.naik&&rr.kesiapan.naik.length;
+    if(nb>Math.ceil(soal.length*.2)&&!naik) W.push('Cek komposisi · '+nb+' soal berjenis baru; kesiapan-2027 membatasi bentuk baru paling banyak 20% set ('+Math.ceil(soal.length*.2)+' soal).'); }
+  const pk1=soal.filter(q=>q.sub==='PK'&&q.langkah&&q.langkah.length<2).map(q=>q.no);
+  if(pk1.length) W.push('Cek langkah · soal PK '+pk1.join(', ')+' hanya satu langkah pembahasan; resep meminta minimal 2 langkah penalaran.');
   return W; }
 /* Wadah stok: satu tempelan boleh berisi beberapa blok json (beberapa tanggal sekaligus), daftar set, atau {"sets": [...]}. */
 function splitBlocks(raw){ const t=String(raw||'').replace(/[“”]/g,'"'), fences=[...t.matchAll(/```(?:json)?\s*([\s\S]*?)```/g)].map(m=>m[1]);
@@ -2646,6 +2710,7 @@ function viewBeranda(){
   h+='<h2>Status hari ini</h2><div class="card status"><div class="srow1">'+['PU','PK','PM'].map(x=>'<span class="stg"><b style="--c:'+SUBC[x]+'">'+x+'</b>'+TAHAP[TI[x].t].nama+'</span>').join('<i>·</i>')+'</div>'+
     '<div class="srow2">'+jbadge('lama')+'<b>'+cj.lama+'</b>'+jbadge('geser')+'<b>'+cj.geser+'</b>'+jbadge('baru')+'<b>'+cj.baru+'</b>'+jbadge('migrasi')+'<b>'+cj.migrasi+'</b><span class="sm">dari '+r.slots.length+' soal</span></div>'+
     '<details><summary>Rincian tahap dan resep</summary><ul class="tlist">'+['PU','PK','PM'].map(x=>'<li><b>'+x+'</b> Tahap '+TI[x].t+' · '+TAHAP[TI[x].t].nama+' — '+esc(TI[x].txt)+'</li>').join('')+'</ul>'+
+    '<p class="sm"><b>Kerangka hari ini'+(r.kerangka&&r.kerangka.length===1?' ('+r.kerangka+')':'')+':</b> '+esc(kerangkaTeks(r))+'. Kerangka berputar tiap hari dalam siklus 7 hari.</p>'+
     '<p class="sm">Bentuk soal mengikuti kesiapan-2027: per 10 soal 3 lama, 4 digeser, 2 baru, 1 migrasi. Kemampuan yang akurasi bentuk lamanya di bawah 70% memakai Mode Dasar (semua bentuk lama); materi yang baru masuk jadwal (hari ini atau kemarin) juga, dan bentuknya dipindah ke soal lain. Kemampuan dengan Indeks Kesiapan di bawah 0,75 mendapat bentuk baru dan migrasi lebih dulu. Tahap di atas hanya mengatur tingkat kesulitan (L/M/H).</p>'+
     ((ks.dasar||[]).length||(ks.baru||[]).length||(ks.naik||[]).length?'<p class="sm">'+((ks.dasar||[]).length?'<b>Mode Dasar:</b> '+esc(ks.dasar.join(', '))+'. ':'')+((ks.baru||[]).length?'<b>Materi baru:</b> '+esc(ks.baru.join(', '))+'. ':'')+((ks.naik||[]).length?'<b>Bentuk baru didahulukan:</b> '+esc(ks.naik.join(', '))+'.':'')+'</p>':'')+
     '<ol class="resep">'+r.slots.map(s=>'<li>'+badge(s.sub)+' '+jbadge(s.jenis)+' <span class="code">'+s.lvl+'</span> <span>'+esc(slotShort(s,r))+'</span></li>').join('')+'</ol></details></div>';
