@@ -1401,6 +1401,17 @@ function tahapInfo(sub){ const h=first().filter(x=>x.mode==='harian'&&x.sub===su
   return {t,txt}; }
 function tahap(sub){ return tahapInfo(sub).t; }
 function jenisList(n,t){ if(!n) return []; const w=TAHAP[t||2].w, lama=Math.round(n*w[0]), baru=t===1?0:Math.max(1,Math.round(n*w[1])); const a=[]; for(let i=0;i<n;i++) a.push(i<lama?'lama':i<lama+baru?'baru':'geser'); return RN.shuf(a); }
+/* ---------- R3: kesiapan per kemampuan (kesiapan-2027 §2) ----------
+   Dari ±20 soal terakhir tiap kemampuan: akurasi bentuk lama (L) dan akurasi bentuk baru+migrasi (B+M).
+   Mode Dasar bila akurasi L < 70% (minimal 5 soal L); porsi B dan M dinaikkan bila Indeks Kesiapan = akurasi(B+M) ÷ akurasi(L) < 0,75. */
+function kesiapanKem(kem){ const h=first().filter(x=>x.kem===kem).slice(-20), L=h.filter(x=>x.jenis==='lama'), BM=h.filter(x=>x.jenis==='baru'||x.jenis==='migrasi'), G2=h.filter(x=>x.jenis==='geser');
+  const acc=a=>a.length?Math.round(a.filter(x=>x.ok).length*100/a.length):null, aL=acc(L), aBM=acc(BM), idx=aL&&aBM!=null?Math.round(aBM/aL*100)/100:null;
+  const wB=BM.filter(x=>x.ms>0&&x.ms<30*60000), tB=wB.length?wB.reduce((s,x)=>s+x.ms,0)/wB.length/1000:null;
+  return {kem,n:h.length,nL:L.length,aL,nG:G2.length,aG:acc(G2),nBM:BM.length,aBM,idx,tBM:tB,dasar:L.length>=5&&aL<70,naik:L.length>=5&&BM.length>=3&&idx!=null&&idx<0.75}; }
+/* unit jadwal baru = bagian pertamanya dijadwalkan hari ini atau kemarin (1–2 sesi pertama); ikut penundaan Progres Harian */
+function unitBaru(u,date){ const x=UMAP[u]; if(!u||!x||x.old||!x.les||!x.les.length) return false; const J=phJadwal();
+  const tgls=x.les.map(l=>lesDate(l,J)).filter(Boolean).sort(); if(!tgls.length) return false; const sel=dayNo(date||new Date())-dayNo(fromYmd(tgls[0])); return sel>=0&&sel<=1; }
+const TANYA_M={PU:[{id:'pq',t:'hubungan kuantitas P dan Q (bentuk khas PK dipindah ke PU kuantitatif; empat opsi baku)',tipe:'pq'}]};
 function buildResep(id,date,plan,mode){
   const last=lruMap(), loc={}, keys=[], d=dayNo(date), TH={PU:tahap('PU'),PK:tahap('PK'),PM:tahap('PM')};
   const pick=(dim,list)=>{ let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
@@ -1409,35 +1420,63 @@ function buildResep(id,date,plan,mode){
   const pickKem=sub=>{ const ids=[...new Set(kemFree[sub])].map(x=>({id:x})); const w=kemFree[sub]; let k=pick('kem',ids).id; if(sub==='PK'&&k!=='PK-A'&&(loc['kem:'+k]||0)>1&&(loc['kem:PK-A']||0)<w.filter(x=>x==='PK-A').length){ k='PK-A'; loc['kem:PK-A']=(loc['kem:PK-A']||0)+1; } return k; };
   const op0=eqUnits(date), okL=(l,sub)=>{ const f=l.filter(it=>(!NEED[it.id]||NEED[it.id].some(u=>op0.has(u)))&&!(TH[sub]===1&&BERAT.includes(it.id))); return f.length?f:l; };
   const tuasOk=sub=>TH[sub]===1?TUAS.filter(t=>!TUAS_PANJANG.includes(t.id)):TUAS;
-  const slots=[], grup=[];
+  const slots=[], grup=[], KS={}; Object.keys(KEM).forEach(k=>{ KS[k]=kesiapanKem(k); });
   const f4=!!plan.PK&&(mode==='sim'||((d%7)+7)%7===2), cnt={PU:plan.PU||0,PK:(plan.PK||0)-(f4?3:0)};
-  ['PU','PK'].forEach(sub=>{ jenisList(cnt[sub],TH[sub]).forEach(j=>{ const s={sub,jenis:j};
-    if(sub==='PU') s.kon=pick('kon',KONTEKS); /* R8: setiap soal PU punya konteks; PK tetap tanpa cerita */
+  /* R3: komposisi Mode 2027 untuk satu set: per 10 soal 3 L, 4 G, 2 B, 1 M (kesiapan-2027 §1) */
+  const N=(plan.PU||0)+(plan.PK||0)+(plan.PM?plan.PM[0]*plan.PM[1]:0), tok={L:Math.round(N*.3),B:Math.round(N*.2),M:Math.round(N*.1)}; tok.G=N-tok.L-tok.B-tok.M;
+  const mMax=plan.PU?Math.max(1,Math.floor((plan.PU||0)/10)):0; if(tok.M>mMax){ tok.G+=tok.M-mMax; tok.M=mMax; } /* migrasi sementara hanya di PU (P–Q); PM menyusul di R4 */
+  const isiSlot=s=>{ const sub=s.sub, j=s.jenis; delete s.lama; delete s.lama2; delete s.tanya; delete s.stim; delete s.tuas;
     if(j==='lama'){ s.lama=pick('lama',okL(LAMA[sub],sub)); if(sub==='PK') s.lama2=pick('lamaM',okL(LAMA.PKM,sub)); }
-    else if(j==='baru'){ s.tanya=pick('tanya:'+sub,TANYA[sub]); s.stim=pick('stim:'+sub,STIM[sub]); s.kem=s.tanya.kem||pickKem(sub); }
-    else { s.tuas=pick('tuas',tuasOk(sub)); if(s.tuas.dim==='stim') s.stim=pick('stim:'+sub,STIM[sub]); if(s.tuas.dim==='tanya') s.tanya=pick('tanya:'+sub,TANYA[sub]); s.kem=(s.tanya&&s.tanya.kem)||pickKem(sub); }
-    slots.push(s); }); });
-  if(f4){ const g={id:'k1',sub:'PK',jenis:TH.PK===1||RN.chance(.5)?'lama':'geser',lama:{id:'PK-F4',t:'satu informasi untuk tiga soal berurutan'}};
-    if(g.jenis==='geser'){ g.tuas=pick('tuas',tuasOk('PK').filter(t=>t.dim==='stim')); g.stim=pick('stim:PK',STIM.PK); }
-    grup.push(g); RN.shuf(['PK-A','PK-A','PK-B','PK-C']).slice(0,3).forEach(k=>slots.push({sub:'PK',jenis:g.jenis,grup:'k1',kem:k})); }
+    else if(j==='baru'){ s.tanya=pick('tanya:'+sub,TANYA[sub]); s.stim=pick('stim:'+sub,STIM[sub]); if(s.tanya.kem) s.kem=s.tanya.kem; }
+    else if(j==='migrasi'){ s.tanya=TANYA_M[sub][0]; s.stim=pick('stim:'+sub,STIM[sub]); }
+    else { s.tuas=pick('tuas',tuasOk(sub)); if(s.tuas.dim==='stim') s.stim=pick('stim:'+sub,STIM[sub]); if(s.tuas.dim==='tanya') s.tanya=pick('tanya:'+sub,TANYA[sub]); if(s.tanya&&s.tanya.kem) s.kem=s.tanya.kem; } };
+  /* PM lebih dulu (satu stimulus = satu jenis); Mode Dasar PM bila salah satu kemampuan PM sedang Mode Dasar */
+  const pmDasar=['PM-A','PM-B','PM-C'].some(k=>KS[k].dasar), pakai={L:0,G:0,B:0,M:0};
   if(plan.PM){ const ng=plan.PM[0], sz=plan.PM[1];
-    const js=ng===2?(TH.PM===1?['lama','geser']:TH.PM===3?['geser','baru']:d%3===0?['lama','baru']:['geser','baru']):jenisList(ng,TH.PM);
+    let js; if(pmDasar) js=Array(ng).fill('lama');
+    else if(ng===2) js=RN.shuf(['lama',d%2?'baru':'geser']);
+    else { const nl=Math.round(ng*.3), nb=Math.round(ng*.2); js=RN.shuf(Array.from({length:ng},(_,i)=>i<nl?'lama':i<nl+nb?'baru':'geser')); }
     for(let i=0;i<ng;i++){ const g={id:'g'+(i+1),sub:'PM',jenis:js[i]};
       if(g.jenis!=='baru') g.lama=pick('lama',okL(LAMA.PM,'PM'));
       g.kon=pick('kon',KONTEKS); if(g.jenis!=='lama') g.stim=pick('stim:PM',STIM.PM);
       if(g.jenis==='geser') g.tuas=pick('tuas',tuasOk('PM').filter(t=>t.id!=='format'));
-      grup.push(g);
+      grup.push(g); pakai[{lama:'L',geser:'G',baru:'B'}[g.jenis]]+=sz;
       (g.jenis==='lama'?(sz===4?['PM-B','PM-B','PM-B','PM-C']:['PM-B','PM-B','PM-C']):(sz===4?['PM-A','PM-B','PM-B','PM-C']:['PM-A','PM-B','PM-C'])).forEach(k=>{ const s={sub:'PM',jenis:g.jenis,grup:g.id,kem:k}; if(g.jenis!=='lama') s.tanya=pick('tanya:'+k,TANYA[k]); slots.push(s); }); } }
+  /* PU dan PK: kemampuan dipilih dulu, lalu jenis dibagi dari sisa token */
+  const lepas=[]; ['PU','PK'].forEach(sub=>{ for(let i=0;i<cnt[sub];i++){ const s={sub,kem:pickKem(sub)}; if(sub==='PU') s.kon=pick('kon',KONTEKS); lepas.push(s); } });
+  if(f4){ const g={id:'k1',sub:'PK',jenis:KS['PK-A'].dasar||KS['PK-B'].dasar||KS['PK-C'].dasar||RN.chance(.5)?'lama':'geser',lama:{id:'PK-F4',t:'satu informasi untuk tiga soal berurutan'}};
+    if(g.jenis==='geser'){ g.tuas=pick('tuas',tuasOk('PK').filter(t=>t.dim==='stim')); g.stim=pick('stim:PK',STIM.PK); }
+    grup.push(g); pakai[g.jenis==='lama'?'L':'G']+=3; RN.shuf(['PK-A','PK-A','PK-B','PK-C']).slice(0,3).forEach(k=>slots.push({sub:'PK',jenis:g.jenis,grup:'k1',kem:k})); }
+  const sisa={L:Math.max(0,tok.L-pakai.L),B:Math.max(0,tok.B-pakai.B),M:tok.M,G:0}; sisa.G=Math.max(0,lepas.length-sisa.L-sisa.B-sisa.M);
+  while(sisa.L+sisa.B+sisa.M+sisa.G>lepas.length){ if(sisa.G) sisa.G--; else if(sisa.L) sisa.L--; else if(sisa.B) sisa.B--; else sisa.M--; }
+  const paksa=lepas.filter(s=>KS[s.kem]&&KS[s.kem].dasar); paksa.forEach(s=>{ s.jenis='lama'; s.alasan='dasar'; });
+  let lebih=paksa.length-sisa.L; sisa.L=Math.max(0,sisa.L-paksa.length); while(lebih>0){ if(sisa.G) sisa.G--; else if(sisa.B) sisa.B--; else if(sisa.M) sisa.M--; lebih--; }
+  const bebas=RN.shuf(lepas.filter(s=>!s.jenis)), prio=s=>KS[s.kem]&&KS[s.kem].naik?0:1;
+  const ambil=(n,ok)=>{ const out=[]; bebas.slice().sort((a,b)=>prio(a)-prio(b)).forEach(s=>{ if(out.length<n&&!s.jenis&&ok(s)) out.push(s); }); out.forEach(s=>{ bebas.splice(bebas.indexOf(s),1); }); return out; };
+  ambil(sisa.M,s=>s.sub==='PU'&&TANYA_M.PU).forEach(s=>{ s.jenis='migrasi'; });
+  ambil(sisa.B,()=>true).forEach(s=>{ s.jenis='baru'; });
+  bebas.forEach((s,i)=>{ s.jenis=i<sisa.L?'lama':'geser'; });
+  ['PU','PK'].forEach(sub=>lepas.filter(s=>s.sub===sub).forEach(s=>{ isiSlot(s); slots.push(s); }));
+  /* urutan: PU, PK, lalu stimulus PM (seperti sebelumnya) */
+  slots.sort((a,b)=>['PU','PK','PM'].indexOf(a.sub)-['PU','PK','PM'].indexOf(b.sub));
   /* materi: fokus hari ini, lalu unit lemah, sisanya acak dari unit terbuka dan ulasan */
   const open=poolUnits(date), rec=recentUnits(date), fokus=fokusUnits(date), weak=weakUnits(date).filter(u=>!fokus.includes(u));
   const bag=[]; open.forEach(u=>{ bag.push(u); if(rec.includes(u)) bag.push(u,u); });
   const owners=slots.filter(s=>!s.grup&&s.jenis!=='lama').concat(grup); const nf=Math.max(1,Math.ceil(owners.length/3));
   RN.shuf(owners).forEach((o,i)=>{ o.unit=i<nf?fokus[i%fokus.length]:i<nf+Math.min(weak.length,2)*2?weak[Math.floor((i-nf)/2)]:RN.pick(bag); });
   grup.forEach(g=>{ let u2=RN.pick(bag), t=0; while(u2===g.unit&&t++<8) u2=RN.pick(bag); g.unit2=u2!==g.unit?u2:null; });
+  /* R3: unit yang baru masuk jadwal (hari ini atau kemarin) memakai Mode Dasar */
+  const baruU=[...new Set(slots.map(s=>s.unit).concat(grup.map(g=>g.unit)).filter(u=>unitBaru(u,date)))];
+  const pindah=[]; slots.forEach(s=>{ if(!s.grup&&s.jenis!=='lama'&&baruU.includes(s.unit)){ pindah.push(s.jenis); s.jenis='lama'; s.alasan='materi baru'; isiSlot(s); } });
+  /* bentuk yang tergeser dipindah ke slot lama lain yang materinya sudah dikenal, supaya komposisi tetap terjaga */
+  pindah.sort((a,b)=>(a==='migrasi'?0:a==='baru'?1:2)-(b==='migrasi'?0:b==='baru'?1:2)).forEach(j=>{ const c=RN.shuf(slots.filter(s=>!s.grup&&s.jenis==='lama'&&!s.alasan&&!baruU.includes(s.unit)&&(j!=='migrasi'||s.sub==='PU')));
+    if(c.length){ c[0].jenis=j; isiSlot(c[0]); } });
+  grup.forEach(g=>{ if(g.sub==='PM'&&g.jenis!=='lama'&&baruU.includes(g.unit)){ g.jenis='lama'; g.alasan='materi baru'; if(!g.lama) g.lama=pick('lama',okL(LAMA.PM,'PM')); delete g.stim; delete g.tuas;
+    slots.filter(s=>s.grup===g.id).forEach(s=>{ s.jenis='lama'; delete s.tanya; }); } });
   ['PU','PK','PM'].forEach(sub=>{ const ss=RN.shuf(slots.filter(s=>s.sub===sub)), lv=TAHAP[TH[sub]].lv, nL=Math.round(ss.length*lv[0]), nH=Math.round(ss.length*lv[2]);
     ss.forEach((s,i)=>{ s.lvl=i<nL?'L':i<nL+nH?'H':'M'; }); });
   slots.forEach((s,i)=>{ s.no=i+1; });
-  const r={v:3,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,fokus,slots,grup,keys,sig:poolSig(date),nama:pilihNama(date),ts:Date.now()};
+  const r={v:3,id,d,tgl:ymd(date),mode:mode||'harian',tahap:TH,fokus,slots,grup,keys,sig:poolSig(date),nama:pilihNama(date),kesiapan:{dasar:Object.keys(KS).filter(k=>KS[k].dasar),naik:Object.keys(KS).filter(k=>KS[k].naik),baru:baruU},ts:Date.now()};
   S.resep[id]=r;
   Object.keys(S.resep).forEach(k=>{ if(S.resep[k].d<dayNo()-45) delete S.resep[k]; });
   save(); return r;
@@ -1491,6 +1530,7 @@ function slotLine(s){
   const kn=s.kon?' Konteks: '+s.kon.t+'.':'';
   if(s.jenis==='lama') return s.no+'. ['+s.sub+' · LAMA]'+lv+' Tiru kerangka arsip '+s.lama.id+' ('+s.lama.t+')'+(s.lama2?' pada materi '+s.lama2.id+' ('+s.lama2.t+'); bila materi itu di luar unit, pakai materi unit ini':'')+'. Mode Dasar: hanya angka dan konteks yang baru.'+u+kn;
   if(s.jenis==='geser') return s.no+'. ['+s.sub+' · GESER]'+lv+' Kemampuan '+s.kem+'.'+u+' Ambil bentuk arsip terdekat, ubah SATU hal dengan tuas "'+s.tuas.t+'"'+(s.stim?' → stimulus: '+s.stim.t:'')+(s.tanya?' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'")':'')+'.'+kn;
+  if(s.jenis==='migrasi') return s.no+'. ['+s.sub+' · MIGRASI]'+lv+' Kemampuan '+s.kem+'.'+u+' Bentuk khas subtes lain dipindah ke '+s.sub+' → arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'"); stimulus: '+s.stim.t+'. Panjang dan waktu tetap gaya '+s.sub+' (2–6 kalimat, 60 detik).'+kn;
   return s.no+'. ['+s.sub+' · BARU]'+lv+' Kemampuan '+s.kem+'.'+u+' Bentuk yang belum pernah keluar → stimulus: '+s.stim.t+'; arah tanya/format: '+s.tanya.t+' (tipe "'+s.tanya.tipe+'").'+kn;
 }
 function grupLine(g){ const u='Unit: '+uname(g.unit)+(g.unit2?' dan '+uname(g.unit2):'')+'.';
@@ -1522,7 +1562,12 @@ function fmtJson(mode,tg,sub,adaPM){
   '    ]\n  }\n}\n'+
   'Keterangan tipe: "pg" = 5 opsi; "pq" = isi "p" dan "q" saja; kunci A–D. Opsinya empat, baku sesuai Brief PK-F1, dan sudah ada di aplikasi, persis: '+optLines(PQ4)+' "cukup" = isi dua pernyataan saja; opsinya baku dan berbeda per subtes. PU memakai pernyataan (i) dan (ii), persis: '+optLines(CK_PU)+' PK memakai (1) dan (2), persis: '+optLines(CK_PK)+' Jangan tulis nomor (i)/(1) di dalam teks pernyataan; "bs" = tepat 3 pernyataan; "isian" = kunci angka tanpa satuan dan tanpa titik ribuan. "sidik" = ringkasan bentuk 5–10 kata (stimulus, arah tanya, format) supaya besok tidak terulang. "teks" dan "tabel" boleh dihapus bila tidak dipakai. Tanpa label kemampuan atau level di dalam teks soal. "konteks" = konteks soal 2–5 kata sesuai resep (kosongkan untuk soal PK tanpa cerita). "jenis" diisi lama, geser, baru, atau migrasi (boleh juga L, G, B, M). "format" boleh diisi kode format jawaban J1–J7 (J1 PG lima opsi, J2 tabel benar/salah, J3 isian angka, J4 satu stimulus untuk 3–4 soal, J5 pilih semua yang benar, J6 menjodohkan, J7 mengurutkan); bila format yang dimaksud belum bisa ditampilkan aplikasi, tulis soalnya dalam tipe yang setara dan isi "format" dengan kode aslinya, misalnya "J5 (ditulis sebagai J2)".';
 }
-function tahapNote(r){ const subs=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)); return ' Tahapku: '+subs.map(x=>x+' '+TAHAP[r.tahap[x]].nama).join(', ')+'.'+(subs.some(x=>r.tahap[x]===1)?' Pada subtes bertahap Fondasi, soal GESER hanya mengubah bentuk, bukan kerumitan hitungannya.':''); }
+function tahapNote(r){ const subs=['PU','PK','PM'].filter(x=>r.slots.some(s=>s.sub===x)), c={lama:0,geser:0,baru:0,migrasi:0}; r.slots.forEach(s=>c[s.jenis]=(c[s.jenis]||0)+1); const ks=r.kesiapan||{};
+  return ' Komposisi hari ini (kesiapan-2027): '+c.lama+' lama, '+c.geser+' digeser, '+c.baru+' baru, '+c.migrasi+' migrasi.'+
+    (ks.dasar&&ks.dasar.length?' Mode Dasar (semua bentuk lama) untuk kemampuan '+ks.dasar.join(', ')+' karena akurasi bentuk lamaku di bawah 70%.':'')+
+    (ks.baru&&ks.baru.length?' Materi yang baru masuk jadwal (hari ini atau kemarin) memakai Mode Dasar: '+ks.baru.map(uname).join('; ')+'.':'')+
+    (ks.naik&&ks.naik.length?' Porsi bentuk baru dan migrasi didahulukan untuk '+ks.naik.join(', ')+' (Indeks Kesiapan di bawah 0,75).':'')+
+    ' Tingkat kesulitan tahapku: '+subs.map(x=>x+' '+TAHAP[r.tahap[x]].nama).join(', ')+'.'+(subs.some(x=>r.tahap[x]===1)?' Pada subtes bertahap Fondasi, soal GESER, BARU, dan MIGRASI hanya mengubah bentuk, bukan kerumitan hitungannya (level L–M).':''); }
 function promptSet(r){
   const pool=[...new Set(r.fokus.concat(r.slots.map(s=>s.unit),r.grup.map(g=>g.unit),r.grup.map(g=>g.unit2),weakUnits(fromYmd(r.tgl))).filter(Boolean))];
   const kems=[...new Set(r.slots.map(s=>s.kem).filter(Boolean))];
@@ -2591,13 +2636,14 @@ function viewBeranda(){
   h+='<h2>Tugas hari ini <span class="cnt">'+t.filter(x=>x.done).length+'/'+t.length+'</span></h2><div class="card list">';
   t.forEach((x,i)=>{ h+='<div class="row'+(x.done?' done':'')+'"><span class="num">'+(x.done?'✓':i+1)+'</span><div class="grow"><b>'+esc(x.t)+'</b>'+bar(pct(x.cur,x.n),x.done?'ok':'')+'</div><span class="prg">'+x.cur+'/'+x.n+'</span><button class="btn'+(x.done?'':' pri')+'" data-action="'+x.act+'"'+(x.v?' data-v="'+esc(x.v)+'"':'')+(x.off?' disabled':'')+'>'+(x.done&&x.id!=='salah'?'Lagi':x.btn)+'</button></div>'; });
   h+='</div>';
-  const cj={lama:0,geser:0,baru:0}; r.slots.forEach(s=>cj[s.jenis]++);
+  const cj={lama:0,geser:0,baru:0,migrasi:0}; r.slots.forEach(s=>cj[s.jenis]=(cj[s.jenis]||0)+1); const ks=r.kesiapan||{};
   /* satu baris status: tahap per subtes + komposisi bentuk; rincian bisa dibuka */
   const TI={PU:tahapInfo('PU'),PK:tahapInfo('PK'),PM:tahapInfo('PM')};
   h+='<h2>Status hari ini</h2><div class="card status"><div class="srow1">'+['PU','PK','PM'].map(x=>'<span class="stg"><b style="--c:'+SUBC[x]+'">'+x+'</b>'+TAHAP[TI[x].t].nama+'</span>').join('<i>·</i>')+'</div>'+
-    '<div class="srow2">'+jbadge('lama')+'<b>'+cj.lama+'</b>'+jbadge('geser')+'<b>'+cj.geser+'</b>'+jbadge('baru')+'<b>'+cj.baru+'</b><span class="sm">dari '+r.slots.length+' soal</span></div>'+
+    '<div class="srow2">'+jbadge('lama')+'<b>'+cj.lama+'</b>'+jbadge('geser')+'<b>'+cj.geser+'</b>'+jbadge('baru')+'<b>'+cj.baru+'</b>'+jbadge('migrasi')+'<b>'+cj.migrasi+'</b><span class="sm">dari '+r.slots.length+' soal</span></div>'+
     '<details><summary>Rincian tahap dan resep</summary><ul class="tlist">'+['PU','PK','PM'].map(x=>'<li><b>'+x+'</b> Tahap '+TI[x].t+' · '+TAHAP[TI[x].t].nama+' — '+esc(TI[x].txt)+'</li>').join('')+'</ul>'+
-    '<p class="sm">Naik tahap: 20 soal bentuk lama benar ≥ 80%, lalu 30 soal digeser benar ≥ 80%. Turun satu tahap bila 10 soal terakhir di bawah 60%. Materi mengikuti jadwal; yang berganti tiap hari adalah stimulus, arah tanya, dan format.</p>'+
+    '<p class="sm">Bentuk soal mengikuti kesiapan-2027: per 10 soal 3 lama, 4 digeser, 2 baru, 1 migrasi. Kemampuan yang akurasi bentuk lamanya di bawah 70% memakai Mode Dasar (semua bentuk lama); materi yang baru masuk jadwal (hari ini atau kemarin) juga, dan bentuknya dipindah ke soal lain. Kemampuan dengan Indeks Kesiapan di bawah 0,75 mendapat bentuk baru dan migrasi lebih dulu. Tahap di atas hanya mengatur tingkat kesulitan (L/M/H).</p>'+
+    ((ks.dasar||[]).length||(ks.baru||[]).length||(ks.naik||[]).length?'<p class="sm">'+((ks.dasar||[]).length?'<b>Mode Dasar:</b> '+esc(ks.dasar.join(', '))+'. ':'')+((ks.baru||[]).length?'<b>Materi baru:</b> '+esc(ks.baru.join(', '))+'. ':'')+((ks.naik||[]).length?'<b>Bentuk baru didahulukan:</b> '+esc(ks.naik.join(', '))+'.':'')+'</p>':'')+
     '<ol class="resep">'+r.slots.map(s=>'<li>'+badge(s.sub)+' '+jbadge(s.jenis)+' <span class="code">'+s.lvl+'</span> <span>'+esc(slotShort(s,r))+'</span></li>').join('')+'</ol></details></div>';
   h+='<h2>Simulasi waktu resmi</h2><div class="card list">'+['PU','PK','PM'].map(sub=>{ const st=S.sets.filter(x=>x.mode==='sim'&&x.sub===sub&&setProg(x).a===0).pop(); return '<div class="row">'+badge(sub)+'<div class="grow"><b>'+SUB[sub].simN+' soal · '+String(SUB[sub].simMs/60000).replace('.',',')+' menit</b><span class="sm">'+(st?'Set siap dikerjakan':'Belum ada set baru')+'</span></div><button class="btn" data-action="'+(st?'mulai':'gosim')+'" data-v="'+(st?st.id:sub)+'">'+(st?'Mulai':'Siapkan')+'</button></div>'; }).join('')+'</div>';
   return h;
