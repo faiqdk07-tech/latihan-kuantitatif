@@ -1316,6 +1316,7 @@ function mergeS(A,B){
   const keep=x=>{ const d=T.hari[dk(x.ts)]; return !(d&&x.ts<d); };
   const uni=(a,b,key)=>{ const m=new Map(); (b||[]).forEach(x=>{ if(x&&x.ts) m.set(key(x),x); }); (a||[]).forEach(x=>{ if(x&&x.ts) m.set(key(x),x); }); return [...m.values()].filter(keep).sort((x,y)=>x.ts-y.ts); };
   R.hist=uni(A.hist,B.hist,h=>h.qid+'|'+h.ts);
+  if(A.arsip||B.arsip){ const a=arsipOf(A.arsip), b=arsipOf(B.arsip); R.arsip={hari:Object.assign({},b.hari,a.hari),sidik:[...new Set(b.sidik.concat(a.sidik))]}; }
   R.kil=uni(A.kil,B.kil,h=>(h.k||'')+'|'+h.ts+'|'+h.ms);
   R.game={}; new Set(Object.keys(A.game||{}).concat(Object.keys(B.game||{}))).forEach(g=>{ R.game[g]=uni((A.game||{})[g],(B.game||{})[g],h=>h.ts+'|'+h.ms+'|'+h.ok); });
   R.gbest=Object.assign({},B.gbest||{},A.gbest||{});
@@ -1327,7 +1328,7 @@ function mergeS(A,B){
   return R; }
 function diskS(){ try{ const o=JSON.parse(localStorage.getItem(KEY)||'null'); return o&&typeof o==='object'?o:null; }catch(e){ return null; } }
 function gagalSimpan(msg){ SAVE={ok:false,t:Date.now(),msg};
-  if(Date.now()-SAVE_WARN>15000){ SAVE_WARN=Date.now(); try{ toast('Gagal menyimpan ke perangkat ini. Jawaban terbaru belum tercatat. Buka Pengaturan → Diagnosis data.'); }catch(_){} } return false; }
+  if(Date.now()-SAVE_WARN>15000){ SAVE_WARN=Date.now(); try{ toast('Gagal menyimpan ke perangkat ini. Jawaban terbaru belum tercatat. Buka Pengaturan → Penyimpanan.'); }catch(_){} } return false; }
 function save(){
   let raw=null; try{ raw=localStorage.getItem(KEY); }catch(e){}
   if(raw!=null){ let d=null; try{ d=JSON.parse(raw); }catch(e){}
@@ -1839,7 +1840,7 @@ function parseMany(raw){ return splitBlocks(raw).map(parseSet); }
 function addSet(st){
   const old=S.sets.find(x=>x.id===st.id);
   if(old){ if(S.hist.some(h=>h.sid===old.id)){ st.id=st.id+'-'+Date.now().toString(36).slice(-4); st.label+=' (tambahan)'; st.soal.forEach(q=>{ q.qid=st.id+'#'+q.no; }); } else S.sets=S.sets.filter(x=>x!==old); }
-  S.sets.push(st); if(S.sets.length>80){ const keep=ebSetIds(); let cut=S.sets.length-80; S.sets=S.sets.filter(x=>{ if(cut>0&&!keep.has(x.id)){ cut--; return false; } return true; }); } save();
+  S.sets.push(st); if(S.sets.length>80){ const keep=ebSetIds(); let cut=S.sets.length-80; S.sets=S.sets.filter(x=>{ if(cut>0&&!keep.has(x.id)){ cut--; arsipSet(S,x); return false; } return true; }); } save();
 }
 function setProg(st){ const done=new Set(S.hist.filter(h=>h.sid===st.id&&!h.rep).map(h=>h.qid)); return {n:st.soal.length,a:done.size}; }
 function findQ(qid){ const sid=qid.split('#')[0], st=S.sets.find(x=>x.id===sid); if(!st) return null; const q=st.soal.find(x=>x.qid===qid); return q?{q,set:st}:null; }
@@ -1996,7 +1997,8 @@ function tasksOn(date){ const k=ymd(date);
     ebTask()
   ].map(x=>Object.assign(x,{done:x.cur>=x.n}));
 }
-function dayFull(d){ const k=ymd(d), st=harianSet(k); return !!st&&setProg(st).a>=st.soal.length&&kilHari(k).length>=KILAT_N; }
+function dayFull(d){ const k=ymd(d), ar=S.arsip&&S.arsip.hari&&S.arsip.hari[k]; if(ar!=null) return !!ar&&kilHari(k).length>=KILAT_N; /* set hari itu sudah dirampingkan */
+  const st=harianSet(k); return !!st&&setProg(st).a>=st.soal.length&&kilHari(k).length>=KILAT_N; }
 function streak(){ let n=0, d=new Date(); d.setHours(0,0,0,0); if(!dayFull(d)) d=addDays(d,-1); while(n<400&&dayFull(d)){ n++; d=addDays(d,-1); } return n; }
 
 /* ---------- Sesi soal ---------- */
@@ -2861,7 +2863,7 @@ function viewProgres(){
   const us=[...new Set(h0.map(x=>x.unit))].filter(u=>UMAP[u]).map(u=>({u,s:stat(h0.filter(x=>x.unit===u))})).sort((a,b)=>a.s.p-b.s.p);
   h+='<h2>Per materi</h2><div class="card">'+(us.length?us.map(x=>statRow(esc(uname(x.u)),x.s)).join(''):'<p class="sm">Belum ada data.</p>')+'</div>';
   const kl7=S.kil.filter(x=>x.ts>Date.now()-7*DAY), kl=kl7.filter(x=>!String(x.k||'').startsWith('pmk-')), pk7=kl7.filter(x=>String(x.k||'').startsWith('pmk-')), kt=kl.length?kl.reduce((a,x)=>a+x.ms,0)/kl.length/1000:0;
-  const sid=new Set(); S.sets.forEach(st=>st.soal.forEach(q=>{ if(q.sidik) sid.add(q.sidik.toLowerCase()); }));
+  const sid=new Set((S.arsip&&S.arsip.sidik)||[]); S.sets.forEach(st=>st.soal.forEach(q=>{ if(q.sidik) sid.add(sidikH(q.sidik)); }));
   h+='<h2>Lainnya</h2><div class="card list"><div class="row"><div class="grow"><b>Hitung cepat (7 hari)</b><span class="sm">'+kl.length+' soal · benar '+pct(kl.filter(x=>x.ok).length,kl.length)+'% · rata-rata '+kt.toFixed(1).replace('.',',')+' detik</span></div></div><div class="row"><div class="grow"><b>PM kilat (7 hari)</b><span class="sm">'+(pk7.length?pk7.length+' soal · benar '+pct(pk7.filter(x=>x.ok).length,pk7.length)+'%':'Belum dikerjakan')+'</span></div></div><div class="row"><div class="grow"><b>Mini game (7 hari)</b><span class="sm">'+(GAMES.map(g=>({g,st:gameStat(g.id)})).filter(x=>x.st.n7).map(x=>x.g.nama+' '+x.st.p7+'%').join(' · ')||'Belum dimainkan')+'</span></div></div><div class="row"><div class="grow"><b>Ragam bentuk</b><span class="sm">'+sid.size+' bentuk soal berbeda sudah kamu temui</span></div></div></div>';
   return h;
 }
@@ -2888,6 +2890,7 @@ function viewPengaturan(){ let h='<button type="button" class="chip" data-action
       (P.err?'<div class="msg bad">'+esc(P.err)+'</div>':'')+
       (P.res?'<div class="msg"><b>Yang akan ditambahkan:</b> '+esc(P.res.ringkas)+'</div><div class="btns"><button class="btn pri grow" data-action="pulihya"'+(P.res.tambah?'':' disabled')+'>'+(P.res.tambah?'Ya, gabungkan':'Tidak ada data baru')+'</button></div>':'')+
       (P.ok?'<div class="msg ok">'+esc(P.ok)+'</div>':'')+'</div>'; }
+  h+=viewPenyimpanan();
   return h;
 }
 /* ---------- Diagnosis data (hanya membaca) ---------- */
@@ -2913,6 +2916,7 @@ function pulihGabung(o){ const A=Object.assign({},S,{tomb:emptyTomb(),saved:1}),
   const R=mergeS(A,B); R.tomb=Object.assign(emptyTomb(),{clear:Date.now()}); return R; }
 function pulihCek(){ const P=V.pulih; P.err=''; P.res=null; P.ok=''; let o=null; const t=String(P.txt||''), a=t.indexOf('{'), b=t.lastIndexOf('}');
   try{ o=JSON.parse(a>=0&&b>a?t.slice(a,b+1):t); }catch(e){ P.err='Teks belum berupa cadangan yang utuh. Salin seluruh teks "Cadangan data", dari { sampai }.'; return; }
+  if(o&&o.data&&typeof o.data==='object'&&(o.key===KEY||o.app==='latihan-kuantitatif')) o=o.data; /* berkas dari "Salin/Unduh cadangan" di Penyimpanan */
   if(!o||typeof o!=='object'||!(Array.isArray(o.sets)||Array.isArray(o.hist))){ P.err='Ini bukan cadangan Latihan Kuantitatif (tidak ada "sets" atau "hist").'; return; }
   const R=pulihGabung(o), n=x=>Array.isArray(x)?x.length:Object.keys(x||{}).length, g=x=>Object.values(x||{}).reduce((s,a)=>s+a.length,0);
   const d={hist:n(R.hist)-n(S.hist),kil:n(R.kil)-n(S.kil),game:g(R.game)-g(S.game),sets:n(R.sets)-n(S.sets),eb:n(R.eb)-n(S.eb)};
@@ -2921,6 +2925,75 @@ function pulihYa(){ const P=V.pulih; if(!P||!P.res||!P.res.tambah) return; const
   try{ localStorage.setItem(KEY,JSON.stringify(S)); SAVE={ok:true,t:S.saved,msg:''}; try{ localStorage.setItem('lk.ringkas',JSON.stringify(ringkas())); }catch(e){} }
   catch(e){ SAVE={ok:false,t:Date.now(),msg:(e&&e.name)||'Error'}; P.err='Gagal menyimpan hasil gabungan: '+SAVE.msg+'. Data lama tidak berubah.'; P.res=null; return; }
   const d=diskS(); P.ok='Selesai. Jawaban set sekarang '+((d&&d.hist)||[]).length+' (sebelumnya '+sebelum+'). Tahap dan Error Book memakai data gabungan ini.'; P.res=null; P.txt=''; }
+/* ---------- Perampingan penyimpanan (27 Nov 2026) ----------
+   Semua app di faiqdk07-tech.github.io berbagi satu kuota localStorage (±5 MB), jadi data lama dirampingkan.
+   Aturan untuk data lebih dari 30 hari (key localStorage tidak berubah):
+   - Set soal dibuang (umur dari ts = waktu impor; data lama tanpa ts memakai tanggal di id/tgl). Set yang masih memuat
+     soal aktif Error Book (atau penggantinya) dipangkas menjadi soal aktif itu saja beserta stimulusnya; set sesi yang
+     sedang berjalan tidak disentuh.
+     Hari penuh (untuk runtun) dan sidik bentuk (untuk "Ragam bentuk") dicatat di S.arsip; tanda "paham" (lunas) ikut dihapus.
+     Set yang dibuang diberi tanda hapus supaya tidak muncul lagi saat digabung dengan tab lain.
+   - Error Book yang sudah lulus diringkas: id, subtes, kemampuan, unit, tanggal, lulus, berapa kali salah, penyebab,
+     aturan, plus log: []. Soal yang belum lulus tetap utuh, termasuk set soalnya.
+   - Riwayat jawaban TIDAK dihapus. Untuk jawaban yang set-nya sudah tidak ada, kolom yang tidak dipakai statistik
+     (sid, lvl, ks, rep:0) dibuang. qid tetap ada karena menjadi kunci penggabungan antartab.
+   Perampingan pertama hanya bisa setelah cadangan (S.cadanganTs); sesudahnya otomatis sekali sehari saat app dibuka. */
+const RAMPING_HARI=30;
+let RAMP_PRA=null;
+function sidikH(s){ s=String(s||'').toLowerCase(); let h=0x811c9dc5; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(36); }
+function arsipOf(a){ a=a||{}; return {hari:a.hari||{},sidik:Array.isArray(a.sidik)?a.sidik:[]}; }
+function umurSet(st){ const id=String(st.id||''), m=id.match(/^h(\d{4}-\d{2}-\d{2})/), n=id.match(/^(?:sim|var)(\d{12,})/), tg=/^\d{4}-\d{2}-\d{2}$/.test(st.tgl||'')?fromYmd(st.tgl).getTime():0;
+  const ts=st.ts||(m?fromYmd(m[1]).getTime():n?+n[1]:0); return Math.max(ts,tg)||Date.now(); }
+/* catat ringkasan set yang dibuang: hari penuh (set harian pertama hari itu selesai) dan sidik bentuknya */
+function arsipSet(T,st){ const A=T.arsip=arsipOf(T.arsip), sd=new Set(A.sidik);
+  (st.soal||[]).forEach(q=>{ if(q.sidik) sd.add(sidikH(q.sidik)); }); A.sidik=[...sd];
+  if(st.mode==='harian'&&st.tgl&&A.hari[st.tgl]==null){ const awal=(T.sets||[]).filter(s=>s.mode==='harian'&&s.tgl===st.tgl).sort((a,b)=>a.ts-b.ts)[0];
+    if(!awal||awal===st){ const done=new Set((T.hist||[]).filter(h=>h.sid===st.id&&!h.rep).map(h=>h.qid)); A.hari[st.tgl]=done.size>=(st.soal||[]).length?1:0; } } }
+function rampingkan(T,now){ now=now||Date.now(); const batas=now-RAMPING_HARI*DAY, n={set:0,soal:0,eb:0,hist:0};
+  const eb=T.eb||{}, aktif=new Set(Object.keys(eb).filter(q=>eb[q]&&!eb[q].lulus)), simpan=new Set([...aktif].map(q=>q.split('#')[0]));
+  (T.sets||[]).forEach(st=>{ if(st.mode==='varian'&&(st.soal||[]).some(q=>aktif.has(q.asal||st.asal))) simpan.add(st.id); });
+  const jalan=new Set(); try{ if(V.run) V.run.items.forEach(it=>jalan.add(it.set.id)); }catch(e){}
+  const buang=new Set(), lama=(T.sets||[]).filter(st=>!jalan.has(st.id)&&umurSet(st)<batas);
+  lama.forEach(st=>{ const soal=st.soal||[];
+    if(!simpan.has(st.id)){ arsipSet(T,st); buang.add(st.id); n.set++; n.soal+=soal.length; return; }
+    /* set lama yang dipertahankan untuk Error Book: sisakan hanya soal yang masih aktif (dan stimulusnya) */
+    const sisa=soal.filter(q=>aktif.has(q.qid)||(st.mode==='varian'&&aktif.has(q.asal||st.asal))); if(sisa.length>=soal.length) return;
+    arsipSet(T,st); const sm=new Set(sisa.map(q=>q.stim).filter(Boolean)); st.soal=sisa; st.stimulus=(st.stimulus||[]).filter(g=>sm.has(g.id)); st.rk=1;
+    const ada=new Set(sisa.map(q=>q.qid)); Object.keys(T.lunas||{}).forEach(q=>{ if(q.split('#')[0]===st.id&&!ada.has(q)) delete T.lunas[q]; });
+    n.soal+=soal.length-sisa.length; });
+  if(buang.size){ T.sets=T.sets.filter(st=>!buang.has(st.id)); T.tomb=tombOf(T.tomb); buang.forEach(id=>{ T.tomb.sets[id]=now; });
+    Object.keys(T.lunas||{}).forEach(q=>{ if(buang.has(q.split('#')[0])) delete T.lunas[q]; }); }
+  const ada=new Set((T.sets||[]).map(st=>st.id));
+  (T.hist||[]).forEach(h=>{ if(!h||!(h.ts<batas)) return; const sid=h.sid||String(h.qid||'').split('#')[0]; if(ada.has(sid)) return;
+    let u=false; ['sid','lvl','ks'].forEach(k=>{ if(k in h){ delete h[k]; u=true; } }); if('rep' in h&&!h.rep){ delete h.rep; u=true; } if(u) n.hist++; });
+  Object.keys(eb).forEach(q=>{ const e=eb[q]; if(!e||!e.lulus||e.lulus>=batas||e.rk) return;
+    const r={qid:e.qid||q,sub:e.sub,kem:e.kem||'',unit:e.unit||'',t:e.t,lulus:e.lulus,salah:e.salah||1,box:e.box,log:[],rk:1};
+    ['mt','dt'].forEach(k=>{ if(e[k]) r[k]=e[k]; }); (e.log||[]).forEach(x=>{ if(x.ts>(r.mt||0)) r.mt=x.ts; }); /* waktu aktivitas (ebAct) tetap sama */
+    if(e.sebab) r.sebab=e.sebab; if(e.aturan) r.aturan=e.aturan; eb[q]=r; n.eb++; });
+  return n; }
+function rampingJml(n){ return n?n.soal+n.eb+n.hist:0; }
+function rampingTeks(n){ const L=[]; if(n.soal) L.push(n.soal+' soal lama dibuang'+(n.set?' ('+n.set+' set utuh)':'')); if(n.eb) L.push(n.eb+' soal Error Book lulus diringkas'); if(n.hist) L.push(n.hist+' jawaban lama dirampingkan'); return L.join(', '); }
+function rampingOtomatis(){ const k=ymd(new Date()); if(!S.cadanganTs||S.rampingHari===k) return null; let n=null; try{ n=rampingkan(S); }catch(e){ console.warn('rampingkan',e); } S.rampingHari=k; RAMP_PRA=null; return n; }
+/* pratinjau: jalankan pada salinan, bandingkan panjang JSON sebelum dan sesudah */
+function rampingPratinjau(){ let raw=null; try{ raw=localStorage.getItem(KEY); }catch(e){} raw=raw||JSON.stringify(S);
+  if(RAMP_PRA&&RAMP_PRA.raw===raw.length+'|'+S.saved) return RAMP_PRA; let n={set:0,soal:0,eb:0,hist:0}, hemat=0;
+  try{ const c=JSON.parse(raw); n=rampingkan(c); hemat=Math.max(0,raw.length-JSON.stringify(c).length); }catch(e){}
+  return RAMP_PRA={raw:raw.length+'|'+S.saved,n,hemat}; }
+/* ukuran = jumlah panjang key + isi semua localStorage di domain ini (perkiraan) */
+function ukuranLS(){ let tot=0, app=0; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i), v=localStorage.getItem(k)||'', z=k.length+v.length; tot+=z; if(k===KEY||k===SKEY||k.startsWith('lk.')||k==='paketMingguan:latihan-kuantitatif') app+=z; } }catch(e){} return {tot,app}; }
+function cadanganTeks(){ return JSON.stringify({app:'latihan-kuantitatif',key:KEY,dibuat:new Date().toISOString(),data:S}); }
+function cadanganOk(msg){ S.cadanganTs=Date.now(); V.rampGagal=0; save(); render(); toast(msg); }
+function viewPenyimpanan(){ const U=ukuranLS(), MAX=5*1048576, mb=x=>(x/1048576).toFixed(2).replace('.',',')+' MB', pr=rampingPratinjau(), n=pr.n, p=Math.round(U.tot*100/MAX);
+  let h='<h2>Penyimpanan</h2><div class="card list" id="penyimpanan">'+
+    '<div class="row"><div class="grow"><b>'+mb(U.tot)+' dari ±5 MB</b> <span class="sm">(app ini '+mb(U.app)+')</span>'+bar(p,p>=85?'bad':'')+'<span class="sm">Semua app di alamat ini memakai satu tempat penyimpanan. Angka ini perkiraan.</span></div></div>'+
+    '<div class="row"><div class="grow"><b>Bisa dirampingkan</b><span class="sm">'+(rampingJml(n)?esc(rampingTeks(n))+'. Hemat ±'+mb(pr.hemat)+'.':'Tidak ada. Data lebih dari '+RAMPING_HARI+' hari akan dirampingkan di sini.')+'</span>'+
+    '<span class="sm">Data lebih dari '+RAMPING_HARI+' hari: soal lama dibuang (kecuali yang masih aktif di Error Book), Error Book yang sudah lulus diringkas, dan riwayat jawaban tetap disimpan sehingga statistik tidak berubah.</span></div></div>';
+  if(!S.cadanganTs) h+='<div class="row"><div class="grow"><b>Cadangan dulu</b><span class="sm">Sebelum merampingkan pertama kali, simpan cadangan lengkap. Cadangan bisa dipulihkan lewat "Pulihkan dari cadangan".</span>'+
+    (V.rampGagal?'<span class="sm" style="color:var(--red)">Clipboard tidak diizinkan. Pakai "Unduh berkas cadangan".</span>':'')+'</div></div>'+
+    '<div class="row"><button class="btn pri grow" data-action="cadsalin">Salin cadangan dulu</button><button class="btn grow" data-action="cadunduh">Unduh berkas cadangan</button></div>';
+  else h+='<div class="row"><div class="grow"><b>Cadangan</b><span class="sm">terakhir '+esc(new Date(S.cadanganTs).toLocaleString('id-ID'))+'. Perampingan berjalan otomatis sekali sehari saat app dibuka'+(S.rampingHari?' (terakhir '+esc(tgl(S.rampingHari))+')':'')+'.</span></div></div>'+
+    '<div class="row"><button class="btn pri grow" data-action="rampingkan"'+(rampingJml(n)?'':' disabled')+'>Rampingkan sekarang</button><button class="btn" data-action="cadunduh">Unduh cadangan</button></div>';
+  return h+'</div>'; }
 function optBtn(i,label,R,k,rv){ const q=R.items[k].q, a=R.A[k]; let cls='opt'; if(a.c===i) cls+=' sel'; if(rv){ if(i===q.kunci) cls+=' good'; else if(a.c===i) cls+=' wrong'; }
   const why=rv&&q.alasan&&q.alasan[i]&&i!==q.kunci&&!/^kunci\.?$/i.test(q.alasan[i])?'<span class="why">'+mx(q.alasan[i])+'</span>':'';
   return '<button class="'+cls+'" data-action="pick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+'ABCDE'[i]+'</span><span class="grow">'+txt(label)+why+'</span></button>'; }
@@ -2993,7 +3066,7 @@ function viewHasil(){
   h+='<div class="card score"><div><b class="big">'+ok+'/'+n+'</b><span class="sm">benar ('+pct(ok,n)+'%)</span></div><div><b class="big">'+mmss(tot)+'</b><span class="sm">waktu · target '+mmss(R.limit||tg)+'</span></div></div>';
   const sv=R.simpan;
   if(sv) h+=sv.ok?'<div class="msg ok simpan"><b>Tersimpan ✓</b> '+sv.n+' dari '+sv.tot+' jawaban tercatat di perangkat ini.</div>'
-    :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button></div>';
+    :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila penyimpanan penuh, buka Pengaturan → Penyimpanan untuk merampingkan data lama. Bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button><button class="btn" data-action="kesimpan">Buka Pengaturan → Penyimpanan</button></div>';
   const js=['lama','geser','baru','migrasi','varian'].map(j=>({j,l:R.items.map((it,i)=>({it,a:R.A[i]})).filter(x=>x.it.q.jenis===j)})).filter(x=>x.l.length);
   if(js.length>1) h+='<div class="card"><h3 class="rkj-h">Rekap per jenis</h3>'+rekapJenis(R.items.map((it,i)=>({jenis:it.q.jenis,ok:R.A[i].ok,ms:R.T[i],sub:it.q.sub})))+'</div>';
   h+='<div class="fhead"><h2>Pembahasan</h2><button class="btn sm" data-action="foldall">Buka/tutup semua</button></div>'+R.items.map((it,i)=>{ const q=it.q, a=R.A[i], slow=R.T[i]>SUB[q.sub].dtk*1500;
@@ -3104,6 +3177,12 @@ function act(a,v){
   else if(a==='hariNo'){ V.prog.hari=false; render(); }
   else if(a==='hariYes'){ V.prog.hari=false; hapusHariIni(); render(); toast('Progres hari ini dihapus.'); }
   else if(a==='cfg'){ go('pengaturan'); }
+  else if(a==='kesimpan'){ go('pengaturan'); setTimeout(()=>{ const el=document.getElementById('penyimpanan'); if(el) el.scrollIntoView(); },0); }
+  else if(a==='cadsalin'){ syncDisk(); const t=cadanganTeks(), gagal=()=>{ V.rampGagal=1; toast('Clipboard tidak diizinkan. Pakai "Unduh berkas cadangan".'); render(); };
+    try{ if(!navigator.clipboard||!navigator.clipboard.writeText) return gagal(); navigator.clipboard.writeText(t).then(()=>cadanganOk('Cadangan disalin. Tempel dan simpan di Catatan atau tempat lain.'),gagal); }catch(e){ gagal(); } }
+  else if(a==='cadunduh'){ syncDisk(); if(unduh('latihan-kuantitatif-cadangan-'+ymd(new Date())+'.json',cadanganTeks())) cadanganOk('Berkas cadangan diunduh.'); else toast('Berkas cadangan gagal dibuat.'); }
+  else if(a==='rampingkan'){ if(!S.cadanganTs){ toast('Simpan cadangan dulu.'); return; } syncDisk(); const n=rampingkan(S); S.rampingHari=ymd(new Date()); const ok=save(); RAMP_PRA=null; render();
+    toast(!ok?'Dirampingkan, tetapi penyimpanan gagal: '+SAVE.msg:rampingJml(n)?'Dirampingkan: '+rampingTeks(n)+'.':'Tidak ada data lama yang perlu dirampingkan.'); }
   else if(a==='kembali'){ if(history.length>1) history.back(); else go('beranda'); }
   else if(a==='tema'){ S.tema=S.tema==='terang'?'gelap':S.tema==='gelap'?'auto':'terang'; applyTema(); save(); render(); }
   else if(a==='ulas'){ S.ulas=S.ulas===false; save(); render(); }
@@ -3153,10 +3232,10 @@ setInterval(()=>{ const R=V.run, K=V.kl;
   else if(K&&!K.done&&!K.fb&&!K.intro&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.t0)/1000; if(K.limit){ if(s>=K.limit){ kilatCheck(null,true); return; } const rem=Math.ceil(K.limit-s); if(rem<=5&&K._tk!==K.i+':'+rem){ K._tk=K.i+':'+rem; SFX.play('detik',rem); } if(el){ el.textContent=Math.ceil(K.limit-s)+' dtk'; el.classList.toggle('late',K.limit-s<5); } } else if(el){ el.textContent=Math.round(s)+' dtk'; el.classList.toggle('late',s>20); } }
 },500);
 if(typeof module!=='undefined'&&module.exports) module.exports={get V(){return V;},PQT,BV,pqGame,gameBentuk,GVAR,MV,CKV,viewKilat,beginGame,kilatCheck,act,startGame,kilatMix,GAMES,pqItem,ckItem,kisiItem,barisanItem,estimItem,mesinItem,balikItem,tahapInfo,poolUnits,oldUnits,openUnits,fokusUnits,kilatGens,tahap,S,buildResep,resepHarian,resepSim,promptSet,promptVarian,parseSet,addSet,tasksOn,kilatSet,PLAN,findQ,salahList,viewBeranda,viewSoal,viewSalah,viewProgres};
-else { applyTema(); $('#scene').innerHTML=sceneHTML(); ebInit(); save(); render();
+else { applyTema(); $('#scene').innerHTML=sceneHTML(); ebInit(); rampingOtomatis(); save(); render();
   /* R0a: data yang disimpan tab/app lain langsung digabung, supaya tab ini tidak menimpa dengan data lama */
   window.addEventListener('storage',e=>{ if(e.key===KEY) syncDisk(); });
-  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) syncDisk(); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ syncDisk(); if(!V.run&&rampingOtomatis()) save(); } });
   window.addEventListener('pageshow',e=>{ if(e.persisted) syncDisk(); });
   window.addEventListener('focus',()=>syncDisk()); }
 </script>
