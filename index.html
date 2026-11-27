@@ -1410,7 +1410,11 @@ function openUnits(date){ if(S.semua) return UNITS.map(u=>u.id); const k=ymd(dat
 /* Ulasan = unit jadwal lama yang benar-benar sudah ditamatkan. MD-24 Bentuk Akar, MD-25/26 Logaritma, dan MD-27 Rasio ditandai
    "belum" (27 Nov 2026: jadwal lama baru tamat sampai eksponen), jadi tidak dipakai sebagai ulasan dan tidak membuka padanannya
    (BIL-14 Perbandingan, BIL-16 Logaritma). Materi itu muncul saat unitnya tiba di jadwal Progres Harian. */
-function oldUnits(date){ if(S.semua||S.ulas===false) return []; const open=openUnits(date); return OLD.filter(u=>!u.belum&&!(V13[u.id]?V13[u.id][0]:[]).some(p=>open.includes(p))).map(u=>u.id); }
+/* Bila Progres Harian membagikan tanda selesai MD (ph.jadwal: unit = jadwal MD, selesai = MD yang ditandai selesai), tanda itu
+   yang dipakai untuk MD yang ada di jadwalnya; MD lain (MD-01, MD-02) dan keadaan tanpa data Progres Harian memakai tanda "belum" bawaan. */
+function mdBelum(id){ const u=UMAP[id]; if(!u||!u.old) return false; let J=null; try{ J=JSON.parse(localStorage.getItem('ph.jadwal')||'null'); }catch(e){}
+  if(J&&J.unit&&Array.isArray(J.selesai)&&(id in J.unit)) return !J.selesai.includes(id); return !!u.belum; }
+function oldUnits(date){ if(S.semua||S.ulas===false) return []; const open=openUnits(date); return OLD.filter(u=>!mdBelum(u.id)&&!(V13[u.id]?V13[u.id][0]:[]).some(p=>open.includes(p))).map(u=>u.id); }
 function poolUnits(date){ const p=openUnits(date).concat(oldUnits(date)); return p.length?p:[UNITS[0].id]; }
 /* unit terbuka + padanan kode baru dari unit jadwal lama, untuk mengecek prasyarat bentuk arsip dan hitung cepat */
 function eqUnits(date){ const p=poolUnits(date), out=new Set(p); p.forEach(u=>{ if(V13[u]) V13[u][0].forEach(x=>out.add(x)); }); return out; }
@@ -2079,7 +2083,7 @@ function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null')
 /* ---------- Hitung cepat ---------- */
 function kilatGens(){ const pool=eqUnits(), buka=new Set(openUnits());
   /* materi jadwal lama yang belum ditamatkan (akar, logaritma, rasio) hanya terbuka lewat unit jadwal baru yang sudah dipelajari, bukan lewat padanan ulasan */
-  const ok=g=>UMAP[g.unit]&&UMAP[g.unit].belum?(V13[g.unit]?V13[g.unit][0]:[]).some(p=>buka.has(p)):pool.has(g.unit)||(V13[g.unit]?V13[g.unit][0]:[]).some(p=>pool.has(p)); let gs=GENS.filter(ok); if(!gs.length) gs=GENS.filter(g=>g.unit==='MD-02'); return gs; }
+  const ok=g=>mdBelum(g.unit)?(V13[g.unit]?V13[g.unit][0]:[]).some(p=>buka.has(p)):pool.has(g.unit)||(V13[g.unit]?V13[g.unit][0]:[]).some(p=>pool.has(p)); let gs=GENS.filter(ok); if(!gs.length) gs=GENS.filter(g=>g.unit==='MD-02'); return gs; }
 function kilatSet(n){ const pool=poolUnits(); let gs=kilatGens(); gs=RN.shuf(gs); const out=[]; let i=0, guard=0;
   while(out.length<n&&guard++<n*40){ const g=gs[i++%gs.length]; let it=null; try{ it=g.fn({open:pool}); }catch(e){} if(it&&isFinite(it.kunci)) out.push(Object.assign(it,{key:g.key})); } return out; }
 /* R10: PM kilat. Satu stimulus PM dibaca 40 detik, lalu 3 pertanyaan singkat (40 detik per pertanyaan) dengan stimulus tetap terlihat.
@@ -2574,12 +2578,12 @@ const GVAR={
   pq:[{id:'coret',n:'Coret faktor',j:'lama'},{id:'kasus',n:'Uji nilai x',j:'geser'},{id:'pecahan',n:'Pecahan & persen',j:'geser',need:['BIL-13']},{id:'pangkat',n:'Pangkat',j:'geser',need:['BIL-15']},{id:'cerita',n:'Cerita harga',j:'baru'},{id:'syarat',n:'Dua syarat',j:'baru',need:['ALJ-01','BIL-14']}],
   kisi:[{id:'simbol',n:'Isi simbol',j:'lama'},{id:'angka',n:'Isi angka',j:'geser'},{id:'bagi',n:'Dengan ÷',j:'baru'}],
   barisan:[{id:'selang',n:'Selang-seling',j:'lama'},{id:'bergantian',n:'Dua operasi',j:'lama'},{id:'salah',n:'Salah catat',j:'geser'},{id:'mundur',n:'Suku pertama',j:'geser'},{id:'tengah',n:'Suku tengah',j:'geser'},{id:'tingkat',n:'Selisih bertingkat',j:'baru'},{id:'fibo',n:'Jumlah dua suku',j:'baru'},{id:'kesuku',n:'Suku ke-n',j:'baru',need:['ALJ-10']}],
-  dekat:[{id:'kali',n:'Kali & bagi',j:'lama'},{id:'tiga',n:'Tiga operasi',j:'geser'},{id:'desimal',n:'Desimal & persen',j:'geser',need:['BIL-13']},{id:'balik',n:'Cari □',j:'baru'},{id:'akar',n:'Akar',j:'baru',need:['BIL-15'],jadwal:1}],
+  dekat:[{id:'kali',n:'Kali & bagi',j:'lama'},{id:'tiga',n:'Tiga operasi',j:'geser'},{id:'desimal',n:'Desimal & persen',j:'geser',need:['BIL-13']},{id:'balik',n:'Cari □',j:'baru'},{id:'akar',n:'Akar',j:'baru',need:['BIL-15'],jadwal:1,md:'MD-24'}],
   mesin:[{id:'maju',n:'Cari output',j:'lama',t:'Cari output dari input (arsip PK-M10)'},{id:'mundur',n:'Cari input',j:'geser',t:'Arah tanya dibalik: output diketahui, cari input'},{id:'cerita',n:'Cerita',j:'geser',t:'Dibungkus cerita: tarif, tanaman, bak air'},{id:'salah',n:'Salah catat',j:'geser',t:'Tambah langkah: satu pasangan salah catat'},{id:'berantai',n:'Mesin berantai',j:'baru',t:'Dua mesin berantai'},{id:'aturan',n:'Pilih aturan',j:'baru',t:'Format pilihan: aturan mana yang cocok'},{id:'mustahil',n:'Output mustahil',j:'baru',t:'Output yang TIDAK mungkin (sifat bilangan)'}],
   cukup:[{id:'urutan',n:'Urutan',j:'lama',t:'Siapa paling tinggi/berat/tua (arsip PU-K15)'},{id:'paritas',n:'Genap–ganjil',j:'lama',t:'Genap atau ganjil (arsip PK-F2)'},{id:'persamaan',n:'Nilai x',j:'lama',t:'Nilai x dari persamaan',need:['ALJ-11']},{id:'diskon',n:'Diskon',j:'geser',t:'Dibungkus belanja dan diskon',need:['BIL-13']},{id:'umur',n:'Umur',j:'geser',t:'Cerita umur dulu dan kini'},{id:'rata',n:'Rata-rata',j:'geser',t:'Rata-rata dengan satu nilai hilang',need:['DAT-09','U3-PU4']},{id:'jadwal',n:'Jadwal',j:'baru',t:'Jadwal berulang: kapan bersama lagi',need:['BIL-08','BIL-11']},{id:'tambah',n:'Info tambahan',j:'baru',t:'Format dibalik: pilih info tambahan yang membuat cukup'}]
 };
 function gameBentuk(id,max){ const buka=openUnits(); /* jadwal:1 = hanya lewat unit jadwal baru (bentuk akar belum ditamatkan di jadwal lama) */
-  const L=(GVAR[id]||[]).filter(v=>!v.need||(v.jadwal?v.need.some(u=>buka.includes(u)):has(...v.need))); if(!L.length) return null;
+  const L=(GVAR[id]||[]).filter(v=>!v.need||(v.jadwal?v.need.some(u=>buka.includes(u))||(v.md&&!mdBelum(v.md)):has(...v.need))); if(!L.length) return null;
   const k=ymd(new Date()); S.gday=S.gday||{}; S.gseen=S.gseen||{}; const cur=S.gday[id];
   if(cur&&cur.k===k){ const l=cur.ids.map(x=>L.find(v=>v.id===x)); if(l.every(Boolean)) return l; }
   const last=S.gseen[id]||{}, sc={}; L.forEach(v=>{ sc[v.id]=(last[v.id]==null?-1e4:last[v.id])+Math.random(); });
