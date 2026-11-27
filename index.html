@@ -221,6 +221,7 @@ table.rkj{width:100%;min-width:0;font-variant-numeric:tabular-nums}table.rkj th,
 .klq.sm2{font-size:21px}
 .kl .isi{justify-content:center}.kl .steps{text-align:left}
 .kl.wide{text-align:left}.kl.wide .klh{margin-top:6px}
+.pmkstim{background:var(--plate);border:2px dashed var(--edge);border-radius:10px;padding:10px 12px;margin:6px 0 10px;font-size:14.5px;line-height:1.5}.pmkstim p{margin:6px 0}.pmkstim .tw{margin:6px 0}
 .klo{text-align:left;margin-top:8px}
 table.kisi{min-width:0;margin:6px auto;border-collapse:separate;border-spacing:0}
 table.kisi td{border:0;padding:3px 6px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
@@ -1047,7 +1048,7 @@ document.addEventListener('click',function(e){
   switch(a){
     case 'game': { const s=SFX_TANDA[v]; if(s) SFX.play(s[0],s[1]); return; }
     case 'gstart': return SFX.play('mulai',K&&SFX_GEL[K.game]);
-    case 'kilat': return SFX.play('stopwatch');
+    case 'kilat': case 'pmkilat': return SFX.play('stopwatch');
     case 'mulai': case 'resume': case 'ulang': case 'ulang1': return SFX.play('mulai');
     case 'tab': case 'tgl': return SFX.play('ketuk');
     case 'ke': case 'prev': case 'next': case 'klnext': return SFX.play('halaman');
@@ -1894,7 +1895,7 @@ function ebStartUlang(){ const L=ebDue(); if(!L.length){ toast('Belum ada soal y
   const pick=RN.shuf(L.slice(0,EB_MAX)).map(ebPengganti).filter(Boolean);
   V.run=newRun({sid:'eb',label:'Ulang Error Book',mode:'eb',items:pick,cek:'langsung',limit:null,rep:true}); V.run.eb={}; V.hasil=null; persist(); go('main'); }
 function ebTask(){ const k=ebToday(), L=ebList(), done=L.reduce((n,e)=>n+e.log.filter(x=>dk(x.ts)===k).length+(e.dt&&dk(e.dt)===k?1:0),0), p=ebPerlu().length, d=ebDue().length, rem=p+Math.min(d,EB_MAX);
-  return {id:'salah',t:'Error Book',d:p||d?[p?p+' perlu diagnosis':'',d?d+' jatuh tempo':''].filter(Boolean).join(' · '):'Tidak ada yang menunggu hari ini',cur:rem?done:Math.max(done,1),n:Math.max(1,done+rem),act:p?'goeb':'ebulang',btn:p?'Diagnosis':'Ulang',off:!rem}; }
+  return {id:'salah',t:'Error Book',dur:'±10 menit bersama pembahasan',d:p||d?[p?p+' perlu diagnosis':'',d?d+' jatuh tempo':''].filter(Boolean).join(' · '):'Tidak ada yang menunggu hari ini',cur:rem?done:Math.max(done,1),n:Math.max(1,done+rem),act:p?'goeb':'ebulang',btn:p?'Diagnosis':'Ulang',off:!rem}; }
 function ebBadge(){ return ebPerlu().length+ebDue().length; }
 function ebSetIds(){ const s=new Set(); ebAktif().forEach(e=>s.add(e.qid.split('#')[0])); return s; }
 function ebInit(){ if(!S.eb) S.eb={}; if(S.ebv) return; S.ebv=1;
@@ -1972,14 +1973,14 @@ function salahList(){ const lastBy={}; S.hist.forEach(h=>{ lastBy[h.qid]=h; }); 
 /* ---------- Tugas harian ---------- */
 function harianSet(k){ return S.sets.filter(s=>s.mode==='harian'&&s.tgl===k).sort((a,b)=>a.ts-b.ts)[0]||null; }
 function tasksOn(date){ const k=ymd(date);
-  const kil=S.kil.filter(x=>dk(x.ts)===k).length, st=harianSet(k), pr=st?setProg(st):{n:16,a:0};
+  const kil=kilHari(k).length, st=harianSet(k), pr=st?setProg(st):{n:16,a:0};
   return [
-    {id:'kilat',t:'Hitung cepat',d:'20 soal, bentuk berganti tiap hari',cur:Math.min(kil,20),n:20,act:'kilat',btn:'Mulai'},
-    {id:'set',t:'Set hari ini',d:st?pr.n+' soal: PU, PK, dan PM dengan bentuk yang diputar':'Belum ada set. Salin prompt, jalankan di Claude, tempel hasilnya.',cur:pr.a,n:pr.n,act:st?'mulai':'gosoal',v:st?st.id:'',btn:st?(pr.a?'Lanjut':'Mulai'):'Siapkan'},
+    {id:'kilat',t:'Hitung cepat',d:KILAT_N+' butir, '+KILAT_DTK+' detik per butir',dur:'±3 menit',cur:Math.min(kil,KILAT_N),n:KILAT_N,act:'kilat',btn:'Mulai'},
+    {id:'set',t:'Set hari ini',d:st?pr.n+' soal: PU, PK, dan PM dengan bentuk yang diputar':'Belum ada set. Salin prompt, jalankan di Claude, tempel hasilnya.',dur:'±22 menit',cur:pr.a,n:pr.n,act:st?'mulai':'gosoal',v:st?st.id:'',btn:st?(pr.a?'Lanjut':'Mulai'):'Siapkan'},
     ebTask()
   ].map(x=>Object.assign(x,{done:x.cur>=x.n}));
 }
-function dayFull(d){ const k=ymd(d), st=harianSet(k); return !!st&&setProg(st).a>=st.soal.length&&S.kil.filter(x=>dk(x.ts)===k).length>=20; }
+function dayFull(d){ const k=ymd(d), st=harianSet(k); return !!st&&setProg(st).a>=st.soal.length&&kilHari(k).length>=KILAT_N; }
 function streak(){ let n=0, d=new Date(); d.setHours(0,0,0,0); if(!dayFull(d)) d=addDays(d,-1); while(n<400&&dayFull(d)){ n++; d=addDays(d,-1); } return n; }
 
 /* ---------- Sesi soal ---------- */
@@ -2018,7 +2019,41 @@ function loadSesi(){ try{ const o=JSON.parse(localStorage.getItem(SKEY)||'null')
 function kilatGens(){ const pool=eqUnits(); const ok=g=>pool.has(g.unit)||(V13[g.unit]?V13[g.unit][0]:[]).some(p=>pool.has(p)); let gs=GENS.filter(ok); if(!gs.length) gs=GENS.filter(g=>g.unit==='MD-02'); return gs; }
 function kilatSet(n){ const pool=poolUnits(); let gs=kilatGens(); gs=RN.shuf(gs); const out=[]; let i=0, guard=0;
   while(out.length<n&&guard++<n*40){ const g=gs[i++%gs.length]; let it=null; try{ it=g.fn({open:pool}); }catch(e){} if(it&&isFinite(it.kunci)) out.push(Object.assign(it,{key:g.key})); } return out; }
-function startKilat(){ V.kl={title:'Hitung cepat',game:null,limit:null,items:kilatMix(),i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
+/* R10: PM kilat. Satu stimulus PM dibaca 40 detik, lalu 3 pertanyaan singkat (40 detik per pertanyaan) dengan stimulus tetap terlihat.
+   Angka dibuat aplikasi; templat mengikuti arsip PM (tarif, tabel stok, diskon, perjalanan) dan hanya dipakai bila materinya terbuka. */
+const PMK_DTK=40;
+const PMK=[
+ {id:'tarif',kode:'PM-1',ok:()=>true,gen:()=>{ const d=RN.pick([20,25,30,40])*1000, kq=RN.pick([10,15,20]), t=RN.pick([2,3,4,5])*1000, kb=RN.int(4,9), hb=d+t*kb, n=kq+RN.int(2,8), m=RN.int(2,6), u=d+t*m, n2=kq+RN.pick([kb-2,kb+2,kb+3]);
+   const a2=d+Math.max(0,n2-kq)*t, b3=a2<hb?0:a2>hb?1:2;
+   return {judul:'Paket internet',stim:'<p>Paket Toko A: '+rp(d)+' per bulan untuk '+kq+' GB pertama; setiap tambahan 1 GB dikenai '+rp(t)+'.</p><p>Paket Toko B: '+rp(hb)+' per bulan tanpa batas kuota.</p>',
+   qs:[{perintah:'Berapa rupiah biaya Toko A untuk pemakaian '+n+' GB sebulan?',kunci:d+(n-kq)*t,langkah:[rp(d)+' + ('+n+' − '+kq+') × '+rp(t)+' = '+rp(d+(n-kq)*t)]},
+       {perintah:'Dengan uang '+rp(u)+', paling banyak berapa GB yang bisa dipakai di Toko A?',kunci:kq+m,langkah:['Sisa untuk tambahan: '+rp(u-d)+' → '+m+' GB','Total '+kq+' + '+m+' = '+(kq+m)+' GB']},
+       {perintah:'Untuk pemakaian '+n2+' GB sebulan, paket mana yang lebih murah?',opsi:['Toko A','Toko B','Sama saja'],kunci:b3,langkah:['Toko A: '+rp(a2)+'; Toko B: '+rp(hb)+'.']}]}; }},
+ {id:'stok',kode:'PM-5',ok:()=>true,gen:()=>{ let M,J,sel,top; do{ M=[0,1,2].map(()=>RN.int(8,16)*10); J=[0,1,2].map(()=>RN.int(6,15)*10); sel=M.map((x,i)=>x-J[i]); top=Math.max(...sel); }while(sel.filter(x=>x===top).length>1||top<=0);
+   const s0=RN.int(2,8)*10, tj=J.reduce((a,b)=>a+b,0), akhir=s0+M.reduce((a,b)=>a+b,0)-tj; if(akhir<=0||[0,1,2].some(i=>s0+M.slice(0,i+1).reduce((a,b)=>a+b,0)-J.slice(0,i+1).reduce((a,b)=>a+b,0)<0)) return null;
+   return {judul:'Stok beras',stim:'<p>Toko Tani di Desa Y mencatat beras masuk dan terjual (kg) selama tiga minggu. Stok awal minggu 1 adalah '+s0+' kg.</p>'+tabel([['Minggu','Masuk','Terjual']].concat([0,1,2].map(i=>[String(i+1),String(M[i]),String(J[i])]))),
+   qs:[{perintah:'Berapa kg beras terjual selama tiga minggu?',kunci:tj,langkah:[J.join(' + ')+' = '+tj]},
+       {perintah:'Berapa kg stok pada akhir minggu 3?',kunci:akhir,langkah:['stok akhir = stok awal + masuk − terjual','= '+s0+' + '+M.reduce((a,b)=>a+b,0)+' − '+tj+' = '+akhir]},
+       {perintah:'Pada minggu ke berapa stok bertambah paling banyak?',opsi:['Minggu 1','Minggu 2','Minggu 3'],kunci:sel.indexOf(top),langkah:['Masuk − terjual: '+sel.map((x,i)=>'minggu '+(i+1)+' '+fmt(x)).join(', ')+'.']}]}; }},
+ {id:'diskon',kode:'PM-1',ok:()=>has('BIL-13','MD-16','MD-17'),gen:()=>{ const H=RN.pick([40,60,80,120,200])*1000, p=RN.pick([10,20,25,50]), hd=H*(100-p)/100, T=RN.pick([5,10,15])*1000, H2=hd+RN.pick([-1,1])*RN.pick([2,4,5])*1000;
+   return {judul:'Promo toko',stim:'<p>Toko A menjual sepasang sepatu seharga '+rp(H)+' dengan diskon '+p+'%. Untuk pembelian 3 pasang atau lebih, total belanja dipotong lagi '+rp(T)+'.</p><p>Toko B menjual sepatu yang sama seharga '+rp(H2)+' tanpa diskon.</p>',
+   qs:[{perintah:'Berapa rupiah harga sepasang sepatu di Toko A setelah diskon?',kunci:hd,langkah:[rp(H)+' × '+(100-p)+'% = '+rp(hd)]},
+       {perintah:'Berapa rupiah yang dibayar untuk 3 pasang di Toko A?',kunci:3*hd-T,langkah:['3 × '+rp(hd)+' = '+rp(3*hd),'dipotong '+rp(T)+' → '+rp(3*hd-T)]},
+       {perintah:'Untuk membeli 1 pasang, toko mana yang lebih murah?',opsi:['Toko A','Toko B','Sama saja'],kunci:hd<H2?0:hd>H2?1:2,langkah:['Toko A '+rp(hd)+', Toko B '+rp(H2)+'.']}]}; }},
+ {id:'jalan',kode:'PM-7',ok:()=>has('BIL-14','MD-27'),gen:()=>{ const v=RN.pick([30,40,60]), w=RN.pick([30,45,60,90]), j=v*w/60, v2=v+RN.pick([10,20]), w2=j/v2*60; if(!Number.isInteger(w2)) return null; const bt=w+RN.pick([-10,0,10]);
+   return {judul:'Perjalanan',stim:'<p>Bus sekolah Kota X menempuh '+fmt(j)+' km dari sekolah ke museum dengan kecepatan rata-rata '+v+' km/jam. Rombongan harus tiba paling lambat '+bt+' menit setelah berangkat.</p>',
+   qs:[{perintah:'Berapa menit waktu tempuh bus?',kunci:w,langkah:[fmt(j)+' ÷ '+v+' jam = '+w+' menit']},
+       {perintah:'Jika kecepatan rata-rata '+v2+' km/jam, berapa menit lebih cepat bus tiba?',kunci:w-w2,langkah:[fmt(j)+' ÷ '+v2+' jam = '+w2+' menit','selisih '+w+' − '+w2+' = '+(w-w2)+' menit']},
+       {perintah:'Dengan kecepatan '+v+' km/jam, kapan rombongan tiba dibanding batas waktunya?',opsi:['Sebelum batas','Tepat pada batas','Terlambat'],kunci:w<bt?0:w===bt?1:2,langkah:['Tempuh '+w+' menit, batas '+bt+' menit.']}]}; }}
+];
+function pmkBaru(){ const ok=PMK.filter(g=>g.ok()), last=V.pmkLast||'', pil=RN.shuf(ok.filter(g=>g.id!==last).length?ok.filter(g=>g.id!==last):ok);
+  for(const g of pil){ for(let t=0;t<20;t++){ let x=null; try{ x=g.gen(); }catch(e){} if(x) return Object.assign(x,{id:g.id,kode:g.kode}); } } return null; }
+function startPmKilat(){ const x=pmkBaru(); if(!x){ toast('PM kilat belum tersedia untuk materimu.'); return; } V.pmkLast=x.id;
+  const st='<div class="pmkstim"><b>'+esc(x.judul)+'</b>'+x.stim+'</div>';
+  V.kl={title:'PM kilat',game:null,pmk:{judul:x.judul,stim:st,kode:x.kode},baca:true,bacaT0:Date.now(),limit:PMK_DTK,items:x.qs.map(q=>Object.assign(q,{key:'pmk-'+x.id,html:st+'<p class="ask">'+mx(q.perintah)+'</p>'})),i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
+function pmkMulai(){ const K=V.kl; if(!K||!K.baca) return; K.baca=false; K.t0=Date.now(); render(); }
+function kilHari(k){ return S.kil.filter(x=>dk(x.ts)===k&&!String(x.k||'').startsWith('pmk-')); }
+function startKilat(){ V.kl={title:'Hitung cepat',game:null,limit:KILAT_DTK,items:kilatMix(),i:0,ans:'',fb:null,res:[],t0:Date.now(),done:false}; go('main'); }
 function kilatCheck(pick,timeout){ const K=V.kl; if(!K||K.fb) return; const it=K.items[K.i], ms=Date.now()-K.t0; let ok;
   if(timeout) ok=false; else if(it.check){ ok=!!it.check(K); } else if(it.opsi){ if(pick==null) return; K.pick=+pick; ok=K.pick===it.kunci; } else { const v=parseNum(K.ans); if(isNaN(v)) return; ok=Math.abs(v-it.kunci)<1e-9; if(it.needSel!=null&&K.st.sel!==it.needSel) ok=false; }
   K.fb={ok,ms,timeout:!!timeout}; K.res.push({it,ok,ms});
@@ -2093,11 +2128,13 @@ const KX={
     const g=RN.pick(gs), x=g.fn(), y=g.fn(); if(!x||!y||x.perintah===y.perintah) return null; const k=x.kunci>y.kunci?0:x.kunci<y.kunci?1:2;
     return {perintah:'Mana yang lebih besar?',opsi:[x.perintah,y.perintah,'Sama besar'],kunci:k,langkah:[x.perintah+' = '+fmt(x.kunci),y.perintah+' = '+fmt(y.kunci)]}; }
 };
-function kilatMix(){
-  const maju=kilatSet(8).map(it=>Object.assign(it,{jenis:'maju'})), ext=[];
-  (gameBentuk('kilat',3)||[]).forEach(v=>{ let n=0, g=0; while(n<4&&g++<40){ let it=null; try{ it=KX[v.id](); }catch(e){} if(it){ ext.push(Object.assign(it,{key:v.id,jenis:v.id})); n++; } } });
-  while(maju.length+ext.length<20) ext.push(Object.assign(balikItem(),{key:'balik',jenis:'balik'}));
-  return RN.shuf(maju.concat(ext)).slice(0,20);
+/* R10 (A9/A10): hitung cepat 10 butir, 15 detik per butir (±3 menit): 4 hitung maju + 2 butir dari tiap bentuk lain hari ini */
+const KILAT_N=10, KILAT_DTK=15;
+function kilatMix(N){ N=N||KILAT_N;
+  const maju=kilatSet(Math.round(N*.4)).map(it=>Object.assign(it,{jenis:'maju'})), ext=[];
+  (gameBentuk('kilat',3)||[]).forEach(v=>{ let n=0, g=0; while(n<Math.max(1,Math.round(N/5))&&g++<40){ let it=null; try{ it=KX[v.id](); }catch(e){} if(it){ ext.push(Object.assign(it,{key:v.id,jenis:v.id})); n++; } } });
+  while(maju.length+ext.length<N) ext.push(Object.assign(balikItem(),{key:'balik',jenis:'balik'}));
+  return RN.shuf(maju.concat(ext)).slice(0,N);
 }
 
 /* ---------- Game 1: Timbangan P–Q ---------- */
@@ -2747,10 +2784,15 @@ function viewBeranda(){
   let h='';
   if(ss&&!V.run){ const nj=ss.items.filter((it,i)=>ss.A[i]&&(ss.A[i].done||isAns(it.q,ss.A[i]))).length;
     h+='<div class="card note"><div class="grow"><b>'+esc(ss.label)+'</b><span class="sm">Belum selesai'+(ss.day&&ss.day!==k?' sejak '+esc(tgl(ss.day)):'')+', '+nj+' dari '+ss.qids.length+' soal sudah dijawab'+(ss.habis?'. Waktu simulasi habis; ketuk untuk menyimpan hasilnya.':'. Jawabanmu aman sampai diselesaikan.')+'</span></div><button class="btn pri" data-action="resume">'+(ss.habis?'Simpan hasil':'Lanjutkan')+'</button></div>'; }
-  h+=menaraCard()+wkBanner('beranda');
-  h+='<h2>Tugas hari ini <span class="cnt">'+t.filter(x=>x.done).length+'/'+t.length+'</span></h2><div class="card list">';
-  t.forEach((x,i)=>{ h+='<div class="row'+(x.done?' done':'')+'"><span class="num">'+(x.done?'✓':i+1)+'</span><div class="grow"><b>'+esc(x.t)+'</b>'+bar(pct(x.cur,x.n),x.done?'ok':'')+'</div><span class="prg">'+x.cur+'/'+x.n+'</span><button class="btn'+(x.done?'':' pri')+'" data-action="'+x.act+'"'+(x.v?' data-v="'+esc(x.v)+'"':'')+(x.off?' disabled':'')+'>'+(x.done&&x.id!=='salah'?'Lagi':x.btn)+'</button></div>'; });
+  h+=menaraCard(); /* R10: paket mini game mingguan opsional; pengingatnya hanya di halaman Game */
+  h+='<h2>Tugas hari ini <span class="cnt">'+t.filter(x=>x.done).length+'/'+t.length+'</span></h2><div class="card list"><p class="sm">Target harian ±35 menit.</p>';
+  t.forEach((x,i)=>{ h+='<div class="row'+(x.done?' done':'')+'"><span class="num">'+(x.done?'✓':i+1)+'</span><div class="grow"><b>'+esc(x.t)+'</b>'+(x.dur?' <span class="sm">'+esc(x.dur)+'</span>':'')+bar(pct(x.cur,x.n),x.done?'ok':'')+'</div><span class="prg">'+x.cur+'/'+x.n+'</span><button class="btn'+(x.done?'':' pri')+'" data-action="'+x.act+'"'+(x.v?' data-v="'+esc(x.v)+'"':'')+(x.off?' disabled':'')+'>'+(x.done&&x.id!=='salah'?'Lagi':x.btn)+'</button></div>'; });
   h+='</div>';
+  /* R10: latihan opsional, di luar target 35 menit */
+  const pk=S.kil.filter(x=>dk(x.ts)===k&&String(x.k||'').startsWith('pmk-')).length, setSelesai=t.find(x=>x.id==='set').done;
+  h+='<h2>Opsional</h2><div class="card list"><p class="sm">'+(setSelesai?'Set utama selesai. Tambahan bila masih ada waktu:':'Kerjakan setelah set utama selesai.')+'</p>'+
+    '<div class="row"><div class="grow"><b>PM kilat</b><span class="sm">Satu stimulus PM, baca '+PMK_DTK+' detik, lalu 3 pertanyaan singkat · ±2,5 menit'+(pk?' · hari ini '+pk+' soal':'')+'</span></div><button class="btn" data-action="pmkilat">Mulai</button></div>'+
+    '<div class="row"><div class="grow"><b>Mini game</b><span class="sm">P–Q, Cukup Nggak?, Mesin Fungsi, dan lainnya</span></div><a class="btn" href="#game">Buka</a></div></div>';
   const cj={lama:0,geser:0,baru:0,migrasi:0}; r.slots.forEach(s=>cj[s.jenis]=(cj[s.jenis]||0)+1); const ks=r.kesiapan||{};
   /* satu baris status: tahap per subtes + komposisi bentuk; rincian bisa dibuka */
   const TI={PU:tahapInfo('PU'),PK:tahapInfo('PK'),PM:tahapInfo('PM')};
@@ -2802,9 +2844,9 @@ function viewProgres(){
   h+='<h2>Per kemampuan</h2><div class="card">'+Object.keys(KEM).map(k=>statRow('<span class="code">'+k+'</span>',stat(h0.filter(x=>x.kem===k)),SUB[k.slice(0,2)].dtk,esc(KEM[k]))).join('')+'</div>';
   const us=[...new Set(h0.map(x=>x.unit))].filter(u=>UMAP[u]).map(u=>({u,s:stat(h0.filter(x=>x.unit===u))})).sort((a,b)=>a.s.p-b.s.p);
   h+='<h2>Per materi</h2><div class="card">'+(us.length?us.map(x=>statRow(esc(uname(x.u)),x.s)).join(''):'<p class="sm">Belum ada data.</p>')+'</div>';
-  const kl=S.kil.filter(x=>x.ts>Date.now()-7*DAY), kt=kl.length?kl.reduce((a,x)=>a+x.ms,0)/kl.length/1000:0;
+  const kl7=S.kil.filter(x=>x.ts>Date.now()-7*DAY), kl=kl7.filter(x=>!String(x.k||'').startsWith('pmk-')), pk7=kl7.filter(x=>String(x.k||'').startsWith('pmk-')), kt=kl.length?kl.reduce((a,x)=>a+x.ms,0)/kl.length/1000:0;
   const sid=new Set(); S.sets.forEach(st=>st.soal.forEach(q=>{ if(q.sidik) sid.add(q.sidik.toLowerCase()); }));
-  h+='<h2>Lainnya</h2><div class="card list"><div class="row"><div class="grow"><b>Hitung cepat (7 hari)</b><span class="sm">'+kl.length+' soal · benar '+pct(kl.filter(x=>x.ok).length,kl.length)+'% · rata-rata '+kt.toFixed(1).replace('.',',')+' detik</span></div></div><div class="row"><div class="grow"><b>Mini game (7 hari)</b><span class="sm">'+(GAMES.map(g=>({g,st:gameStat(g.id)})).filter(x=>x.st.n7).map(x=>x.g.nama+' '+x.st.p7+'%').join(' · ')||'Belum dimainkan')+'</span></div></div><div class="row"><div class="grow"><b>Ragam bentuk</b><span class="sm">'+sid.size+' bentuk soal berbeda sudah kamu temui</span></div></div></div>';
+  h+='<h2>Lainnya</h2><div class="card list"><div class="row"><div class="grow"><b>Hitung cepat (7 hari)</b><span class="sm">'+kl.length+' soal · benar '+pct(kl.filter(x=>x.ok).length,kl.length)+'% · rata-rata '+kt.toFixed(1).replace('.',',')+' detik</span></div></div><div class="row"><div class="grow"><b>PM kilat (7 hari)</b><span class="sm">'+(pk7.length?pk7.length+' soal · benar '+pct(pk7.filter(x=>x.ok).length,pk7.length)+'%':'Belum dikerjakan')+'</span></div></div><div class="row"><div class="grow"><b>Mini game (7 hari)</b><span class="sm">'+(GAMES.map(g=>({g,st:gameStat(g.id)})).filter(x=>x.st.n7).map(x=>x.g.nama+' '+x.st.p7+'%').join(' · ')||'Belum dimainkan')+'</span></div></div><div class="row"><div class="grow"><b>Ragam bentuk</b><span class="sm">'+sid.size+' bentuk soal berbeda sudah kamu temui</span></div></div></div>';
   return h;
 }
 
@@ -2961,10 +3003,12 @@ function klKey(it){ if(it.kisi) return 'contoh susunan yang benar di kisi beriku
 function viewKilat(){
   if(V.kl&&V.kl.intro) return viewIntro(V.kl);
   const K=V.kl, tgt=K.limit||20, back=K.game?'#game':'#beranda';
+  if(K.baca) return '<header class="top run"><button class="btn sm" data-action="klstop">‹ Selesai</button><span class="grow mid">'+klLbl(K)+'</span><span class="cd" id="kt">'+PMK_DTK+' dtk</span></header>'+
+    '<div class="card kl wide"><p class="sm">Baca dan pahami stimulus ini dalam '+PMK_DTK+' detik ('+esc(K.pmk.kode)+'). Setelah itu muncul 3 pertanyaan singkat, '+PMK_DTK+' detik per pertanyaan; stimulus tetap terlihat.</p>'+K.pmk.stim+'<button class="btn pri block" data-action="pmkmulai" id="pbtn">Sudah paham, mulai pertanyaan</button></div>';
   if(K.done){ const ok=K.res.filter(r=>r.ok).length, n=K.res.length, avg=n?K.res.reduce((s,r)=>s+r.ms,0)/n/1000:0;
     return '<header class="top run still"><button class="btn sm" data-action="klclose">‹ Kembali</button><span class="grow mid">'+klLbl(K)+'</span><span class="cd" style="visibility:hidden">0</span></header>'+(K.game?gameEnd(K,ok):'')+'<div class="card score"><div><b class="big">'+ok+'/'+n+'</b><span class="sm">benar</span></div><div><b class="big">'+avg.toFixed(1).replace('.',',')+'</b><span class="sm">detik per soal · target '+tgt+'</span></div></div>'+
     (K.res.some(r=>!r.ok)?'<div class="fhead"><h2>Pembahasan yang salah</h2><button class="btn sm" data-action="foldall">Buka/tutup semua</button></div>'+K.res.map((r,ix)=>[r,ix]).filter(x=>!x[0].ok).map(([r,ix])=>'<details class="card fold"><summary><span class="num">'+(ix+1)+'</span><span class="grow snip1">'+esc(r.it.perintah.slice(0,64))+'</span>'+CHEVI+'</summary>'+(r.it.kisi?kisiSolved(r.it):r.it.html||'<p class="ask">'+mx(r.it.perintah)+'</p>')+'<p class="kunci">Kunci: '+mx(klKey(r.it))+'</p>'+stepsFold(r.it.langkah,3)+'</details>').join(''):'')+
-    '<div class="btns foot"><button class="btn pri grow" data-action="klclose">Selesai</button><button class="btn" data-action="'+(K.game?'game':'kilat')+'" data-v="'+(K.game||'')+'">Main lagi</button></div>'; }
+    '<div class="btns foot"><button class="btn pri grow" data-action="klclose">Selesai</button><button class="btn" data-action="'+(K.game?'game':K.pmk?'pmkilat':'kilat')+'" data-v="'+(K.game||'')+'">'+(K.pmk?'Stimulus lain':'Main lagi')+'</button></div>'; }
   const it=K.items[K.i], n=K.items.length, rv=!!K.fb;
   let h='<header class="top run"><button class="btn sm" data-action="klstop">‹ Selesai</button><span class="grow mid">'+klLbl(K)+'</span><span class="cd" id="kt">'+(K.limit?K.limit+' dtk':'0 dtk')+'</span></header>'+(K.game?gameHud(K):'')+bar(pct(K.i,n));
   const gv=K.game&&GV[K.game];
@@ -2998,6 +3042,8 @@ function act(a,v){
   const R=V.run, K=V.kl, Z=V.soal;
   if(a!=='reset') V.prog.reset=false;
   if(a==='kilat') startKilat();
+  else if(a==='pmkilat') startPmKilat();
+  else if(a==='pmkmulai') pmkMulai();
   else if(a==='wkcopy') copyText(wkPrompt(v),'Prompt mingguan disalin. Jalankan di Claude, lalu tempel JSON-nya di sini.');
   else if(a==='wksave') wkSave();
   else if(a==='wkdel'){ if(S.wk){ delete S.wk[v]; save(); WK_ON=''; V.wkres=null; render(); } }
@@ -3087,7 +3133,8 @@ setInterval(()=>{ const R=V.run, K=V.kl;
       const sec=Math.ceil(left/1000); if(left<=10000&&R._tk!==sec){ R._tk=sec; SFX.play('detik',sec); } if(left<=60000&&left>58000&&!R._w60){ R._w60=1; SFX.play('telat'); } if(el){ el.textContent=mmss(left); el.classList.toggle('late',left<60000); } }
     else if(el){ const a=R.A[R.cur], ms=R.T[R.cur]+(a.done?0:Date.now()-R.t0); el.textContent=mmss(ms);
       const tg=SUB[R.items[R.cur].q.sub].dtk*1000; R._late=R._late||{}; if(!a.done&&ms>tg&&!R._late[R.cur]){ R._late[R.cur]=1; if(ms<tg+1500) SFX.play('telat'); } el.classList.toggle('late',!a.done&&ms>SUB[R.items[R.cur].q.sub].dtk*1000); } }
-  if(K&&!K.done&&!K.fb&&!K.intro&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.t0)/1000; if(K.limit){ if(s>=K.limit){ kilatCheck(null,true); return; } const rem=Math.ceil(K.limit-s); if(rem<=5&&K._tk!==K.i+':'+rem){ K._tk=K.i+':'+rem; SFX.play('detik',rem); } if(el){ el.textContent=Math.ceil(K.limit-s)+' dtk'; el.classList.toggle('late',K.limit-s<5); } } else if(el){ el.textContent=Math.round(s)+' dtk'; el.classList.toggle('late',s>20); } }
+  if(K&&K.baca&&!K.done&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.bacaT0)/1000; if(s>=PMK_DTK){ pmkMulai(); return; } if(el){ el.textContent=Math.ceil(PMK_DTK-s)+' dtk'; el.classList.toggle('late',PMK_DTK-s<5); } }
+  else if(K&&!K.done&&!K.fb&&!K.intro&&route()==='main'){ const el=$('#kt'), s=(Date.now()-K.t0)/1000; if(K.limit){ if(s>=K.limit){ kilatCheck(null,true); return; } const rem=Math.ceil(K.limit-s); if(rem<=5&&K._tk!==K.i+':'+rem){ K._tk=K.i+':'+rem; SFX.play('detik',rem); } if(el){ el.textContent=Math.ceil(K.limit-s)+' dtk'; el.classList.toggle('late',K.limit-s<5); } } else if(el){ el.textContent=Math.round(s)+' dtk'; el.classList.toggle('late',s>20); } }
 },500);
 if(typeof module!=='undefined'&&module.exports) module.exports={get V(){return V;},PQT,BV,pqGame,gameBentuk,GVAR,MV,CKV,viewKilat,beginGame,kilatCheck,act,startGame,kilatMix,GAMES,pqItem,ckItem,kisiItem,barisanItem,estimItem,mesinItem,balikItem,tahapInfo,poolUnits,oldUnits,openUnits,fokusUnits,kilatGens,tahap,S,buildResep,resepHarian,resepSim,promptSet,promptVarian,parseSet,addSet,tasksOn,kilatSet,PLAN,findQ,salahList,viewBeranda,viewSoal,viewSalah,viewProgres};
 else { applyTema(); $('#scene').innerHTML=sceneHTML(); ebInit(); save(); render();
