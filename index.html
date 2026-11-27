@@ -1191,9 +1191,21 @@ const BERAT=['PU-K4','PU-K12','PU-K13'];
 const TUAS_PANJANG=['sembunyi','langkah'];
 /* R2: bobot frekuensi dari Peta Pola 2019–2026 (banyak tahun terlihat). Peta: kuasai dulu pola yang terlihat tiga tahun atau lebih,
    dan latih lebih banyak pola baru yang diperkirakan keluar 2027. Pola jarang diberi jeda tambahan (dalam hari) saat diputar. */
-const PETA_TAHUN={'PK-F1':6,'PK-F2':5,'PK-F3':6,'PK-F5':2,'PK-M1':7,'PK-M2':6,'PK-M3':6,'PK-M4':5,'PK-M5':6,'PK-M6':6,'PK-M7':3,'PK-M8':2,'PK-M9':1,'PK-M10':3,
+const PETA_TAHUN={
+  /* PU kuantitatif, dari tabel "Penalaran kuantitatif" Peta: tabel/diagram 5 tahun (K4, K12, K13); persen arah terbalik 3 (K5);
+     tren barisan 2 (K1, K2, K10); paling mendekati 2 (K3); perbandingan harga dan penghasilan 1 (K6); himpunan 1 (K7); aljabar x²y 1 (K11).
+     PU-K8, K9, K14, K15 tidak ada di Peta, jadi tidak dibatasi. */
+  'PU-K1':2,'PU-K2':2,'PU-K3':2,'PU-K4':5,'PU-K5':3,'PU-K6':1,'PU-K7':1,'PU-K10':2,'PU-K11':1,'PU-K12':5,'PU-K13':5,
+  'PK-F1':6,'PK-F2':5,'PK-F3':6,'PK-F5':2,'PK-M1':7,'PK-M2':6,'PK-M3':6,'PK-M4':5,'PK-M5':6,'PK-M6':6,'PK-M7':3,'PK-M8':2,'PK-M9':1,'PK-M10':3,
   'PM-1':4,'PM-2':3,'PM-3':3,'PM-4':4,'PM-5':3,'PM-6':3,'PM-7':2,'PM-8':1};
 const PERKIRAAN_2027=['PM-3','PM-6','PM-8'];
+/* Pola langka (Peta 1–2 tahun): paling banyak 1 kemunculan per set dan 3 per minggu (Senin–Minggu). Satu soal lepas atau satu
+   stimulus bersama dihitung satu kemunculan. Pola 3 tahun atau lebih tidak dibatasi. PK-F4 adalah kerangka set (R4), dijadwalkan terpisah. */
+const LANGKA_SET=1, LANGKA_PEKAN=3;
+function langka(id){ const t=PETA_TAHUN[id]; return t!=null&&t<=2; }
+function senin(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function kodeResep(r){ const out=[]; (r.slots||[]).forEach(s=>{ if(s.grup) return; if(s.lama) out.push(s.lama.id); if(s.lama2) out.push(s.lama2.id); }); (r.grup||[]).forEach(g=>{ if(g.lama) out.push(g.lama.id); }); return out; }
+function langkaPekan(date,kecuali){ const a=dayNo(senin(date)), c={}; Object.values(S.resep||{}).forEach(r=>{ if(r.mode!=='harian'||r.id===kecuali||r.d<a||r.d>a+6) return; kodeResep(r).forEach(id=>{ if(langka(id)) c[id]=(c[id]||0)+1; }); }); return c; }
 function jedaFrek(id){ const t=PETA_TAHUN[id]; if(t==null||t>=3||PERKIRAAN_2027.includes(id)) return 0; return t===2?2:4; }
 /* R1: isi tabel "Kunci Pola Soal UTBK-SNBT: Brief untuk Chat Claude" (12 Nov 2026), disalin per kode.
    s = kerangka stimulus, q = kerangka pertanyaan atau rangkaian, p = pengecoh khas, c = contoh bentuk.
@@ -1443,8 +1455,10 @@ const PU_TABEL=['PU-K4','PU-K12','PU-K13'];
 const TANYA_M={PM:[{id:'cukup',t:'kecukupan data (1) dan (2) untuk besaran yang diminta, bentuk khas PK/PU',tipe:'cukup'}],PU:[{id:'pq',t:'hubungan kuantitas P dan Q, bentuk khas PK',tipe:'pq'}]};
 function buildResep(id,date,plan,mode){
   const last=lruMap(), loc={}, keys=[], d=dayNo(date), TH={PU:tahap('PU'),PK:tahap('PK'),PM:tahap('PM')};
-  const pick=(dim,list)=>{ let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+(dim==='lama'||dim==='lamaM'?jedaFrek(it.id):0)+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
-    const k=dim+':'+best.id; loc[k]=(loc[k]||0)+1; keys.push(k); return best; };
+  const rare={}, pekan=mode==='harian'?langkaPekan(date,id):{};
+  const pick=(dim,list)=>{ if(dim==='lama'||dim==='lamaM'){ const ok=list.filter(it=>!langka(it.id)||((rare[it.id]||0)<LANGKA_SET&&(pekan[it.id]||0)<LANGKA_PEKAN)); if(ok.length) list=ok; }
+    let best=null, bs=Infinity; list.forEach(it=>{ const k=dim+':'+it.id, sc=(loc[k]||0)*1e4+(last[k]===undefined?-50:last[k])+(dim==='lama'||dim==='lamaM'?jedaFrek(it.id):0)+Math.random()*0.9; if(sc<bs){ bs=sc; best=it; } });
+    const k=dim+':'+best.id; loc[k]=(loc[k]||0)+1; keys.push(k); if((dim==='lama'||dim==='lamaM')&&langka(best.id)) rare[best.id]=(rare[best.id]||0)+1; return best; };
   const kemFree={PU:['PU-KUA-1','PU-KUA-2','PU-KUA-3','PU-KUA-4'],PK:['PK-A','PK-A','PK-B','PK-C']};
   const pickKem=sub=>{ const ids=[...new Set(kemFree[sub])].map(x=>({id:x})); const w=kemFree[sub]; let k=pick('kem',ids).id; if(sub==='PK'&&k!=='PK-A'&&(loc['kem:'+k]||0)>1&&(loc['kem:PK-A']||0)<w.filter(x=>x==='PK-A').length){ k='PK-A'; loc['kem:PK-A']=(loc['kem:PK-A']||0)+1; } return k; };
   const op0=eqUnits(date), okL=(l,sub)=>{ const f=l.filter(it=>(!NEED[it.id]||NEED[it.id].some(u=>op0.has(u)))&&!(TH[sub]===1&&BERAT.includes(it.id))); return f.length?f:l; };
@@ -1545,7 +1559,7 @@ const PLAN={harian:{PU:4,PK:6,PM:[2,3]},PU:{PU:10},PK:{PK:20},PM:{PM:[5,4]}};
 function poolSig(date){ return poolUnits(date).join(','); }
 /* resep yang dibuat dengan jadwal lain (misalnya sebelum jadwal Progres Harian berubah) dibuat ulang selama setnya belum ditempel */
 /* R2: versi aturan resep. Resep dari versi lama dibuat ulang selama setnya belum ditempel, supaya pembaruan aplikasi langsung berlaku. */
-const RESEP_V=2;
+const RESEP_V=3;
 function resepHarian(k){ const r=S.resep[k], d=fromYmd(k); if(r&&((r.sig===poolSig(d)&&r.rv===RESEP_V)||harianSet(k))){ if(!r.nama&&!harianSet(k)){ r.nama=pilihNama(d); save(); } return r; } return buildResep(k,d,PLAN.harian,'harian'); }
 function resepSim(sub,baru){ const id='sim-'+sub; if(baru||!S.resep[id]||S.resep[id].rv!==RESEP_V) return buildResep(id,new Date(),PLAN[sub],'sim'); return S.resep[id]; }
 /* R4: ringkasan kerangka hari ini untuk Beranda */
@@ -1790,6 +1804,8 @@ function cekMutu(soal,stim,mode,tg){ const W=[], kata=t=>String(t||'').trim().sp
   if(soal.length>=8&&openUnits(tgl0).length){ const nu=soal.filter(q=>UMAP[q.unit]&&UMAP[q.unit].old).length, mu=Math.floor(soal.length*.25);
     if(nu>mu) W.push('Cek jadwal · '+nu+' soal memakai unit ulasan jadwal lama; batasnya '+mu+' dari '+soal.length+' soal (25%).'); }
   const teks=q=>[].concat(q.teks||[],q.perintah||'',q.opsi||[]).join(' ')+' '+((stim||[]).find(g=>g.id===q.stim)||{teks:[]}).teks.join(' ');
+  const lk={}; soal.forEach(q=>{ if(q.bl&&langka(q.bl)&&!(q.stim&&soal.some(x=>x!==q&&x.stim===q.stim&&x.no<q.no))) lk[q.bl]=(lk[q.bl]||0)+1; });
+  const lkL=Object.entries(lk).filter(([,n])=>n>LANGKA_SET); if(lkL.length) W.push('Cek pola · pola yang di Peta hanya terlihat 1–2 tahun dipakai lebih dari sekali: '+lkL.map(([k,n])=>k+' ×'+n).join(', ')+'. Batasnya 1 per set.');
   const kisiQ=soal.filter(q=>/\bkisi\b|#[^#]{0,40}@|@[^@]{0,40}#/i.test(teks(q))).map(q=>q.no);
   if(kisiQ.length>1) W.push('Cek pola · teka-teki kisi muncul di '+kisiQ.length+' soal ('+kisiQ.join(', ')+'); batasnya 1 per set.');
   const luarBrief=soal.filter(q=>['PK-F6','PK-M11','PK-M12'].includes(q.bl)||(q.tipe==='pg'&&q.opsi&&q.opsi.filter(o=>/^\s*(ya|tidak)\b/i.test(o)).length>=4)).map(q=>q.no);
