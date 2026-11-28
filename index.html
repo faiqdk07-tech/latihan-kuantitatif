@@ -858,6 +858,12 @@ html[data-theme="dark"] .ebrule{background:#3d3824;color:#f3ecd0}
 html[data-theme="dark"] .ebcmp .x{color:#ffd9d6}html[data-theme="dark"] .ebcmp .k{color:#d4f5df}
 html[data-theme="dark"] .card.ebnew,html[data-theme="dark"] .card.ebnew .st i{background:#3d3824}
 html[data-theme="dark"] .ebtag{color:#ffd9d6}html[data-theme="dark"] .ebtag.s{color:#cfe0ff}
+/* coba sekali lagi */
+.opt.xed{opacity:.45;text-decoration:line-through;cursor:default}
+.card.cobalagi{background:#fff6d6;border-color:#e2b64a}.card.cobalagi b{display:block;font-size:15px}.card.cobalagi.ok{background:var(--ok-s);border-color:var(--green)}
+html[data-theme="dark"] .card.cobalagi{background:#3d3824}html[data-theme="dark"] .card.cobalagi.ok{background:var(--ok-s)}
+.ebcoba{margin:14px 0 0;padding:8px 10px;border-radius:8px;font-size:13.5px}.ebcoba.ok{background:var(--ok-s)}.ebcoba.no{background:var(--bad-s)}
+.ebjalur{margin:8px 0 0}.ebcobacard .ask{margin:10px 0 6px}
 /* Error Book: daftar ringkas + mode fokus */
 .ebcard{display:flex;flex-direction:column}.ebcard>.btn{margin:0 0 8px}.ebsec{min-height:38px;font-size:13px}
 .ebtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;margin:6px 0 4px;border-radius:12px;background:var(--base)}
@@ -1894,7 +1900,12 @@ const EB_SEBAB=[
  ['waktu','Terburu-buru','Tergesa atau kehabisan waktu.','Pakai batas waktu per soal; lewat batas, tandai lalu lompati dulu.'],
  ['tebak','Menebak','Tidak tahu harus mulai dari mana.','Pelajari pembahasan sambil menutup langkah berikutnya, lalu jelaskan ulang dengan kata sendiri.']];
 const EBS=Object.fromEntries(EB_SEBAB.map(x=>[x[0],x[1]]));
-const EB_INT=[1,3,7,14];
+const EB_INT=[1,3,7,14], EB_INT_P=[3,7];
+/* Jalur pendek: soal yang benar saat dicoba sekali lagi DAN penyebabnya kurang teliti. Masalahnya kebiasaan, bukan ingatan,
+   jadi cukup 2 ulangan berjarak (3 dan 7 hari). Salah saat diulang = pindah ke jalur penuh (1, 3, 7, 14 hari). */
+const EB_CEROBOH=new Set(['baca','hitung','jebakan','waktu']);
+function ebInt(e){ return e&&e.jalur==='pendek'?EB_INT_P:EB_INT; }
+function ebJalurOf(e,sb){ return e.coba===1&&EB_CEROBOH.has(sb)?'pendek':'penuh'; }
 const EB_MAX=10;
 function ebToday(){ return ymd(new Date()); }
 function ebPlus(n){ return ymd(addDays(new Date(),n)); }
@@ -1905,13 +1916,13 @@ function ebDue(){ const k=ebToday(); return ebAktif().filter(e=>!e.perlu&&e.due<
 function ebJw(q,a){ if(q.tipe==='isian') return a.is?String(a.is):'kosong'; if(q.tipe==='bs') return a.bs.map((x,i)=>(i+1)+' '+(x===null?'–':x?'B':'S')).join(' · ');
   if(a.c==null) return 'kosong'; const L=q.tipe==='pq'?pqList(q):q.tipe==='cukup'?ckList(q):q.opsi; return 'ABCDE'[a.c]+'. '+(L&&L[a.c]!=null?L[a.c]:''); }
 /* soal salah di set biasa/simulasi → masuk (atau dibuka lagi) */
-function ebAdd(q,a,ms){ if(!S.eb) S.eb={}; const e=S.eb[q.qid], now=Date.now();
-  if(e){ e.mt=now; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); e.ms=ms; if(e.lulus){ e.lulus=0; e.box=0; e.perlu=true; e.ulang=1; } e.due=ebPlus(1); return e; }
-  return S.eb[q.qid]={qid:q.qid,sub:q.sub,kem:q.kem||'',unit:q.unit||'',t:now,jw:ebJw(q,a),ms:ms||0,kosong:isAns(q,a)?0:1,sebab:'',aturan:'',box:0,due:ebPlus(1),log:[],lulus:0,perlu:true,salah:1}; }
+function ebAdd(q,a,ms,coba){ if(!S.eb) S.eb={}; const e=S.eb[q.qid], now=Date.now();
+  if(e){ e.mt=now; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); e.ms=ms; e.jalur='penuh'; e.coba=coba==null?undefined:coba; if(e.lulus){ e.lulus=0; e.box=0; e.perlu=true; e.ulang=1; } e.due=ebPlus(1); return e; }
+  return S.eb[q.qid]={qid:q.qid,sub:q.sub,kem:q.kem||'',unit:q.unit||'',t:now,jw:ebJw(q,a),ms:ms||0,kosong:isAns(q,a)?0:1,sebab:'',aturan:'',box:0,due:ebPlus(1),log:[],lulus:0,perlu:true,salah:1,coba:coba==null?undefined:coba}; }
 /* R7: hari ke-1 dan ke-3 memakai soal kembar (stimulus sama, angka diganti), hari ke-7 dan ke-14 varian bentuk 2027.
    Soal pengganti diambil dari set varian yang menyebut soal asalnya; tiap pengganti dipakai sekali. Bila belum ada, soal asli dipakai. */
 function ebCalon(e){ const out=[]; S.sets.forEach(st=>{ if(st.mode!=='varian') return; st.soal.forEach(q=>{ if((q.asal||st.asal)===e.qid) out.push({q,set:st,ulang:q.ulang||'varian'}); }); }); return out; }
-function ebMau(e){ return e.box<=1?'kembar':'varian'; }
+function ebMau(e){ return e.box<=(e.jalur==='pendek'?0:1)?'kembar':'varian'; }
 function ebPengganti(e){ const pakai=new Set(S.hist.map(h=>h.qid)), c=ebCalon(e).filter(x=>!pakai.has(x.q.qid));
   const urut=ebMau(e)==='kembar'?['kembar']:['varian','kembar']; for(const m of urut){ const x=c.find(y=>y.ulang===m); if(x) return {q:x.q,set:x.set,eb:m}; }
   const it=findQ(e.qid); return it?{q:it.q,set:it.set,eb:'asli'}:null; }
@@ -1927,8 +1938,8 @@ function ebPromptUlang(L){ const adaStim=L.some(e=>{ const it=findQ(e.qid); retu
   fmtJson('varian','',null,adaStim).replace(/"no": (\d+), "sub"/g,'"no": $1, "asal": "'+L[0].qid+'", "ulang": "'+ebMau(L[0])+'", "sub"'); }
 function ebKunci(it){ const q=it.q; if(S.eb&&S.eb[q.qid]) return q.qid; const a=q.asal||(it.set&&it.set.asal); return a&&S.eb&&S.eb[a]?a:null; }
 function ebReview(q,ok,a,key){ const e=S.eb&&S.eb[key||q.qid]; if(!e) return null; const now=Date.now(), b0=e.box; e.mt=now; e.log.push({ts:now,ok:ok?1:0,box:b0});
-  if(ok){ e.box=b0+1; if(e.box>=EB_INT.length){ e.lulus=now; e.due=''; } else e.due=ebPlus(EB_INT[e.box]); }
-  else { e.box=0; e.due=ebPlus(1); e.perlu=true; e.ulang=1; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); }
+  const I=ebInt(e); if(ok){ e.box=b0+1; if(e.box>=I.length){ e.lulus=now; e.due=''; } else e.due=ebPlus(I[e.box]); }
+  else { e.box=0; e.due=ebPlus(1); e.perlu=true; e.ulang=1; e.jalur='penuh'; e.coba=0; e.salah=(e.salah||1)+1; e.jw=ebJw(q,a); }
   return {b0,box:e.box,lulus:!!e.lulus,ok}; }
 /* aturan yang terlalu umum ("lebih teliti") tidak membantu; minta yang menyebut kapan dan apa yang dilakukan */
 function ebKabur(t){ t=String(t||'').trim().toLowerCase(); if(t.length<12) return 'Aturan terlalu pendek. Tulis kapan berlaku dan apa yang akan kamu lakukan.';
@@ -1938,12 +1949,15 @@ function ebDiag(qid){ const e=S.eb[qid], st=V.eb, sb=st.sel[qid]||e.sebab, at=(s
   if(!sb){ st.err[qid]='Pilih dulu penyebab utamanya.'; render(); return; }
   const w=ebKabur(at); if(at.length<12){ st.err[qid]=w; render(); return; }
   if(w&&st.warn[qid]!==at){ st.err[qid]=w+' Tekan Simpan lagi bila tetap ingin memakai aturan ini.'; st.warn[qid]=at; render(); return; }
-  const baru=e.perlu; e.mt=Date.now(); e.sebab=sb; e.aturan=at; e.perlu=false; if(baru){ e.dt=Date.now(); if(!e.due||e.due<=ebToday()) e.due=ebPlus(1); } delete e.ulang;
+  const baru=e.perlu, j0=e.jalur||'penuh'; e.mt=Date.now(); e.sebab=sb; e.aturan=at; e.perlu=false; if(!e.box) e.jalur=ebJalurOf(e,sb);
+  if(baru){ e.dt=Date.now(); e.due=ebPlus(ebInt(e)[0]); } else if(e.jalur!==j0) e.due=ebPlus(ebInt(e)[0]); delete e.ulang;
   delete st.sel[qid]; delete st.txt[qid]; delete st.err[qid]; delete st.warn[qid]; if(st.edit===qid) st.edit=null;
   if(st.open===qid){ const P=ebPerlu().filter(x=>st.f==='semua'||x.sub===st.f); st.open=baru&&P.length?P[Math.min(st.oi||0,P.length-1)].qid:null; }
-  save(); render(); window.scrollTo(0,0); toast('Tersimpan. Diulang '+ebKapan(e.due)+'.'+(st.open?' Lanjut ke soal berikutnya.':'')); }
+  save(); render(); window.scrollTo(0,0); toast('Tersimpan'+(e.jalur==='pendek'?' · jalur pendek':'')+'. Diulang '+ebKapan(e.due)+'.'+(st.open?' Lanjut ke soal berikutnya.':'')); }
 function ebKapan(d){ const k=ebToday(); if(!d) return '-'; if(d<=k) return 'hari ini'; const n=Math.round((fromYmd(d)-fromYmd(k))/DAY); return n===1?'besok':n+' hari lagi'; }
-function ebDots(e){ return '<span class="ebdots" aria-label="Kotak '+Math.min(e.box,4)+' dari 4">'+EB_INT.map((_,i)=>'<i class="'+(i<e.box||e.lulus?'on':'')+'"></i>').join('')+'</span>'; }
+function ebDots(e){ const I=ebInt(e); return '<span class="ebdots" aria-label="Kotak '+Math.min(e.box,I.length)+' dari '+I.length+'">'+I.map((_,i)=>'<i class="'+(i<e.box||e.lulus?'on':'')+'"></i>').join('')+'</span>'; }
+function ebStartCoba(L,back){ const items=L.map(findQ).filter(Boolean); if(!items.length) return;
+  V.run=newRun({sid:'coba',label:'Coba sekali lagi',mode:'coba',items,cek:'langsung',limit:null,rep:true,back}); persist(); go('main'); }
 function ebStartUlang(){ const L=ebDue(); if(!L.length){ toast('Belum ada soal yang jatuh tempo.'); return; }
   /* diselang-seling antarsubtes supaya tidak menebak dari urutan */
   const pick=RN.shuf(L.slice(0,EB_MAX)).map(ebPengganti).filter(Boolean);
@@ -1976,19 +1990,23 @@ function ebSoal(it,e){ const q=it.q, g=q.stim?(it.set.stimulus||[]).find(x=>x.id
     (q.tipe==='pg'&&q.alasan&&e.jw&&'ABCDE'.indexOf(e.jw[0])>=0&&q.alasan['ABCDE'.indexOf(e.jw[0])]&&'ABCDE'.indexOf(e.jw[0])!==q.kunci?'<p class="sm"><b>Kenapa opsimu menjebak:</b> '+mx(q.alasan['ABCDE'.indexOf(e.jw[0])])+'</p>':'')+
     (q.jebakan?'<p class="sm"><b>Jebakan:</b> '+mx(q.jebakan)+'</p>':'')+
     (q.langkah&&q.langkah.length?'<details class="more"><summary>Pembahasan langkah '+CHEVI+'</summary><ol class="steps">'+q.langkah.map(x=>'<li>'+mx(x)+'</li>').join('')+'</ol></details>':''); }
-function ebSaran(e){ const it=findQ(e.qid); if(!it) return ''; const q=it.q;
+function ebSaran(e){ const it=findQ(e.qid); if(!it) return ''; const q=it.q; if(e.coba===0) return 'konsep';
   if(e.ms&&e.ms>SUB[q.sub].dtk*1500) return 'waktu';
   if(e.kosong) return 'tebak';
   if(q.tipe==='pg'&&q.alasan&&e.jw&&'ABCDE'.indexOf(e.jw[0])>=0&&q.alasan['ABCDE'.indexOf(e.jw[0])]) return 'jebakan';
   return ''; }
+function ebCobaInfo(e){ if(e.coba===1) return '<p class="ebcoba ok"><b>Percobaan kedua: benar.</b> Kamu sebenarnya bisa, jadi kemungkinan besar salah karena kurang teliti.</p>';
+  if(e.coba===0) return '<p class="ebcoba no"><b>Percobaan kedua: salah lagi.</b> Kemungkinan materinya memang belum dikuasai.</p>'; return ''; }
+function ebJalurInfo(e,sb){ return ebJalurOf(e,sb)==='pendek'?'<p class="sm ebjalur"><b>Jalur pendek:</b> diulang 3 dan 7 hari lagi, lulus setelah 2 kali benar.</p>'
+  :'<p class="sm ebjalur"><b>Jalur penuh:</b> diulang 1, 3, 7, 14 hari lagi, lulus setelah 4 kali benar.'+(e.coba!==1&&EB_CEROBOH.has(sb)?' Jalur pendek hanya untuk soal yang benar saat dicoba lagi.':'')+'</p>'; }
 function ebKartuDiag(e){ const it=findQ(e.qid), st=V.eb, sb=st.sel[e.qid]||e.sebab, at=st.txt[e.qid]!=null?st.txt[e.qid]:e.aturan, sr=ebSaran(e);
   if(!it) return '<div class="card eb"><p class="sm">Soal ini tidak tersedia lagi (set sudah terhapus).</p><div class="btns"><button class="btn" data-action="ebhapus" data-v="'+esc(e.qid)+'">Hapus dari Error Book</button></div></div>';
   const q=it.q, f=EB_SEBAB.find(x=>x[0]===sb);
   return '<div class="card eb" id="eb-'+esc(e.qid)+'"><div class="chips">'+badge(q.sub)+(q.kem?'<span class="code">'+esc(q.kem)+'</span>':'')+'<span class="sm">'+esc(uname(q.unit))+'</span>'+(e.ulang?'<span class="ebtag">salah lagi</span>':'')+((e.salah||1)>1?'<span class="sm">salah '+e.salah+'×</span>':'')+'</div>'+
     ebSoal(it,e)+
-    '<div class="ebstep"><b>1 · Kenapa salah?</b><span class="sm">Pilih penyebab utama, jujur saja. Ini yang menentukan cara memperbaikinya.'+(sr?' Dari catatan: kemungkinan <b>'+esc(EBS[sr])+'</b>.':'')+'</span></div>'+
+    ebCobaInfo(e)+'<div class="ebstep"><b>1 · Kenapa salah?</b><span class="sm">Pilih penyebab utama, jujur saja. Ini yang menentukan cara memperbaikinya.'+(sr?' Dari catatan: kemungkinan <b>'+esc(EBS[sr])+'</b>.':'')+'</span></div>'+
     '<div class="ebsb">'+EB_SEBAB.map(x=>'<button class="chip'+(sb===x[0]?' on':'')+'" data-action="ebsebab" data-v="'+esc(e.qid)+'|'+x[0]+'" title="'+esc(x[2])+'">'+esc(x[1])+'</button>').join('')+'</div>'+
-    (f?'<p class="sm ebfix"><b>'+esc(f[1])+':</b> '+esc(f[2])+' <b>Perbaikan:</b> '+esc(f[3])+'</p>':'')+
+    (f?'<p class="sm ebfix"><b>'+esc(f[1])+':</b> '+esc(f[2])+' <b>Perbaikan:</b> '+esc(f[3])+'</p>':'')+(sb&&!e.box?ebJalurInfo(e,sb):'')+
     '<div class="ebstep"><b>2 · Aturan untukku</b><span class="sm">Satu kalimat yang akan kamu ingat saat bertemu soal mirip. Pakai kata sendiri.</span></div>'+
     '<textarea class="ta" rows="2" data-eb="'+esc(e.qid)+'" placeholder="Kalau …, aku … (bukan …)">'+esc(at)+'</textarea>'+
     (e.ulang&&e.aturan?'<p class="sm">Aturan lama belum cukup menolongmu. Perbaiki atau ganti.</p>':'')+
@@ -2018,13 +2036,14 @@ function viewEbFokus(){ const st=V.eb, e=S.eb[st.open]; if(!e){ st.open=null; re
   let h='<div class="ebtop"><button class="btn sm" data-action="ebtutup">‹ Daftar</button><span class="ebpos"><b>'+(tab==='perlu'?'Diagnosis':'Ubah diagnosis')+'</b>'+(i>=0?' · '+(i+1)+' dari '+n:'')+'</span></div>';
   if(tab==='jadwal'){ const pg=ebPengganti(e), m=ebMau(e);
     h+='<div class="ebinfo"><span class="ebwhen'+(ebDue().includes(e)?' due':'')+'">'+ebDots(e)+'<b>'+(ebDue().includes(e)?'jatuh tempo':'diulang '+esc(ebKapan(e.due)))+'</b></span><span class="sm">Ulangan berikutnya: '+(pg&&pg.eb===m?(m==='kembar'?'soal kembar siap':'varian siap'):'soal asli (belum ada '+(m==='kembar'?'soal kembar':'varian')+')')+'</span>'+(e.box>=2&&it?'<button class="btn sm" data-action="varian" data-v="'+esc(e.qid)+'">Uji di bentuk lain (3 varian)</button>':'')+'</div>'; }
-  h+=ebKartuDiag(e);
+  if(tab==='perlu'&&e.coba==null&&it) h+='<div class="card ebcobacard">'+badge(it.q.sub)+'<p class="ask">'+mx(it.q.perintah)+'</p><p class="sm">Kerjakan ulang soal ini dulu tanpa melihat kunci. Hasilnya membantu menentukan penyebab salahmu.</p><button class="btn pri block" data-action="ebcoba" data-v="'+esc(e.qid)+'">Kerjakan ulang</button><button class="btn block ebsec" data-action="eblewat" data-v="'+esc(e.qid)+'">Lewati, langsung lihat pembahasan</button></div>';
+  else h+=ebKartuDiag(e);
   h+='<div class="ebnav"><button class="btn" data-action="ebopen" data-v="'+(pv?esc(pv.qid):'')+'"'+(pv?'':' disabled')+'>‹ Sebelumnya</button><button class="btn" data-action="ebopen" data-v="'+(nx?esc(nx.qid):'')+'"'+(nx?'':' disabled')+'>Berikutnya ›</button></div>';
   return h; }
 function viewSalah(){
   const st=V.eb; if(st.open){ const f=viewEbFokus(); if(f) return f; }
   const P=ebPerlu(), D=ebDue(), A=ebAktif(), B=ebButuh(), J=A.filter(e=>!e.perlu&&!D.includes(e)), Lu=ebList().filter(e=>e.lulus), po=ebPola(30);
-  const intro='Setiap soal yang salah masuk ke sini. <b>Diagnosis</b> penyebabnya dan tulis aturan untuk dirimu, <b>ulang</b> tanpa melihat kunci, lalu <b>lulus</b> setelah benar 4 kali berjarak (1, 3, 7, 14 hari). Hari ke-1 dan ke-3 memakai soal kembar (angka diganti), hari ke-7 dan ke-14 memakai varian bentuk lain. Salah lagi berarti kembali ke kotak 1.';
+  const intro='Setiap soal yang salah masuk ke sini. <b>Diagnosis</b> penyebabnya dan tulis aturan untuk dirimu, <b>ulang</b> tanpa melihat kunci, lalu <b>lulus</b> setelah benar 4 kali berjarak (1, 3, 7, 14 hari). Sebelum kunci dibuka, soal yang salah <b>dicoba sekali lagi</b>. Bila percobaan kedua benar dan penyebabnya kurang teliti, soal masuk <b>jalur pendek</b>: cukup 2 kali benar berjarak (3 dan 7 hari). Hari ke-1 dan ke-3 memakai soal kembar (angka diganti), hari ke-7 dan ke-14 memakai varian bentuk lain. Salah lagi berarti kembali ke kotak 1.';
   if(!ebList().length) return '<p class="intro">'+intro+'</p><h2>Masih kosong</h2><div class="card"><p class="sm">Error Book masih kosong. Soal yang salah di Set soal dan Simulasi otomatis masuk ke sini.</p></div>';
   const nx=A.filter(e=>e.due&&!e.perlu).sort((a,b)=>a.due<b.due?-1:1)[0];
   const tab=ebTabOf(st,P,D.concat(J)), L=ebListTab(tab), TB=[['perlu','Diagnosis',P.length],['jadwal','Jadwal',D.length+J.length],['lulus','Lulus',Lu.length]];
@@ -2094,12 +2113,21 @@ function startUlang(list){ if(!list.length){ toast('Tidak ada soal salah yang me
 function isAns(q,a){ return q.tipe==='isian'?!isNaN(parseNum(a.is)):q.tipe==='bs'?a.bs.every(x=>x!==null):a.c!=null; }
 function grade(q,a){ if(q.tipe==='isian') return Math.abs(parseNum(a.is)-q.kunciNum)<1e-9; if(q.tipe==='bs') return q.bs.every((r,i)=>a.bs[i]===r.benar); return a.c===q.kunci; }
 function tick(R){ if(!R||R.fin) return; const now=Date.now(); if(!R.A[R.cur].done) R.T[R.cur]+=Math.min(now-R.t0,10*60000); R.t0=now; }
-function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true; a.ok=isAns(q,a)&&grade(q,a);
+/* "Coba sekali lagi": jawaban salah di mode periksa langsung belum membuka kunci; opsi yang dipilih dicoret dan soal dijawab sekali lagi.
+   Nilai soal tetap dari percobaan pertama; percobaan kedua (a.coba) hanya dipakai Error Book untuk menentukan jalur. */
+function cobaBoleh(R){ return R.cek==='langsung'&&['harian','sim','varian','ulang'].includes(R.mode)&&!(R.mw&&R.mw.m!=='santai'); }
+function cobaMulai(R){ const a=R.A[R.cur]; a.p1={c:a.c,is:a.is,bs:a.bs?a.bs.slice():null}; if(a.c!=null){ a.x=[a.c]; a.c=null; } a.is=''; SFX.play('salah'); }
+function recordAt(i){ const R=V.run, it=R.items[i], q=it.q, a=R.A[i]; if(a.done) return; a.done=true;
+  if(R.mode==='coba'){ a.ok=isAns(q,a)&&grade(q,a); setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70); const e=S.eb&&S.eb[q.qid]; if(e&&(e.coba==null||e.coba===-1)) e.coba=a.ok?1:0; return; }
+  if(a.p1){ a.coba=isAns(q,a)&&grade(q,a)?1:0; a.a2={c:a.c,is:a.is,bs:a.bs?a.bs.slice():null}; Object.assign(a,a.p1); a.ok=false; }
+  else a.ok=isAns(q,a)&&grade(q,a);
   if(R.mw){ R.mw.n++; if(a.ok) R.mw.b++; else if(R.mw.m==='survival'){ R.mw.end=1; S.mwBest=Math.max(S.mwBest||0,R.mw.b); } } if(R.cek==='langsung') setTimeout(()=>SFX.play(a.ok?'benar':'salah'),70);
   S.hist.push({qid:q.qid,sid:it.set.id,sub:q.sub,kem:q.kem,jenis:q.jenis,fmt:q.format||'',lvl:q.lvl,bl:q.bl,unit:q.unit,ok:a.ok,ms:R.T[i],ts:Date.now(),mode:R.mode,rep:R.rep?1:0,ks:isAns(q,a)?0:1});
   if(a.ok&&S.lunas[q.qid]) delete S.lunas[q.qid];
-  if(R.mode==='eb'){ const key=ebKunci(it)||q.qid, r=ebReview(q,a.ok,a,key); if(r) R.eb[key]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i]); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
+  if(R.mode==='eb'){ const key=ebKunci(it)||q.qid, r=ebReview(q,a.ok,a,key); if(r) R.eb[key]=r; } else if(!a.ok){ ebAdd(q,a,R.T[i],a.p1?a.coba:undefined); (R.ebNew=R.ebNew||{})[q.qid]=1; } }
 function finishRun(){ const R=V.run; if(!R||R.fin) return; tick(R); const part=R.mw&&R.mw.m!=='santai';
+  if(R.mode==='coba'){ R.items.forEach((it,i)=>{ if(!R.A[i].done&&isAns(it.q,R.A[i])) recordAt(i); }); R.fin=true; save(); clearSesi(); V.run=null; const b=R.back||{};
+    if(b.eb){ V.eb.open=b.eb; V.eb.edit=null; go('salah'); } else if(b.hasil&&V.hasil){ render(); window.scrollTo(0,0); } else go('salah'); return; }
   /* Sprint/Survival: soal tanpa jawaban tidak dicatat, jadi tetap menunggu run berikutnya */
   R.items.forEach((it,i)=>{ if(!R.A[i].done&&(!part||isAns(it.q,R.A[i]))) recordAt(i); }); R.fin=true; if(R.mw&&R.mw.m==='survival') S.mwBest=Math.max(S.mwBest||0,R.mw.b); SFX.play('selesai');
   let H=R; if(part){ const ix=R.items.map((_,i)=>i).filter(i=>R.A[i].done&&!R.A[i].prev); H=Object.assign({},R,{items:ix.map(i=>R.items[i]),A:ix.map(i=>R.A[i]),T:ix.map(i=>R.T[i])}); }
@@ -3084,9 +3112,9 @@ function viewPenyimpanan(){ const U=ukuranLS(), MAX=5*1048576, mb=x=>(x/1048576)
   else h+='<div class="row"><div class="grow"><b>Cadangan</b><span class="sm">terakhir '+esc(new Date(S.cadanganTs).toLocaleString('id-ID'))+'. Perampingan berjalan otomatis sekali sehari saat app dibuka'+(S.rampingHari?' (terakhir '+esc(tgl(S.rampingHari))+')':'')+'.</span></div></div>'+
     '<div class="row"><button class="btn pri grow" data-action="rampingkan"'+(rampingJml(n)?'':' disabled')+'>Rampingkan sekarang</button><button class="btn" data-action="cadunduh">Unduh cadangan</button></div>';
   return h+'</div>'; }
-function optBtn(i,label,R,k,rv){ const q=R.items[k].q, a=R.A[k]; let cls='opt'; if(a.c===i) cls+=' sel'; if(rv){ if(i===q.kunci) cls+=' good'; else if(a.c===i) cls+=' wrong'; }
+function optBtn(i,label,R,k,rv){ const q=R.items[k].q, a=R.A[k], x=(a.x||[]).includes(i); let cls='opt'; if(a.c===i&&!(rv&&a.p1)) cls+=' sel'; if(x&&!rv) cls+=' xed'; if(rv){ if(i===q.kunci) cls+=' good'; else if(a.c===i||(a.a2&&a.a2.c===i)) cls+=' wrong'; }
   const why=rv&&q.alasan&&q.alasan[i]&&i!==q.kunci&&!/^kunci\.?$/i.test(q.alasan[i])?'<span class="why">'+mx(q.alasan[i])+'</span>':'';
-  return '<button class="'+cls+'" data-action="pick" data-v="'+i+'"'+(rv?' disabled':'')+'><span class="lt">'+'ABCDE'[i]+'</span><span class="grow">'+txt(label)+why+'</span></button>'; }
+  return '<button class="'+cls+'" data-action="pick" data-v="'+i+'"'+(rv||(x&&!rv)?' disabled':'')+'><span class="lt">'+'ABCDE'[i]+'</span><span class="grow">'+txt(label)+why+'</span></button>'; }
 /* teks soal dianggap cerita bila berupa kalimat (bukan sekadar persamaan) */
 const isCerita=a=>{ const t=(a||[]).join(' '); return t.length>=40&&/[A-Za-z]{3,} [A-Za-z]{3,} [A-Za-z]{3,}/.test(t); };
 /* pisahkan kalimat tanya terakhir dari cerita di depannya */
@@ -3107,9 +3135,11 @@ function viewRun(){
   else if(q.tipe==='bs') h+='<div class="bs">'+q.bs.map((b,i)=>'<div class="bsr'+(rv?(a.bs[i]===b.benar?' good':' wrong'):'')+'"><span class="grow">'+txt(b.teks)+'</span>'+[true,false].map(v=>'<button data-action="bs" data-v="'+i+':'+(v?1:0)+'" class="'+(a.bs[i]===v?'sel':'')+(rv&&b.benar===v?' key':'')+'"'+(rv?' disabled':'')+'>'+(v?'Benar':'Salah')+'</button>').join('')+'</div>').join('')+'</div>';
   else h+='<div class="isi"><input id="isian" inputmode="decimal" autocomplete="off" placeholder="jawaban angka" value="'+esc(a.is)+'"'+(rv?' disabled':'')+'><span class="sm">Desimal pakai koma, tanpa satuan.</span></div>';
   h+='</div>';
+  if(a.p1&&!a.done) h+='<div class="card cobalagi"><b>Belum tepat. Coba sekali lagi.</b><p class="sm">Kunci dan pembahasan dibuka setelah percobaan kedua. Nilai soal tetap dari jawaban pertama.</p></div>';
+  if(R.mode==='coba'&&rv) h+='<div class="card cobalagi '+(a.ok?'ok':'')+'"><b>Percobaan kedua: '+(a.ok?'benar':'salah lagi')+'.</b><p class="sm">'+(a.ok?'Kemungkinan besar kemarin salah karena kurang teliti.':'Kemungkinan materinya belum dikuasai.')+' Lanjutkan dengan diagnosis di Error Book.</p></div>';
   if(rv||a.prev) h+=pembahasan(q,a);
   if(R.mode==='eb'&&rv){ const key=ebKunci(R.items[k])||q.qid, e=S.eb[key], r=R.eb&&R.eb[key]; if(e){ const k2=h.lastIndexOf('</div>'), jn=R.items[k].eb||(it.set.mode==='varian'?(q.ulang||'varian'):'');
-    h=h.slice(0,k2)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b>'+(jn==='kembar'?' · soal kembar':jn==='varian'?' · varian bentuk lain':'')+'</span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar 4 kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari 4 · diulang '+ebKapan(e.due):'Mulai lagi dari awal · diulang besok')+'</p>'+
+    h=h.slice(0,k2)+'<div class="ebinpb"><div class="ebhd"><span class="sm"><b>Error Book</b>'+(jn==='kembar'?' · soal kembar':jn==='varian'?' · varian bentuk lain':'')+'</span>'+ebDots(e)+'</div><p class="ebst">'+(r&&r.lulus?'Lulus! Benar '+ebInt(e).length+' kali berjarak.':a.ok?'Benar berjarak '+e.box+' dari '+ebInt(e).length+' · diulang '+ebKapan(e.due):'Mulai lagi dari awal (jalur penuh) · diulang besok')+'</p>'+
     (e.aturan?'<p class="ebrule">'+esc(e.aturan)+'</p>':'')+(a.ok?'':'<p class="sm">Aturan ini belum menolong. Setelah putaran ini, perbarui diagnosisnya.</p>')+'</div>'+h.slice(k2); } }
   const last=k===n-1, allDone=R.A.every(x=>x.done), sv=R.mw&&R.mw.m==='survival';
   if(sv&&a.done&&R.mw.habis===k) h=h.replace('<div class="card pb wrong"><b>Belum tepat</b>','<div class="card pb wrong"><b>Waktu habis</b>');
@@ -3147,7 +3177,7 @@ function rekapJenis(l,judul){ const t=x=>x.ms>0&&x.ms<30*60000, acc=a=>a.length?
   return h; }
 function pembahasan(q,a){
   let key=q.tipe==='pg'?'ABCDE'[q.kunci]+'. '+q.opsi[q.kunci]:q.tipe==='pq'?pqList(q)[q.kunci]:q.tipe==='cukup'?ckList(q)[q.kunci]:q.tipe==='bs'?q.bs.map((b,i)=>(i+1)+' '+(b.benar?'Benar':'Salah')).join(' · '):fmt(q.kunciNum);
-  let h='<div class="card pb '+(a.ok?'good':'wrong')+'"><b>'+(a.ok?'Benar':'Belum tepat')+'</b><p class="kunci">Kunci: '+mx(key)+'</p>'+labelKode(q);
+  let h='<div class="card pb '+(a.ok?'good':'wrong')+'"><b>'+(a.ok?'Benar':'Belum tepat')+'</b>'+(a.p1&&a.coba!=null?'<p class="sm">Percobaan kedua: <b>'+(a.coba?'benar':'salah lagi')+'</b></p>':'')+'<p class="kunci">Kunci: '+mx(key)+'</p>'+labelKode(q);
   if(q.langkah.length) h+=stepsFold(q.langkah,3);
   if(q.jebakan) h+='<p class="sm"><b>Jebakan:</b> '+mx(q.jebakan)+'</p>';
   h+='</div>';
@@ -3166,6 +3196,8 @@ function viewHasil(){
     :'<div class="msg bad simpan"><b>Belum tersimpan.</b> Baru '+sv.n+' dari '+sv.tot+' jawaban tercatat'+(SAVE.ok===false?' (penyimpanan gagal: '+esc(SAVE.msg)+')':'')+'. Jangan tutup halaman ini. Coba simpan lagi; bila penyimpanan penuh, buka Pengaturan → Penyimpanan untuk merampingkan data lama. Bila tetap gagal, buka Pengaturan → Diagnosis data, lalu salin hasilnya.</div><div class="btns"><button class="btn pri grow" data-action="cobasimpan">Coba simpan lagi</button><button class="btn" data-action="kesimpan">Buka Pengaturan → Penyimpanan</button></div>';
   const js=['lama','geser','baru','migrasi','varian'].map(j=>({j,l:R.items.map((it,i)=>({it,a:R.A[i]})).filter(x=>x.it.q.jenis===j)})).filter(x=>x.l.length);
   if(js.length>1) h+='<div class="card"><h3 class="rkj-h">Rekap per jenis</h3>'+rekapJenis(R.items.map((it,i)=>({jenis:it.q.jenis,ok:R.A[i].ok,ms:R.T[i],sub:it.q.sub})))+'</div>';
+  { const nc=R.items.filter((it,i)=>!R.A[i].ok&&S.eb&&S.eb[it.q.qid]&&S.eb[it.q.qid].coba==null).length;
+    if(nc&&R.mode!=='eb') h+='<div class="card cobalagi"><b>Coba lagi '+nc+' soal yang salah dulu</b><p class="sm">Kerjakan ulang tanpa melihat kunci sebelum membuka pembahasan. Hasilnya membantu diagnosis di Error Book.</p><button class="btn pri block" data-action="hasilcoba">Coba lagi sekarang</button></div>'; }
   h+='<div class="fhead"><h2>Pembahasan</h2><button class="btn sm" data-action="foldall">Buka/tutup semua</button></div>'+R.items.map((it,i)=>{ const q=it.q, a=R.A[i], slow=R.T[i]>SUB[q.sub].dtk*1500;
     return '<details class="card rev fold '+(a.ok?'good':'wrong')+'"><summary><span class="num">'+(i+1)+'</span>'+badge(q.sub)+'<span class="grow snip1">'+esc(q.perintah.slice(0,70))+'</span><span class="sm">'+(a.ok?'benar':'salah')+' · '+Math.round(R.T[i]/1000)+' dtk'+(slow?' (lambat)':'')+'</span>'+CHEVI+'</summary>'+
     q.teks.map(p=>'<p>'+txt(p)+'</p>').join('')+tabel(q.tabel)+'<p class="ask">'+txt(q.perintah)+'</p>'+
@@ -3247,6 +3279,9 @@ function act(a,v){
   else if(a==='ebsebab'){ const [q,sb]=v.split('|'); V.eb.sel[q]=sb; delete V.eb.err[q]; render(); }
   else if(a==='ebsimpan') ebDiag(v);
   else if(a==='ebedit'||a==='ebopen'){ if(!v) return; V.eb.open=v; V.eb.edit=null; render(); window.scrollTo(0,0); }
+  else if(a==='ebcoba'){ ebStartCoba([v],{eb:v}); }
+  else if(a==='eblewat'){ if(S.eb[v]){ S.eb[v].coba=-1; save(); } render(); window.scrollTo(0,0); }
+  else if(a==='hasilcoba'){ const H=V.hasil; if(H) ebStartCoba(H.items.filter((it,i)=>!H.A[i].ok&&S.eb[it.q.qid]&&S.eb[it.q.qid].coba==null).map(it=>it.q.qid),{hasil:1}); }
   else if(a==='ebtutup'){ V.eb.open=null; V.eb.edit=null; render(); window.scrollTo(0,0); }
   else if(a==='ebtab'){ V.eb.tab=v; V.eb.n=20; render(); }
   else if(a==='ebbatal'){ V.eb.edit=null; V.eb.open=null; delete V.eb.sel[v]; delete V.eb.txt[v]; delete V.eb.err[v]; render(); }
@@ -3301,11 +3336,12 @@ function act(a,v){
   else if(a==='reset'){ if(V.prog.reset){ S=Object.assign(fresh(),{tema:S.tema,gerak:S.gerak}); tandaHapus('reset'); S.saved=S.tomb.reset; V.prog.reset=false; applyTema(); clearSesi(); save(); toast('Semua data dihapus.'); } else V.prog.reset=true; render(); }
   else if(R&&a==='pick'){ if(R.A[R.cur].done) return; R.A[R.cur].c=+v; persist(); render(); }
   else if(R&&a==='bs'){ if(R.A[R.cur].done) return; const [i,b]=v.split(':'); R.A[R.cur].bs[+i]=b==='1'; persist(); render(); }
-  else if(R&&a==='periksa'){ tick(R); recordAt(R.cur); save(); persist(); render(); }
+  else if(R&&a==='periksa'){ tick(R); const A0=R.A[R.cur], q0=R.items[R.cur].q; if(cobaBoleh(R)&&!A0.p1&&!A0.prev&&!grade(q0,A0)){ cobaMulai(R); persist(); render(); return; } recordAt(R.cur); save(); persist(); render(); }
   else if(R&&R.mw&&R.mw.m==='survival'&&(a==='prev'||a==='ke')) return;
   else if(R&&a==='next'&&R.mw&&R.mw.m==='survival'){ tick(R); const n=R.items.length; let to=-1; for(let j=1;j<=n;j++){ const x=(R.cur+j)%n; if(!R.A[x].done){ to=x; break; } } if(to<0){ finishRun(); return; } R.cur=to; R.t0=Date.now(); persist(); render(); window.scrollTo(0,0); }
   else if(R&&(a==='next'||a==='prev'||a==='ke')){ tick(R); const n=R.items.length; let to=a==='ke'?+v:a==='prev'?R.cur-1:R.cur+1; if(a==='next'&&to>=n){ to=R.A.findIndex(x=>!x.done); if(to<0) to=n-1; } R.cur=Math.max(0,Math.min(n-1,to)); R.t0=Date.now(); persist(); render(); window.scrollTo(0,0); }
   else if(R&&a==='selesai'){ finishRun(); }
+  else if(R&&a==='keluar'&&R.mode==='coba'){ finishRun(); }
   else if(R&&a==='keluar'){ tick(R); persist(); V.run=null; go('beranda'); toast('Sesi disimpan. Lanjutkan dari Beranda.'); }
   else if(K&&a==='klcheck') kilatCheck();
   else if(K&&a==='klpick') kilatCheck(v);
